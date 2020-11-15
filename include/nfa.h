@@ -43,7 +43,7 @@ namespace fa
          *      | i |------>-----| o |
          *      +---+            +---+
          */
-        static std::shared_ptr<nfa<CharT>> from_epsilon( )
+        static std::shared_ptr<nfa<CharT>> from_epsilon()
         {
             return from_character(epsilon);
         }
@@ -133,15 +133,29 @@ namespace fa
 
         void callback(const ast::token<CharT> &token)
         {
+            std::shared_ptr<fa::nfa<CharT>> lhs;
+            std::shared_ptr<fa::nfa<CharT>> rhs;
+
             switch (token.type())
             {
             case ast::type::character:
                 s_.push(nfa<CharT>::from_character(token.get_token()));
                 break;
             case ast::type::alternation:
-                std::shared_ptr<fa::nfa<CharT>> lhs = s_.pop();
-                std::shared_ptr<fa::nfa<CharT>> rhs = s_.pop();
+                lhs = s_.pop();
+                rhs = s_.pop();
                 s_.push(nfa<CharT>::from_alternation(lhs, rhs));
+                break;
+            case ast::type::concatenation:
+                lhs = s_.pop();
+                rhs = s_.pop();
+                s_.push(nfa<CharT>::from_concatenation(lhs, rhs));
+                break;
+            case ast::type::kleene:
+                s_.push(nfa<CharT>::from_kleene(s_.pop()));
+                break;
+            case ast::type::zero_or_one:
+                s_.push(nfa<CharT>::from_alternation(nfa<CharT>::from_epsilon(), s_.pop()));
                 break;
             }
         }
