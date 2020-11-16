@@ -6,7 +6,7 @@
 
 namespace ast
 {
-	enum class type { character, parenthesis, kleene, zero_or_one, alternation, concatenation };
+	enum class type { character, parenthesis, kleene, zero_or_one, one_or_more, alternation, concatenation };
 
 	template<typename CharT>
 	class token
@@ -135,6 +135,35 @@ namespace ast
 		type get_type( ) const override
 		{
 			return type::zero_or_one;
+		}
+	};
+
+	template<typename CharT>
+	class one_or_more : public token<CharT>
+	{
+		std::unique_ptr<token<CharT>> exp_;
+	public:
+		explicit one_or_more( std::unique_ptr<token<CharT>> exp )
+			: exp_( std::move( exp ) )
+		{
+
+		}
+		void print( typename token<CharT>::ostream& os ) const override
+		{
+			exp_->print( os ); os << get_token( );
+		}
+		void walk( std::function<void( const ast::token<CharT>& )> callback ) const override
+		{
+			exp_->walk( callback );
+			callback( *this );
+		}
+		CharT get_token( ) const override
+		{
+			return '+';
+		}
+		type get_type( ) const override
+		{
+			return type::one_or_more;
 		}
 	};
 

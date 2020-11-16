@@ -184,6 +184,11 @@ namespace fa
             case ast::type::zero_or_one:
                 s_.push(nfa<CharT>::from_alternation(nfa<CharT>::from_epsilon(), s_.pop()));
                 break;
+            case ast::type::one_or_more:
+                lhs = s_.pop();
+                rhs = lhs;
+                s_.push(nfa<CharT>::from_concatenation(lhs, nfa<CharT>::from_kleene(rhs)));
+                break;
             }
         }
 
