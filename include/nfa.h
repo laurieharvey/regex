@@ -19,7 +19,20 @@ namespace fa
 
     public:
         explicit nfa(std::shared_ptr<state<CharT>> input, std::shared_ptr<state<CharT>> output)
-            : input_(input), output_(output)
+            : input_(input),
+              output_(output)
+        {
+        }
+
+        nfa(const nfa<CharT> &other)
+            : input_(std::make_shared<state<CharT>>(*input_)),
+              output_(std::make_shared<state<CharT>>(*output_))
+        {
+        }
+
+        nfa(nfa<CharT> &&other)
+            : input_(other.input_),
+              output_(other.output_)
         {
         }
 
