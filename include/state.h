@@ -3,6 +3,7 @@
 #include <string_view>
 #include <memory>
 #include <map>
+#include <algorithm>
 #include <vector>
 
 namespace fa
@@ -25,6 +26,25 @@ namespace fa
 
 		state(accepting acc = accepting::nonaccepting)
 			: acc_(acc), transitionsMap_()
+		{
+		}
+
+		state(const state<CharT> &other)
+			: acc_(other.acc_),
+			  transitionsMap_()
+		{
+			std::for_each(std::cbegin(other.transitionsMap_), std::cend(other.transitionsMap_), [this](auto x) {
+				std::vector<std::shared_ptr<state<CharT>>> v;
+				std::for_each(std::cbegin(x.second), std::cend(x.second), [&v](auto y) {
+					v.push_back(std::make_shared<state<CharT>>(*v));
+				});
+				this->transitionsMap_[x.first] = v;
+			});
+		}
+
+		state(state<CharT> &&other)
+			: acc_(other.acc_),
+			  transitionsMap_(other.transitionsMap_)
 		{
 		}
 
