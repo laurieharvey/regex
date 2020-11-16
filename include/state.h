@@ -48,6 +48,33 @@ namespace fa
 		{
 		}
 
+		state<CharT> &operator=(const state<CharT> &other)
+		{
+			if(&other == this)
+				return *this;
+
+			acc_ = other.acc_;
+			transitionsMap_.clear();
+
+			std::for_each(std::cbegin(other.transitionsMap_), std::cend(other.transitionsMap_), [this](auto x) {
+				std::vector<std::shared_ptr<state<CharT>>> v;
+				std::for_each(std::cbegin(x.second), std::cend(x.second), [&v](auto y) {
+					v.push_back(std::make_shared<state<CharT>>(*v));
+				});
+				this->transitionsMap_[x.first] = v;
+			});
+
+			return *this;
+		}
+
+		
+		state<CharT> &operator=(state<CharT> other)
+		{
+			std::swap(acc_, other.acc_);
+			std::swap(transitionsMap_, other.transitionsMap_);
+			return *this;
+		}
+
 		void set(accepting acc)
 		{
 			acc_ = acc;
