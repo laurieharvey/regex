@@ -36,6 +36,20 @@ namespace fa
         {
         }
 
+        nfa<CharT> &operator=(const nfa<CharT> &other)
+        {
+            input_ = std::make_shared<state<CharT>>(*input_);
+            output_ = std::make_shared<state<CharT>>(*output_);
+            return *this;
+        }
+
+        nfa<CharT> &operator=(nfa<CharT> other)
+        {
+            input_ = std::swap(other.input_);
+            output_ = std::swap(other.output_);
+            return *this;
+        }
+
         /*
          *      +---+      c     +---+
          *      | i |------>-----| o |
