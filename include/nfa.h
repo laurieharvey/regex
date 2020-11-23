@@ -163,7 +163,7 @@ namespace fa
             std::shared_ptr<fa::nfa<CharT>> lhs;
             std::shared_ptr<fa::nfa<CharT>> rhs;
 
-            switch (token.type())
+            switch (token.get_type())
             {
             case ast::type::character:
                 s_.push(nfa<CharT>::from_character(token.get_token()));
