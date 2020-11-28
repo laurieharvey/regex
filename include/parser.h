@@ -11,13 +11,13 @@
 namespace ast
 {
 	/* 
-	 * 3 { '(', ')' } 2 { '*', '?' } 1 { '.' } 
+	 * 3 { '(', ')' } 2 { '*', '?', '+' } 1 { '.' } 
 	 */
 	const std::array<int, 128> precedence
 	{
 		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,3,3,2,0,0,0,1,0,
+		0,0,0,0,0,0,0,0,3,3,2,2,0,0,1,0,
 		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,
 		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -32,6 +32,7 @@ namespace ast
 		{
 		case '*':
 		case '?':
+		case '+':
 		case '.':
 		case '|':
 		case '(':
@@ -49,6 +50,7 @@ namespace ast
 		{
 		case '*':
 		case '?':
+		case '+':
 		case '.':
 		case ')':
 			return true;
@@ -101,7 +103,7 @@ namespace ast
 
 		while( expression.get( token ) )
 		{
-			if( token == '*' || token == '?' || token == '|' || token == '.' )
+			if( token == '*' || token == '?' || token == '|' || token == '.' || token == '+' )
 			{
 				while( ops.size( ) && ops.top( ) != '(' && precedence[ token ] < precedence[ ops.top( ) ] )
 				{
@@ -112,6 +114,9 @@ namespace ast
 						break;
 					case '?':
 						output.push( std::make_unique<zero_or_one<CharT>>( output.pop( ) ) );
+						break;
+					case '+':
+						output.push( std::make_unique<one_or_more<CharT>>( output.pop( ) ) );
 						break;
 					case '.':
 						rhs = output.pop( );
@@ -144,6 +149,9 @@ namespace ast
 					case '?':
 						output.push( std::make_unique<zero_or_one<CharT>>( output.pop( ) ) );
 						break;
+					case '+':
+						output.push( std::make_unique<one_or_more<CharT>>( output.pop( ) ) );
+						break;
 					case '.':
 						rhs = output.pop( );
 						lhs = output.pop( );
@@ -174,6 +182,9 @@ namespace ast
 				break;
 			case '?':
 				output.push( std::make_unique<zero_or_one<CharT>>( output.pop( ) ) );
+				break;
+			case '+':
+				output.push( std::make_unique<one_or_more<CharT>>( output.pop( ) ) );
 				break;
 			case '.':
 				rhs = output.pop( );
