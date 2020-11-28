@@ -14,11 +14,10 @@ int main()
 
   fa::generator<char> g;
 
-  ast->print(std::cout);
-  ast->walk(std::bind(&fa::generator<char>::callback, g, std::placeholders::_1));
+  ast->walk(std::bind(&fa::generator<char>::callback, &g, std::placeholders::_1));
   auto n = g.result();
 
-  auto result = n->run("c");
+  auto result = n->run("cc");
 
   if( result == fa::match::accepted )
     std::cout << "Accepted" << std::endl;
