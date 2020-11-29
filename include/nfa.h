@@ -169,13 +169,13 @@ namespace fa
                 s_.push(nfa<CharT>::from_character(token.get_token()));
                 break;
             case ast::type::alternation:
-                lhs = s_.pop();
                 rhs = s_.pop();
+                lhs = s_.pop();
                 s_.push(nfa<CharT>::from_alternation(lhs, rhs));
                 break;
             case ast::type::concatenation:
-                lhs = s_.pop();
                 rhs = s_.pop();
+                lhs = s_.pop();
                 s_.push(nfa<CharT>::from_concatenation(lhs, rhs));
                 break;
             case ast::type::kleene:
