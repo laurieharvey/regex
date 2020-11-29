@@ -5,27 +5,31 @@
 #include "parser.h"
 #include "nfa.h"
 
-int main()
+int main(int argc, char **argv)
 {
-  std::stringstream regex = std::stringstream( "ab*|c+" );
-  regex = ast::make_explicit( regex );
+  if (argc != 2)
+    return 0;
 
-  auto ast = ast::parse(regex);
+  std::istringstream pattern(argv[1]);
+  std::string input_line;
 
-  fa::generator<char> g;
+  std::stringstream regex = ast::make_explicit(pattern);
+  std::unique_ptr<ast::token<std::stringstream::char_type>> ast = ast::parse(regex);
+
+  fa::generator<std::stringstream::char_type> g;
 
   ast->walk(std::bind(&fa::generator<char>::callback, &g, std::placeholders::_1));
-  auto n = g.result();
+  std::shared_ptr<fa::nfa<std::stringstream::char_type>> n = g.result();
 
-  auto result = n->run("cc");
-
-  if( result == fa::match::accepted )
-    std::cout << "Accepted" << std::endl;
-  else
+  while (std::getline(std::cin, input_line))
   {
-    std::cout << "Rejected" << std::endl;
+    fa::match result = n->run(input_line);
+
+    if (result == fa::match::accepted)
+    {
+      std::cout << input_line << std::endl;
+    }
   }
-  
 
   return 0;
 }
