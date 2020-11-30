@@ -162,11 +162,24 @@ namespace fa
         {
             std::shared_ptr<fa::nfa<CharT>> lhs;
             std::shared_ptr<fa::nfa<CharT>> rhs;
+            std::vector<CharT> alphabet = ast::get_alphabet<CharT>();
 
             switch (token.get_type())
             {
             case ast::type::character:
                 s_.push(nfa<CharT>::from_character(token.get_token()));
+                break;
+            case ast::type::any:           
+                for( auto symbol: alphabet )
+                {
+                    s_.push(nfa<CharT>::from_character(symbol));
+                }
+                for( int i = 0; i < alphabet.size() - 1; ++i )
+                {
+                    rhs = s_.pop();
+                    lhs = s_.pop();
+                    s_.push(nfa<CharT>::from_alternation(lhs, rhs));
+                }
                 break;
             case ast::type::alternation:
                 rhs = s_.pop();

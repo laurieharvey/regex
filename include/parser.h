@@ -11,13 +11,13 @@
 namespace ast
 {
 	/* 
-	 * 3 { '(', ')' } 2 { '*', '?', '+' } 1 { '.' } 
+	 * 3 { '(', ')' } 2 { '*', '?', '+' } 1 { '-' } 
 	 */
 	const std::array<int, 128> precedence
 	{
 		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-		0,0,0,0,0,0,0,0,3,3,2,2,0,0,1,0,
+		0,0,0,0,0,0,0,0,3,3,2,2,0,1,0,0,
 		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,
 		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 		0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -33,7 +33,7 @@ namespace ast
 		case '*':
 		case '?':
 		case '+':
-		case '.':
+		case '-':
 		case '|':
 		case '(':
 		case ')':
@@ -51,7 +51,7 @@ namespace ast
 		case '*':
 		case '?':
 		case '+':
-		case '.':
+		case '-':
 		case ')':
 			return true;
 		default:
@@ -67,7 +67,7 @@ namespace ast
 
 	/*
 	 *	Convert an implicit regex expression to an explicit expression
-	 * 	Implicit concatonation operator -> explicit '.'
+	 * 	Implicit concatonation operator -> explicit '-'
 	 */
 	template<typename CharT>
 	std::basic_stringstream<CharT> make_explicit( std::basic_istream<CharT>& input )
@@ -79,7 +79,7 @@ namespace ast
 		while( input.get( current_token ) )
 		{
 			if( ( is_character( current_token ) || current_token == '(' ) && ( is_unary_operator( previous_token ) || is_character( previous_token ) ) )
-				output.put( '.' );
+				output.put( '-' );
 			output.put( current_token );
 			previous_token = current_token;
 		}
@@ -103,7 +103,7 @@ namespace ast
 
 		while( expression.get( token ) )
 		{
-			if( token == '*' || token == '?' || token == '|' || token == '.' || token == '+' )
+			if( token == '*' || token == '?' || token == '|' || token == '-' || token == '+' )
 			{
 				while( ops.size( ) && ops.top( ) != '(' && precedence[ token ] < precedence[ ops.top( ) ] )
 				{
@@ -118,7 +118,7 @@ namespace ast
 					case '+':
 						output.push( std::make_unique<one_or_more<CharT>>( output.pop( ) ) );
 						break;
-					case '.':
+					case '-':
 						rhs = output.pop( );
 						lhs = output.pop( );
 						output.push( std::make_unique<concatenation<CharT>>( std::move( lhs ), std::move( rhs ) ) );
@@ -152,7 +152,7 @@ namespace ast
 					case '+':
 						output.push( std::make_unique<one_or_more<CharT>>( output.pop( ) ) );
 						break;
-					case '.':
+					case '-':
 						rhs = output.pop( );
 						lhs = output.pop( );
 						output.push( std::make_unique<concatenation<CharT>>( std::move( lhs ), std::move( rhs ) ) );
@@ -170,7 +170,14 @@ namespace ast
 			}
 			else
 			{
-				output.push( std::make_unique<character<CharT>>( token ) );
+				if( token == '.' )
+				{
+					output.push( std::make_unique<any<CharT>>( ) );
+				}	
+				else
+				{
+					output.push( std::make_unique<character<CharT>>( token ) );		
+				}			
 			}
 		}
 		while( ops.size( ) )
@@ -186,7 +193,7 @@ namespace ast
 			case '+':
 				output.push( std::make_unique<one_or_more<CharT>>( output.pop( ) ) );
 				break;
-			case '.':
+			case '-':
 				rhs = output.pop( );
 				lhs = output.pop( );
 				output.push( std::make_unique<concatenation<CharT>>( std::move( lhs ), std::move( rhs ) ) );

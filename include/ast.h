@@ -1,12 +1,36 @@
 #pragma once
 
 #include <memory>
+#include <limits>
+#include <vector>
 #include <ostream>
 #include <functional>
 
 namespace ast
 {
-	enum class type { character, parenthesis, kleene, zero_or_one, one_or_more, alternation, concatenation };
+	template<typename CharT>
+	constexpr std::vector<CharT> get_operators( )
+	{
+		return { '(', ')', '*', '?', '+', '.', '|' };
+	}
+
+	template<typename CharT>
+	constexpr std::vector<CharT> get_alphabet( )
+	{
+		std::vector<CharT> alphabet, operators = get_operators<CharT>();		
+
+		for( CharT i = 0; i < std::numeric_limits<CharT>::max(); ++i )
+		{
+			if( std::find( std::cbegin( operators ), std::cend( operators), i ) == std::cend( operators ) )
+			{
+				alphabet.push_back( i );
+			}
+		}
+
+		return alphabet;
+	}
+
+	enum class type { character, parenthesis, kleene, zero_or_one, one_or_more, alternation, concatenation, any };
 
 	template<typename CharT>
 	class token
@@ -219,11 +243,37 @@ namespace ast
 		}
 		CharT get_token( ) const override
 		{
-			return '.';
+			return '-';
 		}
 		type get_type( ) const override
 		{
 			return type::concatenation;
+		}
+	};
+
+	template<typename CharT>
+	class any : public token<CharT>
+	{
+	public:
+		explicit any( )
+		{
+
+		}
+		void print( typename token<CharT>::ostream& os ) const override
+		{
+			os << '.';
+		}
+		void walk( std::function<void( const ast::token<CharT>& )> callback ) const override
+		{
+			callback( *this );
+		}
+		CharT get_token( ) const override
+		{
+			return '.';
+		}
+		type get_type( ) const override
+		{
+			return type::any;
 		}
 	};
 }
