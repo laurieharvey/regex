@@ -47,4 +47,6 @@ TEST(compile_test, one_or_more)
 TEST(compile_test, complex)
 {
     EXPECT_EQ(compile(std::stringstream("a?.*(c*|d+)b*e"))->run("afffbbe"), fa::match::accepted);
+    EXPECT_EQ(compile(std::stringstream("a?.*(c*|d+)b*e"))->run("adbbe"), fa::match::accepted);
+    EXPECT_EQ(compile(std::stringstream("a?.*(c+|d+)b*e"))->run("afffbbe"), fa::match::rejected);
 }
