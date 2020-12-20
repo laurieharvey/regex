@@ -85,8 +85,15 @@ namespace fa
 			transitionsMap_[symbol].push_back(st);
 		}
 
-		match next(std::basic_string_view<CharT> str)
+		match next(std::basic_string_view<CharT> str, std::set<state*> visited = std::set<state*>())
 		{
+			if( visited.find( this ) != std::end( visited ) )
+			{
+				return match::rejected;
+			}
+
+			visited.insert( this );
+
 			if (str.empty())
 			{
 				if (acc_ == accepting::accepting)
@@ -96,7 +103,7 @@ namespace fa
 
 				for (std::shared_ptr<state<CharT>> &next : transitionsMap_[0x01])
 				{
-					if (next->next(str) == match::accepted)
+					if (next->next(str, visited) == match::accepted)
 					{
 						return match::accepted;
 					}
@@ -114,8 +121,8 @@ namespace fa
 			}
 
 			for (std::shared_ptr<state<CharT>> &next : transitionsMap_[0x01])
-			{
-				if (next->next(str) == match::accepted)
+			{				
+				if (next->next(str, visited) == match::accepted)
 				{
 					return match::accepted;
 				}
