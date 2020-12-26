@@ -146,6 +146,16 @@ namespace fa
 
             return std::make_shared<nfa<CharT>>(input, output);
         }
+        
+        void walk(std::function<void(const state<CharT> &)> callback)
+        {
+            input_->walk(callback);
+        }
+
+        void draw()
+        {
+            input_->draw( 0x01 );
+        }
 
         match run(std::basic_string_view<CharT> str)
         {

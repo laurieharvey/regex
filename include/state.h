@@ -16,7 +16,7 @@ namespace fa
 	};
 
 	template <typename CharT>
-	class state
+	class state : public std::enable_shared_from_this<state<CharT>>
 	{
 	public:
 		enum class accepting
@@ -30,71 +30,6 @@ namespace fa
 		{
 		}
 
-		state(const state<CharT> &other)
-			: acc_(other.acc_),
-			  strong_transitions_(),
-			  weak_transitions_()
-		{
-			std::for_each(std::cbegin(other.strong_transitions_), std::cend(other.strong_transitions_), [this](auto x) {
-				std::vector<std::shared_ptr<state<CharT>>> v;
-				std::for_each(std::cbegin(x.second), std::cend(x.second), [&v](auto y) {
-					v.push_back(std::make_shared<state<CharT>>(*v));
-				});
-				this->strong_transitions_[x.first] = v;
-			});
-
-			std::for_each(std::cbegin(other.weak_transitions_), std::cend(other.weak_transitions_), [this](auto x) {
-				std::vector<std::weak_ptr<state<CharT>>> v;
-				std::for_each(std::cbegin(x.second), std::cend(x.second), [&v](auto y) {
-					v.push_back(std::make_shared<state<CharT>>(*v));
-				});
-				this->weak_transitions_[x.first] = v;
-			});
-		}
-
-		state(state<CharT> &&other)
-			: acc_(other.acc_),
-			  strong_transitions_(other.strong_transitions_),
-			  weak_transitions_(other.weak_transitions_)
-		{
-		}
-
-		state<CharT> &operator=(const state<CharT> &other)
-		{
-			if (&other == this)
-				return *this;
-
-			acc_ = other.acc_;
-			strong_transitions_.clear();
-			weak_transitions_.clear();
-
-			std::for_each(std::cbegin(other.strong_transitions_), std::cend(other.strong_transitions_), [this](auto x) {
-				std::vector<std::shared_ptr<state<CharT>>> v;
-				std::for_each(std::cbegin(x.second), std::cend(x.second), [&v](auto y) {
-					v.push_back(std::make_shared<state<CharT>>(*v));
-				});
-				this->strong_transitions_[x.first] = v;
-			});
-
-			std::for_each(std::cbegin(other.weak_transitions_), std::cend(other.weak_transitions_), [this](auto x) {
-				std::vector<std::weak_ptr<state<CharT>>> v;
-				std::for_each(std::cbegin(x.second), std::cend(x.second), [&v](auto y) {
-					v.push_back(std::make_shared<state<CharT>>(*v));
-				});
-				this->weak_transitions_[x.first] = v;
-			});
-
-			return *this;
-		}
-
-		state<CharT> &operator=(state<CharT> other)
-		{
-			std::swap(acc_, other.acc_);
-			std::swap(strong_transitions_, other.strong_transitions_);
-			std::swap(weak_transitions_, other.weak_transitions_);
-			return *this;
-		}
-
 		void set(accepting acc)
 		{
 			acc_ = acc;
@@ -102,17 +37,99 @@ namespace fa
 
 		void connect(CharT symbol, std::shared_ptr<state<CharT>> st)
 		{
-			strong_transitions_[symbol].push_back(st);
+			strong_transitions_[symbol].insert(st);
 		}
 
 		void connect(CharT symbol, std::weak_ptr<state<CharT>> st)
 		{
-			weak_transitions_[symbol].push_back(st);
+			weak_transitions_[symbol].insert(st);
 		}
 
-		const std::map<CharT, std::vector<std::shared_ptr<const state<CharT>>>> &get_transitions()
+		auto get_transitions(CharT symbol)
 		{
-			return strong_transitions_;
+			std::set<std::weak_ptr<state<CharT>>, std::owner_less<std::weak_ptr<state<CharT>>>> result;
+
+			typename std::map<CharT, std::set<std::shared_ptr<state<CharT>>>>::const_iterator strong_transitions = strong_transitions_.find(symbol);
+
+			if (strong_transitions != std::cend(strong_transitions_))
+			{
+				std::copy(strong_transitions->cbegin(), strong_transitions->cend(), std::inserter(result));
+			}
+
+			typename std::map<CharT, std::set<std::weak_ptr<state<CharT>>, std::owner_less<std::weak_ptr<state<CharT>>>>>::const_iterator weak_transitions = weak_transitions_.find(symbol);
+
+			if (weak_transitions != std::cend(weak_transitions_))
+			{
+				std::copy(weak_transitions->cbegin(), weak_transitions->cend(), std::inserter(result));
+			}
+
+			return result;
+		}
+
+		auto get_epsilon_closure()
+		{
+			std::set<std::weak_ptr<state<CharT>>, std::owner_less<std::weak_ptr<state<CharT>>>> epsilon_closure;
+
+			epsilon_closure.insert(std::enable_shared_from_this<state<CharT>>::weak_from_this());
+
+			std::set<std::weak_ptr<state<CharT>>, std::owner_less<std::weak_ptr<state<CharT>>>> epsilon_transitions = get_transitions(0x01);
+
+			for (const std::weak_ptr<state<CharT>> &epsilon_transition : epsilon_transitions)
+			{
+				if (epsilon_closure.find(epsilon_transition) != std::end(epsilon_closure))
+				{
+					epsilon_closure.insert(epsilon_transition);
+					std::set<std::weak_ptr<state<CharT>>, std::owner_less<std::weak_ptr<state<CharT>>>> next_closure = epsilon_transition->lock()->get_epsilon_closure();
+					std::copy(next_closure->begin(), next_closure->end(), std::inserter(epsilon_closure));
+				}
+			}
+
+			return epsilon_closure;
+		}
+
+		auto get_transitions()
+		{
+			std::map<CharT, std::set<std::weak_ptr<state<CharT>>, std::owner_less<std::weak_ptr<state<CharT>>>>> result = weak_transitions_;
+
+			for (auto &states_for_transition : strong_transitions_)
+			{
+				for (const std::weak_ptr<state<CharT>> &transition : states_for_transition.second)
+				{
+					result[states_for_transition.first].insert(transition);
+				}
+			}
+
+			return result;
+		}
+
+		void walk(std::function<void(const state<CharT> &)> callback, std::set<const state<CharT> *> visited = std::set<const state<CharT> *>()) const
+		{
+			if (visited.find(this) != std::end(visited))
+			{
+				return;
+			}
+			else
+			{
+				visited.insert(this);
+
+				callback(*this);
+
+				for (auto &transitionsForCharacter : strong_transitions_)
+				{
+					for (auto &transition : transitionsForCharacter.second)
+					{
+						transition->walk(callback, transitionsForCharacter.first, visited);
+					}
+				}
+
+				for (auto &transitionsForCharacter : weak_transitions_)
+				{
+					for (auto &transition : transitionsForCharacter.second)
+					{
+						transition->lock()->walk(callback, transitionsForCharacter.first, visited);
+					}
+				}
+			}
 		}
 
 		match next(std::basic_string_view<CharT> str, std::set<state *> visited = std::set<state *>())
@@ -131,7 +148,7 @@ namespace fa
 					return match::accepted;
 				}
 
-				for (std::shared_ptr<state<CharT>> &next : strong_transitions_[0x01])
+				for (const std::shared_ptr<state<CharT>> &next : strong_transitions_[0x01])
 				{
 					if (next->next(str, visited) == match::accepted)
 					{
@@ -139,7 +156,7 @@ namespace fa
 					}
 				}
 
-				for (std::weak_ptr<state<CharT>> &next : weak_transitions_[0x01])
+				for (const std::weak_ptr<state<CharT>> &next : weak_transitions_[0x01])
 				{
 					if (next.lock()->next(str, visited) == match::accepted)
 					{
@@ -150,7 +167,7 @@ namespace fa
 				return match::rejected;
 			}
 
-			for (std::shared_ptr<state<CharT>> &next : strong_transitions_[str[0]])
+			for (const std::shared_ptr<state<CharT>> &next : strong_transitions_[str[0]])
 			{
 				if (next->next(str.substr(1)) == match::accepted)
 				{
@@ -158,7 +175,7 @@ namespace fa
 				}
 			}
 
-			for (std::weak_ptr<state<CharT>> &next : weak_transitions_[str[0]])
+			for (const std::weak_ptr<state<CharT>> &next : weak_transitions_[str[0]])
 			{
 				if (next.lock()->next(str.substr(1)) == match::accepted)
 				{
@@ -166,7 +183,7 @@ namespace fa
 				}
 			}
 
-			for (std::shared_ptr<state<CharT>> &next : strong_transitions_[0x01])
+			for (const std::shared_ptr<state<CharT>> &next : strong_transitions_[0x01])
 			{
 				if (next->next(str, visited) == match::accepted)
 				{
@@ -174,7 +191,7 @@ namespace fa
 				}
 			}
 
-			for (std::weak_ptr<state<CharT>> &next : weak_transitions_[0x01])
+			for (const std::weak_ptr<state<CharT>> &next : weak_transitions_[0x01])
 			{
 				if (next.lock()->next(str, visited) == match::accepted)
 				{
@@ -187,7 +204,7 @@ namespace fa
 
 	private:
 		accepting acc_;
-		std::map<CharT, std::vector<std::shared_ptr<state<CharT>>>> strong_transitions_;
-		std::map<CharT, std::vector<std::weak_ptr<state<CharT>>>> weak_transitions_;
+		std::map<CharT, std::set<std::shared_ptr<state<CharT>>>> strong_transitions_;
+		std::map<CharT, std::set<std::weak_ptr<state<CharT>>, std::owner_less<std::weak_ptr<state<CharT>>>>> weak_transitions_;
 	};
 } // namespace fa
