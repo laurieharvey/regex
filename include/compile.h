@@ -5,7 +5,7 @@
 #include "ast.h"
 
 template<typename CharT>
-std::shared_ptr<fa::nfa<CharT>> compile(std::basic_stringstream<CharT> pattern)
+std::shared_ptr<fa::nfa<CharT>> compile(std::basic_stringstream<CharT>&& pattern)
 {
   std::string input_line;
 
