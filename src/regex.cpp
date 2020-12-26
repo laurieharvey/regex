@@ -4,26 +4,22 @@
 
 #include "parser.h"
 #include "nfa.h"
+#include "state.h"
+#include "compile.h"
 
 int main(int argc, char **argv)
 {
   if (argc != 2)
     return 0;
 
-  std::istringstream pattern(argv[1]);
+  std::stringstream pattern(argv[1]);
   std::string input_line;
 
-  std::stringstream regex = ast::make_explicit(pattern);
-  std::unique_ptr<ast::token<std::stringstream::char_type>> ast = ast::parse(regex);
-
-  fa::generator<std::stringstream::char_type> g;
-
-  ast->walk(std::bind(&fa::generator<char>::callback, &g, std::placeholders::_1));
-  std::shared_ptr<fa::nfa<std::stringstream::char_type>> n = g.result();
+  std::shared_ptr<fa::nfa<std::stringstream::char_type>> nfa = compile(std::move(pattern));
 
   while (std::getline(std::cin, input_line))
   {
-    fa::match result = n->run(input_line);
+    fa::match result = nfa->run(input_line);
 
     if (result == fa::match::accepted)
     {
