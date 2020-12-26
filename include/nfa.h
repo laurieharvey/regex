@@ -142,7 +142,7 @@ namespace fa
             input->connect(epsilon, expression->input_);
             input->connect(epsilon, output);
             expression->output_->connect(epsilon, output);
-            output->connect(epsilon, expression->input_);
+            output->connect(epsilon, std::weak_ptr<state<CharT>>(expression->input_));
 
             return std::make_shared<nfa<CharT>>(input, output);
         }
