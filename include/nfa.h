@@ -147,7 +147,7 @@ namespace fa
             return std::make_shared<nfa<CharT>>(input, output);
         }
         
-        void walk(std::function<void(const state<CharT> &)> callback)
+        void walk(std::function<void(std::weak_ptr<state<CharT>>)> callback)
         {
             input_->walk(callback);
         }

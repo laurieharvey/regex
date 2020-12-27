@@ -53,20 +53,20 @@ namespace fa
 
 			if (strong_transitions != std::cend(strong_transitions_))
 			{
-				std::copy(strong_transitions->cbegin(), strong_transitions->cend(), std::inserter(result));
+				std::copy(strong_transitions->second.cbegin(), strong_transitions->second.cend(), std::inserter(result, result.begin()));
 			}
 
 			typename std::map<CharT, std::set<std::weak_ptr<state<CharT>>, std::owner_less<std::weak_ptr<state<CharT>>>>>::const_iterator weak_transitions = weak_transitions_.find(symbol);
 
 			if (weak_transitions != std::cend(weak_transitions_))
 			{
-				std::copy(weak_transitions->cbegin(), weak_transitions->cend(), std::inserter(result));
+				std::copy(weak_transitions->second.cbegin(), weak_transitions->second.cend(), std::inserter(result, result.begin()));
 			}
 
 			return result;
 		}
 
-		auto get_epsilon_closure()
+		std::set<std::weak_ptr<state<CharT>>, std::owner_less<std::weak_ptr<state<CharT>>>> get_epsilon_closure()
 		{
 			std::set<std::weak_ptr<state<CharT>>, std::owner_less<std::weak_ptr<state<CharT>>>> epsilon_closure;
 
@@ -76,11 +76,11 @@ namespace fa
 
 			for (const std::weak_ptr<state<CharT>> &epsilon_transition : epsilon_transitions)
 			{
-				if (epsilon_closure.find(epsilon_transition) != std::end(epsilon_closure))
+				if (epsilon_closure.find(epsilon_transition) == std::end(epsilon_closure))
 				{
 					epsilon_closure.insert(epsilon_transition);
-					std::set<std::weak_ptr<state<CharT>>, std::owner_less<std::weak_ptr<state<CharT>>>> next_closure = epsilon_transition->lock()->get_epsilon_closure();
-					std::copy(next_closure->begin(), next_closure->end(), std::inserter(epsilon_closure));
+					std::set<std::weak_ptr<state<CharT>>, std::owner_less<std::weak_ptr<state<CharT>>>> next_closure = epsilon_transition.lock()->get_epsilon_closure();
+					std::copy(next_closure.begin(), next_closure.end(), std::inserter(epsilon_closure, epsilon_closure.begin()));
 				}
 			}
 
@@ -102,7 +102,7 @@ namespace fa
 			return result;
 		}
 
-		void walk(std::function<void(const state<CharT> &)> callback, std::set<const state<CharT> *> visited = std::set<const state<CharT> *>()) const
+		void walk(std::function<void(std::weak_ptr<state<CharT>>)> callback, std::set<const state<CharT> *> visited = std::set<const state<CharT> *>())
 		{
 			if (visited.find(this) != std::end(visited))
 			{
@@ -112,13 +112,15 @@ namespace fa
 			{
 				visited.insert(this);
 
-				callback(*this);
+				std::weak_ptr<state<CharT>> temp = std::enable_shared_from_this<state<CharT>>::weak_from_this();
+
+				callback(temp);
 
 				for (auto &transitionsForCharacter : strong_transitions_)
 				{
 					for (auto &transition : transitionsForCharacter.second)
 					{
-						transition->walk(callback, transitionsForCharacter.first, visited);
+						transition->walk(callback, visited);
 					}
 				}
 
@@ -126,7 +128,7 @@ namespace fa
 				{
 					for (auto &transition : transitionsForCharacter.second)
 					{
-						transition->lock()->walk(callback, transitionsForCharacter.first, visited);
+						transition.lock()->walk(callback, visited);
 					}
 				}
 			}
