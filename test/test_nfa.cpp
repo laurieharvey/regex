@@ -5,67 +5,67 @@
 
 TEST(nfa_test, character)
 {
-	EXPECT_EQ(fa::nfa<char>::from_character('a')->run("a"),
+	EXPECT_EQ(fa::nfa::from_character('a')->run("a"),
 			  fa::match::accepted);
 
-	EXPECT_EQ(fa::nfa<char>::from_character('a')->run("b"),
+	EXPECT_EQ(fa::nfa::from_character('a')->run("b"),
 			  fa::match::rejected);
 }
 
 TEST(nfa_test, epsilon)
 {
-	EXPECT_EQ(fa::nfa<char>::from_epsilon()->run("a"),
+	EXPECT_EQ(fa::nfa::from_epsilon()->run("a"),
 			  fa::match::rejected);
 }
 
 TEST(nfa_test, concatenation)
 {
-	EXPECT_EQ(fa::nfa<char>::from_concatenation(fa::nfa<char>::from_character('a'), fa::nfa<char>::from_character('b'))->run("ab"),
+	EXPECT_EQ(fa::nfa::from_concatenation(fa::nfa::from_character('a'), fa::nfa::from_character('b'))->run("ab"),
 			  fa::match::accepted);
 
-	EXPECT_EQ(fa::nfa<char>::from_concatenation(fa::nfa<char>::from_character('a'), fa::nfa<char>::from_character('b'))->run("ac"),
+	EXPECT_EQ(fa::nfa::from_concatenation(fa::nfa::from_character('a'), fa::nfa::from_character('b'))->run("ac"),
 			  fa::match::rejected);
 }
 
 TEST(nfa_test, alternation)
 {
-	EXPECT_EQ(fa::nfa<char>::from_alternation(fa::nfa<char>::from_character('a'), fa::nfa<char>::from_character('b'))->run("a"),
+	EXPECT_EQ(fa::nfa::from_alternation(fa::nfa::from_character('a'), fa::nfa::from_character('b'))->run("a"),
 			  fa::match::accepted);
 
-	EXPECT_EQ(fa::nfa<char>::from_alternation(fa::nfa<char>::from_character('a'), fa::nfa<char>::from_character('b'))->run("c"),
+	EXPECT_EQ(fa::nfa::from_alternation(fa::nfa::from_character('a'), fa::nfa::from_character('b'))->run("c"),
 			  fa::match::rejected);
 }
 
 TEST(nfa_test, kleene)
 {
-	EXPECT_EQ(fa::nfa<char>::from_kleene(fa::nfa<char>::from_character('a'))->run(""),
+	EXPECT_EQ(fa::nfa::from_kleene(fa::nfa::from_character('a'))->run(""),
 			  fa::match::accepted);
 
-	EXPECT_EQ(fa::nfa<char>::from_kleene(fa::nfa<char>::from_character('a'))->run("a"),
+	EXPECT_EQ(fa::nfa::from_kleene(fa::nfa::from_character('a'))->run("a"),
 			  fa::match::accepted);
 
-	EXPECT_EQ(fa::nfa<char>::from_kleene(fa::nfa<char>::from_character('a'))->run("aa"),
+	EXPECT_EQ(fa::nfa::from_kleene(fa::nfa::from_character('a'))->run("aa"),
 			  fa::match::accepted);
 
-	EXPECT_EQ(fa::nfa<char>::from_kleene(fa::nfa<char>::from_character('a'))->run("b"),
+	EXPECT_EQ(fa::nfa::from_kleene(fa::nfa::from_character('a'))->run("b"),
 			  fa::match::rejected);
 
-	EXPECT_EQ(fa::nfa<char>::from_kleene(fa::nfa<char>::from_character('a'))->run("ab"),
+	EXPECT_EQ(fa::nfa::from_kleene(fa::nfa::from_character('a'))->run("ab"),
 			  fa::match::rejected);
 
-	EXPECT_EQ(fa::nfa<char>::from_kleene(fa::nfa<char>::from_character('a'))->run("ba"),
+	EXPECT_EQ(fa::nfa::from_kleene(fa::nfa::from_character('a'))->run("ba"),
 			  fa::match::rejected);
 }
 
 TEST(nfa_test, complex)
 {
-	auto state_machine = fa::nfa<char>::from_alternation(
-		fa::nfa<char>::from_concatenation(
-			fa::nfa<char>::from_concatenation(
-				fa::nfa<char>::from_character('a'),
-				fa::nfa<char>::from_kleene(fa::nfa<char>::from_character('b'))),
-			fa::nfa<char>::from_character('c')),
-		fa::nfa<char>::from_kleene(fa::nfa<char>::from_character('d')));
+	auto state_machine = fa::nfa::from_alternation(
+		fa::nfa::from_concatenation(
+			fa::nfa::from_concatenation(
+				fa::nfa::from_character('a'),
+				fa::nfa::from_kleene(fa::nfa::from_character('b'))),
+			fa::nfa::from_character('c')),
+		fa::nfa::from_kleene(fa::nfa::from_character('d')));
 
 	EXPECT_EQ(state_machine->run("abbc"),
 			  fa::match::accepted);

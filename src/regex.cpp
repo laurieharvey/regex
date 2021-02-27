@@ -6,7 +6,6 @@
 #include "nfa.h"
 #include "state.h"
 #include "compile.h"
-#include "utilities.h"
 
 int main(int argc, char **argv)
 {
@@ -16,10 +15,7 @@ int main(int argc, char **argv)
   std::stringstream pattern(argv[1]);
   std::string input_line;
 
-  std::shared_ptr<fa::nfa<std::stringstream::char_type>> nfa = compile(std::move(pattern));
-
-  auto table = generate_nfa_table(nfa);
-  print_nfa_table( table.first );
+  std::shared_ptr<fa::nfa> nfa = compile(std::move(pattern));
 
   while (std::getline(std::cin, input_line))
   {

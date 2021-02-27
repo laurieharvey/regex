@@ -8,8 +8,8 @@ include_directories(include)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin")
 
-add_executable(tests test/test_parser test/test_nfa test/test_compile)
-add_executable(regex src/regex)
+add_executable(tests test/test_parser.cpp test/test_compile.cpp test/test_nfa.cpp src/ast.cpp src/parser.cpp src/state.cpp src/nfa.cpp src/compile.cpp)
+add_executable(regex src/regex.cpp src/ast.cpp src/parser.cpp src/state.cpp src/nfa.cpp src/compile.cpp)
 
 target_link_libraries(tests libgtest.a)
 target_link_libraries(tests libgtest_main.a)

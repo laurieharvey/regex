@@ -9,72 +9,35 @@
 
 namespace fa
 {
-    template <typename CharT>
     class nfa
     {
-        std::shared_ptr<state<CharT>> input_;
-        std::shared_ptr<state<CharT>> output_;
+        std::shared_ptr<state> input_;
+        std::shared_ptr<state> output_;
 
-        static const CharT epsilon = 0x01;
+        static const ast::character_type epsilon = 0x01;
 
     public:
-        explicit nfa(std::shared_ptr<state<CharT>> input, std::shared_ptr<state<CharT>> output)
-            : input_(input),
-              output_(output)
-        {
-        }
+        using character_type = ast::character_type;
 
-        nfa(const nfa<CharT> &other)
-            : input_(std::make_shared<state<CharT>>(*input_)),
-              output_(std::make_shared<state<CharT>>(*output_))
-        {
-        }
+        explicit nfa(std::shared_ptr<state> input, std::shared_ptr<state> output);
 
-        nfa(nfa<CharT> &&other)
-            : input_(other.input_),
-              output_(other.output_)
-        {
-        }
+        nfa(const nfa &other);
 
-        nfa<CharT> &operator=(const nfa<CharT> &other)
-        {
-            input_ = std::make_shared<state<CharT>>(*input_);
-            output_ = std::make_shared<state<CharT>>(*output_);
-            return *this;
-        }
+        nfa(nfa &&other);
 
-        nfa<CharT> &operator=(nfa<CharT> other)
-        {
-            input_ = std::swap(other.input_);
-            output_ = std::swap(other.output_);
-            return *this;
-        }
-
+        nfa &operator=(const nfa &other);
         /*
          *      +---+      c     +---+
          *      | i |------>-----| o |
          *      +---+            +---+
          */
-        static std::shared_ptr<nfa<CharT>> from_character(CharT c)
-        {
-            auto input = std::make_shared<state<CharT>>(state<CharT>::accepting::nonaccepting);
-            auto output = std::make_shared<state<CharT>>(state<CharT>::accepting::accepting);
-
-            input->connect(c, output);
-
-            return std::make_shared<nfa<CharT>>(input, output);
-        }
-
+        static std::shared_ptr<nfa> from_character(character_type c);
         /*
          *      +---+      e     +---+
          *      | i |------>-----| o |
          *      +---+            +---+
          */
-        static std::shared_ptr<nfa<CharT>> from_epsilon()
-        {
-            return from_character(epsilon);
-        }
-
+        static std::shared_ptr<nfa> from_epsilon();
         /*
          *   +--------------------------+      +--------------------------+
          *   |  +---+            +---+  |   e  |  +---+            +---+  |
@@ -82,16 +45,7 @@ namespace fa
          *   |  +---+            +---+  |      |  +---+            +---+  |
          *   +--------------------------+      +--------------------------+
          */
-        static std::shared_ptr<nfa<CharT>> from_concatenation(std::shared_ptr<nfa<CharT>> lhs, std::shared_ptr<nfa<CharT>> rhs)
-        {
-            lhs->output_->connect(epsilon, rhs->input_);
-
-            lhs->output_->set(state<CharT>::accepting::nonaccepting);
-            rhs->output_->set(state<CharT>::accepting::accepting);
-
-            return std::make_shared<nfa<CharT>>(lhs->input_, rhs->output_);
-        }
-
+        static std::shared_ptr<nfa> from_concatenation(std::shared_ptr<nfa> lhs, std::shared_ptr<nfa> rhs);
         /*
          *          +--------------------------+
          *       e  |  +---+            +---+  |  e
@@ -105,22 +59,7 @@ namespace fa
          *       e  |  +---+            +---+  |  e
          *          +--------------------------+
          */
-        static std::shared_ptr<nfa<CharT>> from_alternation(std::shared_ptr<nfa<CharT>> lhs, std::shared_ptr<nfa<CharT>> rhs)
-        {
-            std::shared_ptr<state<CharT>> input = std::make_shared<state<CharT>>(state<CharT>::accepting::nonaccepting);
-            std::shared_ptr<state<CharT>> output = std::make_shared<state<CharT>>(state<CharT>::accepting::accepting);
-
-            input->connect(epsilon, lhs->input_);
-            input->connect(epsilon, rhs->input_);
-
-            lhs->output_->connect(epsilon, output);
-            lhs->output_->set(state<CharT>::accepting::nonaccepting);
-            rhs->output_->connect(epsilon, output);
-            rhs->output_->set(state<CharT>::accepting::nonaccepting);
-
-            return std::make_shared<nfa<CharT>>(input, output);
-        }
-
+        static std::shared_ptr<nfa> from_alternation(std::shared_ptr<nfa> lhs, std::shared_ptr<nfa> rhs);
         /*
          *                                     e                 
          *                    +----------------<----------------+
@@ -132,92 +71,19 @@ namespace fa
          *   +--------------------------->----------------------+
          *                               e
          */
-        static std::shared_ptr<nfa<CharT>> from_kleene(std::shared_ptr<nfa<CharT>> expression)
-        {
-            std::shared_ptr<state<CharT>> input = std::make_shared<state<CharT>>(state<CharT>::accepting::nonaccepting);
-            std::shared_ptr<state<CharT>> output = std::make_shared<state<CharT>>(state<CharT>::accepting::accepting);
+        static std::shared_ptr<nfa> from_kleene(std::shared_ptr<nfa> expression);
 
-            expression->output_->set(state<CharT>::accepting::nonaccepting);
+        void walk(std::function<void(std::weak_ptr<state>)> callback);
 
-            input->connect(epsilon, expression->input_);
-            input->connect(epsilon, output);
-            expression->output_->connect(epsilon, output);
-            output->connect(epsilon, std::weak_ptr<state<CharT>>(expression->input_));
-
-            return std::make_shared<nfa<CharT>>(input, output);
-        }
-        
-        void walk(std::function<void(std::weak_ptr<state<CharT>>)> callback)
-        {
-            input_->walk(callback);
-        }
-
-        void draw()
-        {
-            input_->draw( 0x01 );
-        }
-
-        match run(std::basic_string_view<CharT> str)
-        {
-            return input_->next(str);
-        }
+        match run(std::basic_string_view<character_type> str);
     };
 
-    template <typename CharT>
     struct generator
     {
-        stack<std::shared_ptr<nfa<CharT>>> s_;
+        stack<std::shared_ptr<nfa>> s_;
 
-        void callback(const ast::token<CharT> &token)
-        {
-            std::shared_ptr<fa::nfa<CharT>> lhs;
-            std::shared_ptr<fa::nfa<CharT>> rhs;
-            std::vector<CharT> alphabet = ast::get_alphabet<CharT>();
+        void callback(const ast::token &token);
 
-            switch (token.get_type())
-            {
-            case ast::type::character:
-                s_.push(nfa<CharT>::from_character(token.get_token()));
-                break;
-            case ast::type::any:           
-                for( auto symbol: alphabet )
-                {
-                    s_.push(nfa<CharT>::from_character(symbol));
-                }
-                for( int i = 0; i < alphabet.size() - 1; ++i )
-                {
-                    rhs = s_.pop();
-                    lhs = s_.pop();
-                    s_.push(nfa<CharT>::from_alternation(lhs, rhs));
-                }
-                break;
-            case ast::type::alternation:
-                rhs = s_.pop();
-                lhs = s_.pop();
-                s_.push(nfa<CharT>::from_alternation(lhs, rhs));
-                break;
-            case ast::type::concatenation:
-                rhs = s_.pop();
-                lhs = s_.pop();
-                s_.push(nfa<CharT>::from_concatenation(lhs, rhs));
-                break;
-            case ast::type::kleene:
-                s_.push(nfa<CharT>::from_kleene(s_.pop()));
-                break;
-            case ast::type::zero_or_one:
-                s_.push(nfa<CharT>::from_alternation(nfa<CharT>::from_epsilon(), s_.pop()));
-                break;
-            case ast::type::one_or_more:
-                lhs = s_.pop();
-                rhs = lhs;
-                s_.push(nfa<CharT>::from_concatenation(lhs, nfa<CharT>::from_kleene(rhs)));
-                break;
-            }
-        }
-
-        std::shared_ptr<nfa<CharT>> result()
-        {
-            return s_.pop();
-        }
+        std::shared_ptr<nfa> result();
     };
 } // namespace fa
