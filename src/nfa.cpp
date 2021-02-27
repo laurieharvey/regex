@@ -48,6 +48,11 @@ namespace fa
         return from_character(epsilon);
     }
 
+    std::shared_ptr<nfa> nfa::from_any()
+    {
+        return from_character(any);
+    }
+
     std::shared_ptr<nfa> nfa::from_concatenation(std::shared_ptr<nfa> lhs, std::shared_ptr<nfa> rhs)
     {
         lhs->output_->connect(epsilon, rhs->input_);
@@ -111,16 +116,7 @@ namespace fa
             s_.push(nfa::from_character(token.get_token()));
             break;
         case ast::type::any:
-            for (auto symbol : alphabet)
-            {
-                s_.push(nfa::from_character(symbol));
-            }
-            for (int i = 0; i < alphabet.size() - 1; ++i)
-            {
-                rhs = s_.pop();
-                lhs = s_.pop();
-                s_.push(nfa::from_alternation(lhs, rhs));
-            }
+            s_.push(nfa::from_any());
             break;
         case ast::type::alternation:
             rhs = s_.pop();
@@ -144,7 +140,6 @@ namespace fa
             s_.push(nfa::from_concatenation(lhs, nfa::from_kleene(rhs)));
             break;
        case ast::type::parenthesis:
-            // b
             break;
         }
     }

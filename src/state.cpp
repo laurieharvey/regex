@@ -172,6 +172,22 @@ namespace fa
             }
         }
 
+        for (const std::shared_ptr<state> &next : strong_transitions_[0x02])
+        {
+            if (next->next(str.substr(1)) == match::accepted)
+            {
+                return match::accepted;
+            }
+        }
+
+        for (const std::weak_ptr<state> &next : weak_transitions_[0x02])
+        {
+            if (next.lock()->next(str.substr(1)) == match::accepted)
+            {
+                return match::accepted;
+            }
+        }
+
         for (const std::shared_ptr<state> &next : strong_transitions_[0x01])
         {
             if (next->next(str, visited) == match::accepted)

@@ -15,6 +15,7 @@ namespace fa
         std::shared_ptr<state> output_;
 
         static const ast::character_type epsilon = 0x01;
+        static const ast::character_type any     = 0x02;
 
     public:
         using character_type = ast::character_type;
@@ -38,6 +39,12 @@ namespace fa
          *      +---+            +---+
          */
         static std::shared_ptr<nfa> from_epsilon();
+        /*
+         *      +---+      a     +---+
+         *      | i |------>-----| o |
+         *      +---+            +---+
+         */
+        static std::shared_ptr<nfa> from_any();
         /*
          *   +--------------------------+      +--------------------------+
          *   |  +---+            +---+  |   e  |  +---+            +---+  |
