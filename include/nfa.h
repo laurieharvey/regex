@@ -10,7 +10,7 @@
 
 namespace regex
 {
-    class nfa
+    class nfa : public fa
     {
         std::shared_ptr<state> input_;
         std::shared_ptr<state> output_;
@@ -79,7 +79,7 @@ namespace regex
 
         void walk(std::function<void(std::weak_ptr<state>)> callback);
 
-        match run(std::basic_string_view<character_type> str);
+        match run(std::basic_string_view<character_type> str) override;
     };
 
     struct generator
@@ -88,6 +88,6 @@ namespace regex
 
         void callback(const regex::token &token);
 
-        std::shared_ptr<nfa> result();
+        std::shared_ptr<fa> result();
     };
 } // namespace fa
