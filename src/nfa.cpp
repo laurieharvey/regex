@@ -14,25 +14,6 @@ namespace fa
     {
     }
 
-    nfa::nfa(const nfa &other)
-        : input_(std::make_shared<state>(*other.input_)),
-          output_(std::make_shared<state>(*other.output_))
-    {
-    }
-
-    nfa::nfa(nfa &&other)
-        : input_(other.input_),
-          output_(other.output_)
-    {
-    }
-
-    nfa &nfa::operator=(const nfa &other)
-    {
-        input_ = std::make_shared<state>(*input_);
-        output_ = std::make_shared<state>(*output_);
-        return *this;
-    }
-
     std::shared_ptr<nfa> nfa::from_character(character_type c)
     {
         auto input = std::make_shared<state>(state::accepting::nonaccepting);

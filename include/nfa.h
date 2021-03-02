@@ -22,11 +22,9 @@ namespace fa
 
         explicit nfa(std::shared_ptr<state> input, std::shared_ptr<state> output);
 
-        nfa(const nfa &other);
-
-        nfa(nfa &&other);
-
-        nfa &operator=(const nfa &other);
+        nfa(const nfa &other) = delete;
+        nfa(nfa &&other) = delete;
+        // nfa &operator=(const nfa &other);
         /*
          *      +---+      c     +---+
          *      | i |------>-----| o |
