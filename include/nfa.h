@@ -6,25 +6,24 @@
 #include "state.h"
 #include "stack.h"
 #include "ast.h"
+#include "fa.h"
 
-namespace fa
+namespace regex
 {
     class nfa
     {
         std::shared_ptr<state> input_;
         std::shared_ptr<state> output_;
 
-        static const ast::character_type epsilon = 0x01;
-        static const ast::character_type any     = 0x02;
+        static const regex::character_type epsilon = 0x01;
+        static const regex::character_type any     = 0x02;
 
     public:
-        using character_type = ast::character_type;
+        using character_type = regex::character_type;
 
         explicit nfa(std::shared_ptr<state> input, std::shared_ptr<state> output);
-
-        nfa(const nfa &other) = delete;
-        nfa(nfa &&other) = delete;
-        // nfa &operator=(const nfa &other);
+        explicit nfa(const nfa &other) = delete;
+        explicit nfa(nfa &&other) = delete;
         /*
          *      +---+      c     +---+
          *      | i |------>-----| o |
@@ -87,7 +86,7 @@ namespace fa
     {
         stack<std::shared_ptr<nfa>> s_;
 
-        void callback(const ast::token &token);
+        void callback(const regex::token &token);
 
         std::shared_ptr<nfa> result();
     };

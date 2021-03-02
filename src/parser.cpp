@@ -2,7 +2,7 @@
 
 #include "parser.h"
 
-namespace ast
+namespace regex
 {
     bool is_operator( character_type token )
 	{
@@ -58,14 +58,14 @@ namespace ast
 		return output;
 	}
 
-    std::unique_ptr<ast::token> parse( std::basic_istream<character_type, std::char_traits<character_type>>& expression )
+    std::unique_ptr<regex::token> parse( std::basic_istream<character_type, std::char_traits<character_type>>& expression )
 	{
 		character_type token;
-		stack<std::unique_ptr<ast::token>> output;
+		stack<std::unique_ptr<regex::token>> output;
 		stack<character_type> ops;
 
-		std::unique_ptr<ast::token> lhs;
-		std::unique_ptr<ast::token> rhs;
+		std::unique_ptr<regex::token> lhs;
+		std::unique_ptr<regex::token> rhs;
 
 		while( expression.get( token ) )
 		{
