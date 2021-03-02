@@ -11,7 +11,7 @@ namespace ast
     {
         std::vector<character_type> alphabet, operators = get_operators();
 
-        for (character_type i = 0; i < std::numeric_limits<character_type>::max(); ++i)
+        for (auto i = std::numeric_limits<character_type>::min(); i < std::numeric_limits<character_type>::max(); ++i)
         {
             if (std::find(std::cbegin(operators), std::cend(operators), i) == std::cend(operators))
             {
