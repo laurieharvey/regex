@@ -9,7 +9,7 @@
 
 #include "ast.h"
 
-namespace fa
+namespace regex
 {
 	enum class match
 	{
@@ -30,11 +30,11 @@ namespace fa
 
 		void set(accepting acc);
 
-		void connect(ast::character_type symbol, std::shared_ptr<state> st);
+		void connect(regex::character_type symbol, std::shared_ptr<state> st);
 
-		void connect(ast::character_type symbol, std::weak_ptr<state> st);
+		void connect(regex::character_type symbol, std::weak_ptr<state> st);
 
-		auto get_transitions(ast::character_type symbol);
+		auto get_transitions(regex::character_type symbol);
 
 		std::set<std::weak_ptr<state>, std::owner_less<std::weak_ptr<state>>> get_epsilon_closure();
 
@@ -42,11 +42,11 @@ namespace fa
 
 		void walk(std::function<void(std::weak_ptr<state>)> callback, std::set<const state *> visited = std::set<const state *>());
 
-		match next(std::basic_string_view<ast::character_type> str, std::set<state *> visited = std::set<state *>());
+		match next(std::basic_string_view<regex::character_type> str, std::set<state *> visited = std::set<state *>());
 
 	private:
 		accepting acc_;
-		std::map<ast::character_type, std::set<std::shared_ptr<state>>> strong_transitions_;
-		std::map<ast::character_type, std::set<std::weak_ptr<state>, std::owner_less<std::weak_ptr<state>>>> weak_transitions_;
+		std::map<regex::character_type, std::set<std::shared_ptr<state>>> strong_transitions_;
+		std::map<regex::character_type, std::set<std::weak_ptr<state>, std::owner_less<std::weak_ptr<state>>>> weak_transitions_;
 	};
 } // namespace fa

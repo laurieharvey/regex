@@ -6,7 +6,7 @@
 #include <ostream>
 #include <functional>
 
-namespace ast
+namespace regex
 {
 	using character_type = char;
 
@@ -33,7 +33,7 @@ namespace ast
 
 		virtual void print(ostream &os) const = 0;
 
-		virtual void walk(std::function<void(const ast::token &)> callback) const = 0;
+		virtual void walk(std::function<void(const regex::token &)> callback) const = 0;
 
 		virtual character_type get_token() const = 0;
 
@@ -51,7 +51,7 @@ namespace ast
 
 		void print(typename token::ostream &os) const override;
 
-		void walk(std::function<void(const ast::token &)> callback) const override;
+		void walk(std::function<void(const regex::token &)> callback) const override;
 
 		character_type get_token() const override;
 
@@ -67,7 +67,7 @@ namespace ast
 
 		void print(typename token::ostream &os) const override;
 
-		void walk(std::function<void(const ast::token &)> callback) const override;
+		void walk(std::function<void(const regex::token &)> callback) const override;
 
 		character_type get_token() const override;
 
@@ -83,7 +83,7 @@ namespace ast
 
 		void print(typename token::ostream &os) const override;
 
-		void walk(std::function<void(const ast::token &)> callback) const override;
+		void walk(std::function<void(const regex::token &)> callback) const override;
 
 		character_type get_token() const override;
 
@@ -99,7 +99,7 @@ namespace ast
 
 		void print(typename token::ostream &os) const override;
 
-		void walk(std::function<void(const ast::token &)> callback) const override;
+		void walk(std::function<void(const regex::token &)> callback) const override;
 
 		character_type get_token() const override;
 
@@ -115,7 +115,7 @@ namespace ast
 
 		void print(typename token::ostream &os) const override;
 
-		void walk(std::function<void(const ast::token &)> callback) const override;
+		void walk(std::function<void(const regex::token &)> callback) const override;
 
 		character_type get_token() const override;
 
@@ -131,7 +131,7 @@ namespace ast
 
 		void print(typename token::ostream &os) const override;
 
-		void walk(std::function<void(const ast::token &)> callback) const override;
+		void walk(std::function<void(const regex::token &)> callback) const override;
 
 		character_type get_token() const override;
 
@@ -147,7 +147,7 @@ namespace ast
 
 		void print(typename token::ostream &os) const override;
 
-		void walk(std::function<void(const ast::token &)> callback) const override;
+		void walk(std::function<void(const regex::token &)> callback) const override;
 
 		character_type get_token() const override;
 
@@ -161,7 +161,7 @@ namespace ast
 
 		void print(typename token::ostream &os) const override;
 
-		void walk(std::function<void(const ast::token &)> callback) const override;
+		void walk(std::function<void(const regex::token &)> callback) const override;
 		
 		character_type get_token() const override;
 

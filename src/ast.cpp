@@ -1,6 +1,6 @@
 #include "ast.h"
 
-namespace ast
+namespace regex
 {
     std::vector<character_type> get_operators()
     {
@@ -35,7 +35,7 @@ namespace ast
     {
         os << get_token();
     }
-    void character::walk(std::function<void(const ast::token &)> callback) const
+    void character::walk(std::function<void(const regex::token &)> callback) const
     {
         callback(*this);
     }
@@ -57,7 +57,7 @@ namespace ast
         lhs_->print(os);
         os << ")";
     }
-    void parenthesis::walk(std::function<void(const ast::token &)> callback) const
+    void parenthesis::walk(std::function<void(const regex::token &)> callback) const
     {
         lhs_->walk(callback);
         callback(*this);
@@ -79,7 +79,7 @@ namespace ast
         lhs_->print(os);
         os << '*';
     }
-    void kleene::walk(std::function<void(const ast::token &)> callback) const
+    void kleene::walk(std::function<void(const regex::token &)> callback) const
     {
         lhs_->walk(callback);
         callback(*this);
@@ -101,7 +101,7 @@ namespace ast
         lhs_->print(os);
         os << '?';
     }
-    void zero_or_one::walk(std::function<void(const ast::token &)> callback) const
+    void zero_or_one::walk(std::function<void(const regex::token &)> callback) const
     {
         lhs_->walk(callback);
         callback(*this);
@@ -123,7 +123,7 @@ namespace ast
         exp_->print(os);
         os << get_token();
     }
-    void one_or_more::walk(std::function<void(const ast::token &)> callback) const
+    void one_or_more::walk(std::function<void(const regex::token &)> callback) const
     {
         exp_->walk(callback);
         callback(*this);
@@ -147,7 +147,7 @@ namespace ast
         os << '|';
         rhs_->print(os);
     }
-    void alternation::walk(std::function<void(const ast::token &)> callback) const
+    void alternation::walk(std::function<void(const regex::token &)> callback) const
     {
         lhs_->walk(callback);
         rhs_->walk(callback);
@@ -170,7 +170,7 @@ namespace ast
         lhs_->print(os);
         rhs_->print(os);
     }
-    void concatenation::walk(std::function<void(const ast::token &)> callback) const
+    void concatenation::walk(std::function<void(const regex::token &)> callback) const
     {
         lhs_->walk(callback);
         rhs_->walk(callback);
@@ -192,7 +192,7 @@ namespace ast
     {
         os << '.';
     }
-    void any::walk(std::function<void(const ast::token &)> callback) const
+    void any::walk(std::function<void(const regex::token &)> callback) const
     {
         callback(*this);
     }

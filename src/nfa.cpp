@@ -6,7 +6,7 @@
 #include "ast.h"
 #include "nfa.h"
 
-namespace fa
+namespace regex
 {
     nfa::nfa(std::shared_ptr<state> input, std::shared_ptr<state> output)
         : input_(input),
@@ -85,42 +85,42 @@ namespace fa
         return input_->next(str);
     }
 
-    void generator::callback(const ast::token &token)
+    void generator::callback(const regex::token &token)
     {
-        std::shared_ptr<fa::nfa> lhs;
-        std::shared_ptr<fa::nfa> rhs;
-        std::vector<ast::character_type> alphabet = ast::get_alphabet();
+        std::shared_ptr<regex::nfa> lhs;
+        std::shared_ptr<regex::nfa> rhs;
+        std::vector<regex::character_type> alphabet = regex::get_alphabet();
 
         switch (token.get_type())
         {
-        case ast::type::character:
+        case regex::type::character:
             s_.push(nfa::from_character(token.get_token()));
             break;
-        case ast::type::any:
+        case regex::type::any:
             s_.push(nfa::from_any());
             break;
-        case ast::type::alternation:
+        case regex::type::alternation:
             rhs = s_.pop();
             lhs = s_.pop();
             s_.push(nfa::from_alternation(lhs, rhs));
             break;
-        case ast::type::concatenation:
+        case regex::type::concatenation:
             rhs = s_.pop();
             lhs = s_.pop();
             s_.push(nfa::from_concatenation(lhs, rhs));
             break;
-        case ast::type::kleene:
+        case regex::type::kleene:
             s_.push(nfa::from_kleene(s_.pop()));
             break;
-        case ast::type::zero_or_one:
+        case regex::type::zero_or_one:
             s_.push(nfa::from_alternation(nfa::from_epsilon(), s_.pop()));
             break;
-        case ast::type::one_or_more:
+        case regex::type::one_or_more:
             lhs = s_.pop();
             rhs = lhs;
             s_.push(nfa::from_concatenation(lhs, nfa::from_kleene(rhs)));
             break;
-       case ast::type::parenthesis:
+       case regex::type::parenthesis:
             break;
         }
     }

@@ -7,4 +7,4 @@
 /*
  * Compile the regular expression to its finite automaton
  */
-std::shared_ptr<fa::nfa> compile(std::basic_stringstream<ast::character_type>&& pattern);
+std::shared_ptr<regex::nfa> compile(std::basic_stringstream<regex::character_type>&& pattern);

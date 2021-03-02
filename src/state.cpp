@@ -8,7 +8,7 @@
 #include "state.h"
 #include "ast.h"
 
-namespace fa
+namespace regex
 {
     state::state(accepting acc)
         : acc_(acc),
@@ -22,28 +22,28 @@ namespace fa
         acc_ = acc;
     }
 
-    void state::connect(ast::character_type symbol, std::shared_ptr<state> st)
+    void state::connect(regex::character_type symbol, std::shared_ptr<state> st)
     {
         strong_transitions_[symbol].insert(st);
     }
 
-    void state::connect(ast::character_type symbol, std::weak_ptr<state> st)
+    void state::connect(regex::character_type symbol, std::weak_ptr<state> st)
     {
         weak_transitions_[symbol].insert(st);
     }
 
-    auto state::get_transitions(ast::character_type symbol)
+    auto state::get_transitions(regex::character_type symbol)
     {
         std::set<std::weak_ptr<state>, std::owner_less<std::weak_ptr<state>>> result;
 
-        typename std::map<ast::character_type, std::set<std::shared_ptr<state>>>::const_iterator strong_transitions = strong_transitions_.find(symbol);
+        typename std::map<regex::character_type, std::set<std::shared_ptr<state>>>::const_iterator strong_transitions = strong_transitions_.find(symbol);
 
         if (strong_transitions != std::cend(strong_transitions_))
         {
             std::copy(strong_transitions->second.cbegin(), strong_transitions->second.cend(), std::inserter(result, result.begin()));
         }
 
-        typename std::map<ast::character_type, std::set<std::weak_ptr<state>, std::owner_less<std::weak_ptr<state>>>>::const_iterator weak_transitions = weak_transitions_.find(symbol);
+        typename std::map<regex::character_type, std::set<std::weak_ptr<state>, std::owner_less<std::weak_ptr<state>>>>::const_iterator weak_transitions = weak_transitions_.find(symbol);
 
         if (weak_transitions != std::cend(weak_transitions_))
         {
@@ -76,7 +76,7 @@ namespace fa
 
     auto state::get_transitions()
     {
-        std::map<ast::character_type, std::set<std::weak_ptr<state>, std::owner_less<std::weak_ptr<state>>>> result = weak_transitions_;
+        std::map<regex::character_type, std::set<std::weak_ptr<state>, std::owner_less<std::weak_ptr<state>>>> result = weak_transitions_;
 
         for (auto &states_for_transition : strong_transitions_)
         {
@@ -121,7 +121,7 @@ namespace fa
         }
     }
 
-    match state::next(std::basic_string_view<ast::character_type> str, std::set<state *> visited)
+    match state::next(std::basic_string_view<regex::character_type> str, std::set<state *> visited)
     {
         if (visited.find(this) != std::end(visited))
         {

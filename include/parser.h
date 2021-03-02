@@ -8,7 +8,7 @@
 #include "ast.h"
 #include "stack.h"
 
-namespace ast
+namespace regex
 {
 	/* 
 	 * 3 { '(', ')' } 2 { '*', '?', '+' } 1 { '-' } 
@@ -41,5 +41,5 @@ namespace ast
 	 *	Parse an explicit regex expression using the shunting yard algorithm to produce the AST
 	 *	https://en.wikipedia.org/wiki/Shunting-yard_algorithm
 	 */
-	std::unique_ptr<ast::token> parse( std::basic_istream<character_type, std::char_traits<character_type>>& expression );
+	std::unique_ptr<regex::token> parse( std::basic_istream<character_type, std::char_traits<character_type>>& expression );
 }

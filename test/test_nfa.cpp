@@ -5,95 +5,95 @@
 
 TEST(nfa_test, character)
 {
-	EXPECT_EQ(fa::nfa::from_character('a')->run("a"),
-			  fa::match::accepted);
+	EXPECT_EQ(regex::nfa::from_character('a')->run("a"),
+			  regex::match::accepted);
 
-	EXPECT_EQ(fa::nfa::from_character('a')->run("b"),
-			  fa::match::rejected);
+	EXPECT_EQ(regex::nfa::from_character('a')->run("b"),
+			  regex::match::rejected);
 }
 
 TEST(nfa_test, epsilon)
 {
-	EXPECT_EQ(fa::nfa::from_epsilon()->run("a"),
-			  fa::match::rejected);
+	EXPECT_EQ(regex::nfa::from_epsilon()->run("a"),
+			  regex::match::rejected);
 }
 
 TEST(nfa_test, any)
 {
-	EXPECT_EQ(fa::nfa::from_any()->run("a"),
-			  fa::match::accepted);
+	EXPECT_EQ(regex::nfa::from_any()->run("a"),
+			  regex::match::accepted);
 
-	EXPECT_EQ(fa::nfa::from_any()->run("b"),
-			  fa::match::accepted);
+	EXPECT_EQ(regex::nfa::from_any()->run("b"),
+			  regex::match::accepted);
 
-	EXPECT_EQ(fa::nfa::from_any()->run("c"),
-			  fa::match::accepted);
+	EXPECT_EQ(regex::nfa::from_any()->run("c"),
+			  regex::match::accepted);
 }
 
 TEST(nfa_test, concatenation)
 {
-	EXPECT_EQ(fa::nfa::from_concatenation(fa::nfa::from_character('a'), fa::nfa::from_character('b'))->run("ab"),
-			  fa::match::accepted);
+	EXPECT_EQ(regex::nfa::from_concatenation(regex::nfa::from_character('a'), regex::nfa::from_character('b'))->run("ab"),
+			  regex::match::accepted);
 
-	EXPECT_EQ(fa::nfa::from_concatenation(fa::nfa::from_character('a'), fa::nfa::from_character('b'))->run("ac"),
-			  fa::match::rejected);
+	EXPECT_EQ(regex::nfa::from_concatenation(regex::nfa::from_character('a'), regex::nfa::from_character('b'))->run("ac"),
+			  regex::match::rejected);
 }
 
 TEST(nfa_test, alternation)
 {
-	EXPECT_EQ(fa::nfa::from_alternation(fa::nfa::from_character('a'), fa::nfa::from_character('b'))->run("a"),
-			  fa::match::accepted);
+	EXPECT_EQ(regex::nfa::from_alternation(regex::nfa::from_character('a'), regex::nfa::from_character('b'))->run("a"),
+			  regex::match::accepted);
 
-	EXPECT_EQ(fa::nfa::from_alternation(fa::nfa::from_character('a'), fa::nfa::from_character('b'))->run("c"),
-			  fa::match::rejected);
+	EXPECT_EQ(regex::nfa::from_alternation(regex::nfa::from_character('a'), regex::nfa::from_character('b'))->run("c"),
+			  regex::match::rejected);
 }
 
 TEST(nfa_test, kleene)
 {
-	EXPECT_EQ(fa::nfa::from_kleene(fa::nfa::from_character('a'))->run(""),
-			  fa::match::accepted);
+	EXPECT_EQ(regex::nfa::from_kleene(regex::nfa::from_character('a'))->run(""),
+			  regex::match::accepted);
 
-	EXPECT_EQ(fa::nfa::from_kleene(fa::nfa::from_character('a'))->run("a"),
-			  fa::match::accepted);
+	EXPECT_EQ(regex::nfa::from_kleene(regex::nfa::from_character('a'))->run("a"),
+			  regex::match::accepted);
 
-	EXPECT_EQ(fa::nfa::from_kleene(fa::nfa::from_character('a'))->run("aa"),
-			  fa::match::accepted);
+	EXPECT_EQ(regex::nfa::from_kleene(regex::nfa::from_character('a'))->run("aa"),
+			  regex::match::accepted);
 
-	EXPECT_EQ(fa::nfa::from_kleene(fa::nfa::from_character('a'))->run("b"),
-			  fa::match::rejected);
+	EXPECT_EQ(regex::nfa::from_kleene(regex::nfa::from_character('a'))->run("b"),
+			  regex::match::rejected);
 
-	EXPECT_EQ(fa::nfa::from_kleene(fa::nfa::from_character('a'))->run("ab"),
-			  fa::match::rejected);
+	EXPECT_EQ(regex::nfa::from_kleene(regex::nfa::from_character('a'))->run("ab"),
+			  regex::match::rejected);
 
-	EXPECT_EQ(fa::nfa::from_kleene(fa::nfa::from_character('a'))->run("ba"),
-			  fa::match::rejected);
+	EXPECT_EQ(regex::nfa::from_kleene(regex::nfa::from_character('a'))->run("ba"),
+			  regex::match::rejected);
 }
 
 TEST(nfa_test, complex)
 {
-	auto state_machine = fa::nfa::from_alternation(
-		fa::nfa::from_concatenation(
-			fa::nfa::from_concatenation(
-				fa::nfa::from_character('a'),
-				fa::nfa::from_kleene(fa::nfa::from_character('b'))),
-			fa::nfa::from_character('c')),
-		fa::nfa::from_kleene(fa::nfa::from_character('d')));
+	auto state_machine = regex::nfa::from_alternation(
+		regex::nfa::from_concatenation(
+			regex::nfa::from_concatenation(
+				regex::nfa::from_character('a'),
+				regex::nfa::from_kleene(regex::nfa::from_character('b'))),
+			regex::nfa::from_character('c')),
+		regex::nfa::from_kleene(regex::nfa::from_character('d')));
 
 	EXPECT_EQ(state_machine->run("abbc"),
-			  fa::match::accepted);
+			  regex::match::accepted);
 
 	EXPECT_EQ(state_machine->run("ac"),
-			  fa::match::accepted);
+			  regex::match::accepted);
 
 	EXPECT_EQ(state_machine->run(""),
-			  fa::match::accepted);
+			  regex::match::accepted);
 
 	EXPECT_EQ(state_machine->run("dd"),
-			  fa::match::accepted);
+			  regex::match::accepted);
 
 	EXPECT_EQ(state_machine->run("e"),
-			  fa::match::rejected);
+			  regex::match::rejected);
 
 	EXPECT_EQ(state_machine->run("bc"),
-			  fa::match::rejected);
+			  regex::match::rejected);
 }

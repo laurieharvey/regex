@@ -18,15 +18,15 @@
 // }
 
 template <typename CharT>
-using nfa_table = std::map<std::weak_ptr<fa::state<CharT>>, std::map<CharT, std::set<std::weak_ptr<fa::state<CharT>>, std::owner_less<std::weak_ptr<fa::state<CharT>>>>>, std::owner_less<std::weak_ptr<fa::state<CharT>>>>;
+using nfa_table = std::map<std::weak_ptr<regex::state<CharT>>, std::map<CharT, std::set<std::weak_ptr<regex::state<CharT>>, std::owner_less<std::weak_ptr<regex::state<CharT>>>>>, std::owner_less<std::weak_ptr<regex::state<CharT>>>>;
 
 template <typename CharT>
-std::pair<nfa_table<CharT>, std::weak_ptr<fa::state<CharT>>> generate_nfa_table(std::shared_ptr<fa::nfa<CharT>> nfa)
+std::pair<nfa_table<CharT>, std::weak_ptr<regex::state<CharT>>> generate_nfa_table(std::shared_ptr<regex::nfa<CharT>> nfa)
 {
     nfa_table<CharT> table;
-    std::weak_ptr<fa::state<CharT>> first;
+    std::weak_ptr<regex::state<CharT>> first;
 
-    nfa->walk([&table, &first](std::weak_ptr<fa::state<CharT>> state) {
+    nfa->walk([&table, &first](std::weak_ptr<regex::state<CharT>> state) {
         if (table.empty())
         {
             first = state;
@@ -72,10 +72,10 @@ void print_nfa_table(const nfa_table<CharT> &table)
 template <typename CharT>
 class epsilon_closure
 {
-    std::set<std::weak_ptr<fa::state<CharT>>, std::owner_less<std::weak_ptr<fa::state<CharT>>>> epsilon_closure_;
+    std::set<std::weak_ptr<regex::state<CharT>>, std::owner_less<std::weak_ptr<regex::state<CharT>>>> epsilon_closure_;
 
 public:
-    epsilon_closure(std::set<std::weak_ptr<fa::state<CharT>>, std::owner_less<std::weak_ptr<fa::state<CharT>>>> &&closure)
+    epsilon_closure(std::set<std::weak_ptr<regex::state<CharT>>, std::owner_less<std::weak_ptr<regex::state<CharT>>>> &&closure)
         : epsilon_closure_(closure)
     {
     }
@@ -113,20 +113,20 @@ template <typename CharT>
 using dfa_table = std::map<epsilon_closure<CharT>, std::map<CharT, epsilon_closure<CharT>>>;
 
 template <typename CharT>
-std::pair<dfa_table<CharT>, std::weak_ptr<fa::state<CharT>>> generate_dfa_table(std::shared_ptr<fa::nfa<CharT>> nfa)
+std::pair<dfa_table<CharT>, std::weak_ptr<regex::state<CharT>>> generate_dfa_table(std::shared_ptr<regex::nfa<CharT>> nfa)
 {
     nfa_table<CharT> table;
-    std::weak_ptr<fa::state<CharT>> start;
+    std::weak_ptr<regex::state<CharT>> start;
 
     std::tie(table, start) = generate_nfa_table(nfa);
 
-    std::queue<std::weak_ptr<fa::state<CharT>>> assembly_line = {start};
+    std::queue<std::weak_ptr<regex::state<CharT>>> assembly_line = {start};
 
     while (!assembly_line.empty())
     {
-        std::set<std::weak_ptr<fa::state<CharT>>, std::owner_less<std::weak_ptr<fa::state<CharT>>>> epsilon_closure = table[assembly_line.front()][0x01];
+        std::set<std::weak_ptr<regex::state<CharT>>, std::owner_less<std::weak_ptr<regex::state<CharT>>>> epsilon_closure = table[assembly_line.front()][0x01];
 
-        std::shared_ptr<fa::state<CharT>> state = std::make_shared<fa::state<CharT>>(state<CharT>::accepting::nonaccepting);
+        std::shared_ptr<regex::state<CharT>> state = std::make_shared<regex::state<CharT>>(state<CharT>::accepting::nonaccepting);
 
         for (auto &next : epsilon_closure)
         {

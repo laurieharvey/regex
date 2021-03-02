@@ -4,14 +4,14 @@
 #include "nfa.h"
 #include "ast.h"
 
-std::shared_ptr<fa::nfa> compile(std::basic_stringstream<ast::character_type>&& pattern)
+std::shared_ptr<regex::nfa> compile(std::basic_stringstream<regex::character_type>&& pattern)
 {
-  std::basic_stringstream<ast::character_type> explicit_pattern = ast::make_explicit(pattern);
-  std::unique_ptr<ast::token> ast = ast::parse(explicit_pattern);
+  std::basic_stringstream<regex::character_type> explicit_pattern = regex::make_explicit(pattern);
+  std::unique_ptr<regex::token> ast = regex::parse(explicit_pattern);
 
-  fa::generator g;
+  regex::generator g;
 
-  ast->walk(std::bind(&fa::generator::callback, &g, std::placeholders::_1));
+  ast->walk(std::bind(&regex::generator::callback, &g, std::placeholders::_1));
   
   return g.result();
 }
