@@ -18,6 +18,18 @@ TEST(nfa_test, epsilon)
 			  fa::match::rejected);
 }
 
+TEST(nfa_test, any)
+{
+	EXPECT_EQ(fa::nfa::from_any()->run("a"),
+			  fa::match::accepted);
+
+	EXPECT_EQ(fa::nfa::from_any()->run("b"),
+			  fa::match::accepted);
+
+	EXPECT_EQ(fa::nfa::from_any()->run("c"),
+			  fa::match::accepted);
+}
+
 TEST(nfa_test, concatenation)
 {
 	EXPECT_EQ(fa::nfa::from_concatenation(fa::nfa::from_character('a'), fa::nfa::from_character('b'))->run("ab"),
