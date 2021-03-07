@@ -13,17 +13,17 @@ TEST(dfa, character)
               regex::match::rejected);
 }
 
-// TEST(dfa, any)
-// {
-// 	EXPECT_EQ((regex::dfa::from_nfa(regex::nfa::from_any())->run("a"),
-// 			  regex::match::accepted);
+TEST(dfa, any)
+{
+	EXPECT_EQ(regex::dfa::from_nfa(regex::nfa::from_any())->run("a"),
+			  regex::match::accepted);
 
-// 	EXPECT_EQ((regex::dfa::from_nfa(regex::nfa::from_any())->run("b"),
-// 			  regex::match::accepted);
+	EXPECT_EQ(regex::dfa::from_nfa(regex::nfa::from_any())->run("b"),
+			  regex::match::accepted);
 
-// 	EXPECT_EQ((regex::dfa::from_nfa(regex::nfa::from_any())->run("c"),
-// 			  regex::match::accepted);
-// }
+	EXPECT_EQ(regex::dfa::from_nfa(regex::nfa::from_any())->run("c"),
+			  regex::match::accepted);
+}
 
 TEST(dfa, concatenation)
 {
@@ -61,5 +61,34 @@ TEST(dfa, kleene)
 			  regex::match::rejected);
 
 	EXPECT_EQ(regex::dfa::from_nfa(regex::nfa::from_kleene(regex::nfa::from_character('a')))->run("ba"),
+			  regex::match::rejected);
+}
+
+TEST(dfa, complex)
+{
+	auto state_machine = regex::dfa::from_nfa(regex::nfa::from_alternation(
+		regex::nfa::from_concatenation(
+			regex::nfa::from_concatenation(
+				regex::nfa::from_character('a'),
+				regex::nfa::from_kleene(regex::nfa::from_character('b'))),
+			regex::nfa::from_character('c')),
+		regex::nfa::from_kleene(regex::nfa::from_character('d'))));
+
+	EXPECT_EQ(state_machine->run("abbc"),
+			  regex::match::accepted);
+
+	EXPECT_EQ(state_machine->run("ac"),
+			  regex::match::accepted);
+
+	EXPECT_EQ(state_machine->run(""),
+			  regex::match::accepted);
+
+	EXPECT_EQ(state_machine->run("dd"),
+			  regex::match::accepted);
+
+	EXPECT_EQ(state_machine->run("e"),
+			  regex::match::rejected);
+
+	EXPECT_EQ(state_machine->run("bc"),
 			  regex::match::rejected);
 }
