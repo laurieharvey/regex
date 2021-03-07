@@ -22,6 +22,11 @@ namespace regex
         acc_ = acc;
     }
 
+    bool state::is_accepting() const
+    {
+        return acc_ == accepting::accepting;
+    }
+
     void state::connect(regex::character_type symbol, std::shared_ptr<state> st)
     {
         strong_transitions_[symbol].insert(st);
@@ -32,9 +37,9 @@ namespace regex
         weak_transitions_[symbol].insert(st);
     }
 
-    auto state::get_transitions(regex::character_type symbol)
+    group state::get_transitions(regex::character_type symbol)
     {
-        std::set<std::weak_ptr<state>, std::owner_less<std::weak_ptr<state>>> result;
+        group result;
 
         typename std::map<regex::character_type, std::set<std::shared_ptr<state>>>::const_iterator strong_transitions = strong_transitions_.find(symbol);
 
@@ -47,44 +52,47 @@ namespace regex
 
         if (weak_transitions != std::cend(weak_transitions_))
         {
-            std::copy(weak_transitions->second.cbegin(), weak_transitions->second.cend(), std::inserter(result, result.begin()));
+            for(auto& weak_transition : weak_transitions->second)
+            {
+                result.insert(weak_transition.lock());
+            }
         }
 
         return result;
     }
 
-    std::set<std::weak_ptr<state>, std::owner_less<std::weak_ptr<state>>> state::get_epsilon_closure()
+    group state::get_epsilon_closure()
     {
-        std::set<std::weak_ptr<state>, std::owner_less<std::weak_ptr<state>>> epsilon_closure;
+        group result;
+        
+        result.insert(std::enable_shared_from_this<state>::shared_from_this()); 
 
-        epsilon_closure.insert(std::enable_shared_from_this<state>::weak_from_this());
-
-        std::set<std::weak_ptr<state>, std::owner_less<std::weak_ptr<state>>> epsilon_transitions = get_transitions(0x01);
-
-        for (const std::weak_ptr<state> &epsilon_transition : epsilon_transitions)
+        for(const auto& next: get_transitions(0x01))
         {
-            if (epsilon_closure.find(epsilon_transition) == std::end(epsilon_closure))
-            {
-                epsilon_closure.insert(epsilon_transition);
-                std::set<std::weak_ptr<state>, std::owner_less<std::weak_ptr<state>>> next_closure = epsilon_transition.lock()->get_epsilon_closure();
-                std::copy(next_closure.begin(), next_closure.end(), std::inserter(epsilon_closure, epsilon_closure.begin()));
-            }
+            result.merge( next->get_epsilon_closure() );            
         }
 
-        return epsilon_closure;
+        return result;
     }
 
-    auto state::get_transitions()
+    std::map<character_type, group> state::get_transitions()
     {
-        std::map<regex::character_type, std::set<std::weak_ptr<state>, std::owner_less<std::weak_ptr<state>>>> result = weak_transitions_;
+        std::map<character_type, group> result;
 
-        for (auto &states_for_transition : strong_transitions_)
+        for(const auto& weak_transition: weak_transitions_)
         {
-            for (const std::weak_ptr<state> &transition : states_for_transition.second)
-            {
-                result[states_for_transition.first].insert(transition);
-            }
+            result.insert({weak_transition.first, get_transitions(weak_transition.first)});
         }
+
+        for(const auto& strong_transition: strong_transitions_)
+        {
+            if(result.find(strong_transition.first) == std::cend(result))
+            {
+                result.insert({strong_transition.first, get_transitions(strong_transition.first)});
+            }            
+        }
+        
+        result[0x01] = get_epsilon_closure();
 
         return result;
     }

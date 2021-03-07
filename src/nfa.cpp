@@ -125,7 +125,7 @@ namespace regex
         }
     }
 
-    std::shared_ptr<fa> generator::result()
+    std::shared_ptr<nfa> generator::result()
     {
         return s_.pop();
     }

@@ -77,7 +77,7 @@ namespace regex
          */
         static std::shared_ptr<nfa> from_kleene(std::shared_ptr<nfa> expression);
 
-        void walk(std::function<void(std::weak_ptr<state>)> callback);
+        void walk(std::function<void(std::weak_ptr<state>)> callback) override;
 
         match run(std::basic_string_view<character_type> str) override;
     };
@@ -88,6 +88,6 @@ namespace regex
 
         void callback(const regex::token &token);
 
-        std::shared_ptr<fa> result();
+        std::shared_ptr<nfa> result();
     };
 } // namespace fa

@@ -17,9 +17,15 @@ namespace regex
 		rejected
 	};
 
+	class state;
+
+	using group = std::set<std::shared_ptr<state>>;
+
 	class state : public std::enable_shared_from_this<state>
 	{
 	public:
+		using pointer = std::shared_ptr<state>;
+
 		enum class accepting
 		{
 			accepting,
@@ -30,15 +36,17 @@ namespace regex
 
 		void set(accepting acc);
 
+		bool is_accepting() const;
+
 		void connect(regex::character_type symbol, std::shared_ptr<state> st);
 
 		void connect(regex::character_type symbol, std::weak_ptr<state> st);
 
-		auto get_transitions(regex::character_type symbol);
+		group get_transitions(regex::character_type symbol);
 
-		std::set<std::weak_ptr<state>, std::owner_less<std::weak_ptr<state>>> get_epsilon_closure();
+		group get_epsilon_closure();
 
-		auto get_transitions();
+		std::map<character_type, group> get_transitions();
 
 		void walk(std::function<void(std::weak_ptr<state>)> callback, std::set<const state *> visited = std::set<const state *>());
 
