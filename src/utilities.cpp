@@ -36,20 +36,18 @@ std::pair<regex::table, regex::group> generate_dfa_table(std::shared_ptr<regex::
 
     std::tie(nfa_table, start) = generate_nfa_table(nfa);
 
-    // std::cout << nfa_table <<std::endl;
-
     auto do_one_row = [ &nfa_table, &dfa_table](regex::group start)
     {
         if(dfa_table.find(start) != std::cend(dfa_table))
         {
-            return std::vector<regex::group>();
+            return std::map<regex::schema::name_type, regex::group>();
         }
         else
         {
             auto schema = nfa_table.get_schema();
             auto epsilon_col = schema.find(0x01);
 
-            std::vector<regex::group> next_dfa_states;
+            std::map<regex::schema::name_type, regex::group> next_dfa_states;
 
             for(const auto state: start)
             {
@@ -66,11 +64,15 @@ std::pair<regex::table, regex::group> generate_dfa_table(std::shared_ptr<regex::
                         {
                             auto dfa_state = nfa_table.find(regex::group({transition_state}))->second[epsilon_col];
 
-                            dfa_table.update(regex::group({start}), transition_character, dfa_state);
-                            next_dfa_states.push_back(dfa_state);
+                            next_dfa_states[transition_character].merge(dfa_state);
                         }
                     }
                 }
+            }
+
+            for(const auto& next_dfa_state: next_dfa_states)
+            {
+                dfa_table.update(regex::group({start}), next_dfa_state.first, next_dfa_state.second);
             }
 
             return next_dfa_states;
@@ -89,7 +91,7 @@ std::pair<regex::table, regex::group> generate_dfa_table(std::shared_ptr<regex::
 
         for(auto next: next_states)
         {
-            assembly_line.push(next);
+            assembly_line.push(next.second);
         }
     }
 
