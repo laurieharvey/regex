@@ -99,7 +99,8 @@ namespace regex
 
     void row::update(schema::size_type col, group g)
     {
-        m_elements[col] = g;
+        // m_elements[col] = g;
+        m_elements[col].merge(g);
     }
 
     row::reference row::operator[](size_type col)
