@@ -99,13 +99,27 @@ namespace regex
         {
             copy(rhs->input_, lhs_output);
 
-            if(!rhs->input_->is_accepting())
+            if (!rhs->input_->is_accepting())
             {
                 lhs_output->set(dstate::accepting::nonaccepting);
             }
         }
 
-        return std::make_shared<dfa>(lhs->input_, rhs->outputs_);
+        std::set<std::shared_ptr<dstate>> new_outputs;
+
+        for (const auto &old_output : rhs->outputs_)
+        {
+            if (old_output == rhs->input_)
+            {
+                new_outputs.merge(lhs->outputs_);
+            }
+            else
+            {
+                new_outputs.insert(old_output);
+            }
+        }
+
+        return std::make_shared<dfa>(lhs->input_, new_outputs);
     }
 
     std::shared_ptr<dfa> dfa::from_alternation(std::shared_ptr<dfa> lhs, std::shared_ptr<dfa> rhs)
