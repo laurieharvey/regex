@@ -1,6 +1,4 @@
-#include <sstream>
 #include <gtest/gtest.h>
-
 #include "nfa.h"
 
 TEST(nfa_test, character)
@@ -41,10 +39,16 @@ TEST(nfa_test, concatenation)
 
 TEST(nfa_test, alternation)
 {
-	EXPECT_EQ(regex::nfa::from_alternation(regex::nfa::from_character('a'), regex::nfa::from_character('b'))->run("a"),
+	EXPECT_EQ(regex::nfa::from_alternation(
+				  regex::nfa::from_concatenation(regex::nfa::from_character('a'), regex::nfa::from_character('b')),
+				  regex::nfa::from_concatenation(regex::nfa::from_character('a'), regex::nfa::from_character('c')))
+				  ->run("ac"),
 			  regex::match::accepted);
 
-	EXPECT_EQ(regex::nfa::from_alternation(regex::nfa::from_character('a'), regex::nfa::from_character('b'))->run("c"),
+	EXPECT_EQ(regex::nfa::from_alternation(
+				  regex::nfa::from_concatenation(regex::nfa::from_character('a'), regex::nfa::from_character('b')),
+				  regex::nfa::from_concatenation(regex::nfa::from_character('a'), regex::nfa::from_character('c')))
+				  ->run("a"),
 			  regex::match::rejected);
 }
 

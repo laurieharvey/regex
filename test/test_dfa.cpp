@@ -1,6 +1,4 @@
 #include <gtest/gtest.h>
-
-#include "nfa.h"
 #include "dfa.h"
 
 TEST(dfa, character)
@@ -43,13 +41,6 @@ TEST(dfa, alternation)
 
 TEST(dfa, kleene)
 {
-	auto state_machine = regex::dfa::from_concatenation(
-				regex::dfa::from_character('a'),
-				regex::dfa::from_kleene(regex::dfa::from_character('b')));
-
-	EXPECT_EQ(state_machine->run("a"),
-			regex::match::accepted);
-
 	EXPECT_EQ(regex::dfa::from_kleene(regex::dfa::from_character('a'))->run(""),
 			regex::match::accepted);
 
@@ -79,21 +70,21 @@ TEST(dfa, complex)
 			regex::dfa::from_character('c')),
 		regex::dfa::from_kleene(regex::dfa::from_character('d')));
 
-	// EXPECT_EQ(state_machine->run("abbc"),
-	// 		  regex::match::accepted);
+	EXPECT_EQ(state_machine->run("abbc"),
+			  regex::match::accepted);
 
 	EXPECT_EQ(state_machine->run("ac"),
 			  regex::match::accepted);
 
-	// EXPECT_EQ(state_machine->run(""),
-	// 		  regex::match::accepted);
+	EXPECT_EQ(state_machine->run(""),
+			  regex::match::accepted);
 
-	// EXPECT_EQ(state_machine->run("dd"),
-	// 		  regex::match::accepted);
+	EXPECT_EQ(state_machine->run("dd"),
+			  regex::match::accepted);
 
-	// EXPECT_EQ(state_machine->run("e"),
-	// 		  regex::match::rejected);
+	EXPECT_EQ(state_machine->run("e"),
+			  regex::match::rejected);
 
-	// EXPECT_EQ(state_machine->run("bc"),
-	// 		  regex::match::rejected);
+	EXPECT_EQ(state_machine->run("bc"),
+			  regex::match::rejected);
 }
