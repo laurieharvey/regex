@@ -17,13 +17,6 @@ std::shared_ptr<regex::fa> compile(std::basic_stringstream<regex::character_type
   ast->walk(std::bind(&regex::generator::callback, &g, std::placeholders::_1));
   
   std::shared_ptr<regex::nfa> non_deterministic = g.result();
-
-  if( flags & COMPILE_NFA )
-  {
-    return non_deterministic;
-  }
-  else
-  {
-    return std::make_shared<regex::dfa>(non_deterministic);
-  }  
+  
+  return non_deterministic;
 }

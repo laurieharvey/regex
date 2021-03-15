@@ -42,6 +42,8 @@ namespace regex
 
 		void connect(regex::character_type symbol, std::weak_ptr<state> st);
 
+		// friend std::shared_ptr<state> merge(std::shared_ptr<state> lhs, std::shared_ptr<state> rhs);
+
 		group get_transitions(regex::character_type symbol);
 
 		group get_epsilon_closure();

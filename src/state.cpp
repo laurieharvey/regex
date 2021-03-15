@@ -37,6 +37,23 @@ namespace regex
         weak_transitions_[symbol].insert(st);
     }
 
+    // std::shared_ptr<state> merge(std::shared_ptr<state> lhs, std::shared_ptr<state> rhs)
+    // {
+    //     auto merged = std::make_shared<state>(lhs->is_accepting() || rhs->is_accepting()
+    //                                               ? state::accepting::accepting
+    //                                               : state::accepting::nonaccepting);
+
+    //     merged->strong_transitions_ = lhs->strong_transitions_;
+    //     merged->strong_transitions_.merge(rhs->strong_transitions_);
+
+    //     for(const auto& rhs: rhs->strong_transitions_ )
+    //     {
+    //         merged->strong_transitions_.find(rhs.first)
+    //     }
+
+    //     return merged;
+    // }
+
     group state::get_transitions(regex::character_type symbol)
     {
         group result;
@@ -52,7 +69,7 @@ namespace regex
 
         if (weak_transitions != std::cend(weak_transitions_))
         {
-            for(auto& weak_transition : weak_transitions->second)
+            for (auto &weak_transition : weak_transitions->second)
             {
                 result.insert(weak_transition.lock());
             }
@@ -64,12 +81,12 @@ namespace regex
     group state::get_epsilon_closure()
     {
         group result;
-        
-        result.insert(std::enable_shared_from_this<state>::shared_from_this()); 
 
-        for(const auto& next: get_transitions(0x01))
+        result.insert(std::enable_shared_from_this<state>::shared_from_this());
+
+        for (const auto &next : get_transitions(0x01))
         {
-            result.merge( next->get_epsilon_closure() );            
+            result.merge(next->get_epsilon_closure());
         }
 
         return result;
@@ -79,19 +96,19 @@ namespace regex
     {
         std::map<character_type, group> result;
 
-        for(const auto& weak_transition: weak_transitions_)
+        for (const auto &weak_transition : weak_transitions_)
         {
             result.insert({weak_transition.first, get_transitions(weak_transition.first)});
         }
 
-        for(const auto& strong_transition: strong_transitions_)
+        for (const auto &strong_transition : strong_transitions_)
         {
-            if(result.find(strong_transition.first) == std::cend(result))
+            if (result.find(strong_transition.first) == std::cend(result))
             {
                 result.insert({strong_transition.first, get_transitions(strong_transition.first)});
-            }            
+            }
         }
-        
+
         result[0x01] = get_epsilon_closure();
 
         return result;
