@@ -17,9 +17,9 @@ std::shared_ptr<regex::nfa> compile_nfa(std::basic_stringstream<regex::character
   std::basic_stringstream<regex::character_type> explicit_pattern = regex::make_explicit(pattern);
   std::unique_ptr<regex::token> ast = regex::parse(explicit_pattern);
 
-  regex::generator g;
+  regex::nfa_generator g;
 
-  ast->walk(std::bind(&regex::generator::callback, &g, std::placeholders::_1));
+  ast->walk(std::bind(&regex::nfa_generator::callback, &g, std::placeholders::_1));
 
   return g.result();
 }

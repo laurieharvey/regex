@@ -82,7 +82,7 @@ namespace regex
         match run(std::basic_string_view<character_type> str) override;
     };
 
-    struct generator
+    struct nfa_generator
     {
         stack<std::shared_ptr<nfa>> s_;
 

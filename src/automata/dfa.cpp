@@ -151,4 +151,49 @@ namespace regex
     {
         input_->walk(callback);
     }
+
+    void dfa_generator::callback(const regex::token &token)
+    {
+        std::shared_ptr<regex::dfa> lhs;
+        std::shared_ptr<regex::dfa> rhs;
+        std::vector<regex::character_type> alphabet = regex::get_alphabet();
+
+        switch (token.get_type())
+        {
+        case regex::type::character:
+            s_.push(dfa::from_character(token.get_token()));
+            break;
+        case regex::type::any:
+            s_.push(dfa::from_any());
+            break;
+        case regex::type::alternation:
+            rhs = s_.pop();
+            lhs = s_.pop();
+            s_.push(dfa::from_alternation(lhs, rhs));
+            break;
+        case regex::type::concatenation:
+            rhs = s_.pop();
+            lhs = s_.pop();
+            s_.push(dfa::from_concatenation(lhs, rhs));
+            break;
+        case regex::type::kleene:
+            s_.push(dfa::from_kleene(s_.pop()));
+            break;
+        case regex::type::zero_or_one:
+            s_.push(dfa::from_alternation(dfa::from_epsilon(), s_.pop()));
+            break;
+        case regex::type::one_or_more:
+            lhs = s_.pop();
+            rhs = lhs;
+            s_.push(dfa::from_concatenation(lhs, dfa::from_kleene(rhs)));
+            break;
+       case regex::type::parenthesis:
+            break;
+        }
+    }
+
+    std::shared_ptr<dfa> dfa_generator::result()
+    {
+        return s_.pop();
+    }
 }

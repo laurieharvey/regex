@@ -85,7 +85,7 @@ namespace regex
         return input_->run(str);
     }
 
-    void generator::callback(const regex::token &token)
+    void nfa_generator::callback(const regex::token &token)
     {
         std::shared_ptr<regex::nfa> lhs;
         std::shared_ptr<regex::nfa> rhs;
@@ -125,7 +125,7 @@ namespace regex
         }
     }
 
-    std::shared_ptr<nfa> generator::result()
+    std::shared_ptr<nfa> nfa_generator::result()
     {
         return s_.pop();
     }
