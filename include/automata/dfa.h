@@ -29,49 +29,77 @@ namespace regex
 
         static std::shared_ptr<dfa> from_nfa(std::shared_ptr<nfa>);
         /*
+         *
+         * 
          *      +---+      c     +---+
          *      | i |------>-----| o |
          *      +---+            +---+
+         * 
+         * 
          */
-        static std::shared_ptr<dfa> from_character(character_type c);
+        static std::shared_ptr<dfa> from_character(character_type);
         /*
+         *
+         * 
          *      +---+      a     +---+
          *      | i |------>-----| o |
          *      +---+            +---+
+         * 
+         * 
          */
         static std::shared_ptr<dfa> from_any();
         /*
-         *   +----------------+---------+----------------+
-         *   |  +---+         |  +---+  |         +---+  |
-         *   |  | i |         |  |   |  |         | o |  |
-         *   |  +---+         |  +---+  |         +---+  |
-         *   +----------------+---------+----------------+
+         *                       +---+
+         *                       |   |
+         *      +---+            +---+            +---+
+         *      | i |----->----<       >----->----| o |
+         *      +---+            +---+            +---+
+         *                       |   |
+         *                       +---+
          */
         static std::shared_ptr<dfa> from_concatenation(std::shared_ptr<dfa> lhs, std::shared_ptr<dfa> rhs);
         /*
-         *          
-         *          |         |
-         *          |         |
-         *          |         |
-         *          +---------+----------------+
-         *          |  +---+  |         +---+  |
-         *          |  | i |  |         | o |  |
-         *          |  +---+  |         +---+  |
-         *          +---------+----------------+
+         *                       +---+            +---+
+         *                       |   |------>-----| o |
+         *      +---+            +---+            +---+
+         *      | i |----->----<
+         *      +---+            +---+            +---+
+         *                       |   |------>-----| o |
+         *                       +---+            +---+
          */
         static std::shared_ptr<dfa> from_alternation(std::shared_ptr<dfa> lhs, std::shared_ptr<dfa> rhs);
         /*
-         *              +-----<-----+
-         *    +---------|-----------|----+
-         *    |  +---+            +---+  |
-         *    |  |i o|            | o |  |
-         *    |  +---+            +---+  |
-         *    +--------------------------+
+         *        
+         *                         +--------<-------+
+         *                         |                |
+         *      +---+            +---+            +---+
+         *      |i o|------------|   |------>-----| o |
+         *      +---+            +---+            +---+
+         * 
          */
         static std::shared_ptr<dfa> from_kleene(std::shared_ptr<dfa> expression);
+        /*
+         *
+         * 
+         *      +---+            +---+
+         *      |i o|------>-----| o |
+         *      +---+            +---+
+         * 
+         * 
+         */
+        static std::shared_ptr<dfa> from_zero_or_one(std::shared_ptr<dfa> expression);
 
         void walk(std::function<void(std::shared_ptr<state>)> callback) override;
 
         match run(std::basic_string_view<character_type> str) override;
+    };
+
+    struct dfa_generator
+    {
+        stack<std::shared_ptr<dfa>> s_;
+
+        void callback(const regex::token &token);
+
+        std::shared_ptr<dfa> result();
     };
 } // namespace fa
