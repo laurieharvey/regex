@@ -2,9 +2,9 @@
 #include <queue>
 #include <iostream>
 
-#include "dfa.h"
-#include "nfa.h"
-#include "state.h"
+#include "automata/dfa.h"
+#include "automata/nfa.h"
+#include "state/dstate.h"
 #include "utilities.h"
 
 namespace regex
@@ -80,8 +80,8 @@ namespace regex
 
     std::shared_ptr<dfa> dfa::from_character(character_type c)
     {
-        auto input = std::make_shared<dstate>(dstate::accepting::nonaccepting);
-        auto output = std::make_shared<dstate>(dstate::accepting::accepting);
+        auto input = std::make_shared<dstate>(state::context::rejecting);
+        auto output = std::make_shared<dstate>(state::context::accepting);
 
         input->connect(c, output);
 
@@ -99,9 +99,9 @@ namespace regex
         {
             copy(rhs->input_, lhs_output);
 
-            if (!rhs->input_->is_accepting())
+            if (rhs->input_->get_type() == state::context::rejecting)
             {
-                lhs_output->set(dstate::accepting::nonaccepting);
+                lhs_output->set(state::context::rejecting);
             }
         }
 
@@ -136,7 +136,7 @@ namespace regex
             copy(expression->input_, output);
         }
 
-        expression->input_->set(dstate::accepting::accepting);
+        expression->input_->set(state::context::accepting);
         expression->outputs_.insert(expression->input_);
 
         return std::make_shared<dfa>(expression->input_, expression->outputs_);
@@ -145,5 +145,10 @@ namespace regex
     match dfa::run(std::basic_string_view<character_type> str)
     {
         return input_->next(str);
+    }
+
+    void dfa::walk(std::function<void(std::shared_ptr<state>)> callback)
+    {
+        input_->walk(callback);
     }
 }

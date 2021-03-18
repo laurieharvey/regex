@@ -4,15 +4,15 @@
 #include <set>
 #include <string_view>
 
-#include "dstate.h"
+#include "state/dstate.h"
 #include "stack.h"
 #include "ast.h"
-#include "fa.h"
-#include "nfa.h"
+#include "automata/fa.h"
+#include "automata/nfa.h"
 
 namespace regex
 {
-    class dfa //: public fa
+    class dfa : public fa
     {
         std::shared_ptr<dstate> input_;
         std::set<std::shared_ptr<dstate>> outputs_;
@@ -70,8 +70,8 @@ namespace regex
          */
         static std::shared_ptr<dfa> from_kleene(std::shared_ptr<dfa> expression);
 
-        // void walk(std::function<void(std::weak_ptr<dstate>)> callback);// override;
+        void walk(std::function<void(std::shared_ptr<state>)> callback) override;
 
-        match run(std::basic_string_view<character_type> str);// override;
+        match run(std::basic_string_view<character_type> str) override;
     };
 } // namespace fa

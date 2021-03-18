@@ -1,14 +1,14 @@
 #include <memory>
 #include <string_view>
 
-#include "state.h"
+#include "state/state.h"
 #include "stack.h"
 #include "ast.h"
-#include "nfa.h"
+#include "automata/nfa.h"
 
 namespace regex
 {
-    nfa::nfa(std::shared_ptr<state> input, std::shared_ptr<state> output)
+    nfa::nfa(std::shared_ptr<nstate> input, std::shared_ptr<nstate> output)
         : input_(input),
           output_(output)
     {
@@ -16,8 +16,8 @@ namespace regex
 
     std::shared_ptr<nfa> nfa::from_character(character_type c)
     {
-        auto input = std::make_shared<state>(state::accepting::nonaccepting);
-        auto output = std::make_shared<state>(state::accepting::accepting);
+        auto input = std::make_shared<nstate>(state::context::rejecting);
+        auto output = std::make_shared<nstate>(state::context::accepting);
 
         input->connect(c, output);
 
@@ -38,51 +38,51 @@ namespace regex
     {
         lhs->output_->connect(epsilon, rhs->input_);
 
-        lhs->output_->set(state::accepting::nonaccepting);
-        rhs->output_->set(state::accepting::accepting);
+        lhs->output_->set(state::context::rejecting);
+        rhs->output_->set(state::context::accepting);
 
         return std::make_shared<nfa>(lhs->input_, rhs->output_);
     }
 
     std::shared_ptr<nfa> nfa::from_alternation(std::shared_ptr<nfa> lhs, std::shared_ptr<nfa> rhs)
     {
-        std::shared_ptr<state> input = std::make_shared<state>(state::accepting::nonaccepting);
-        std::shared_ptr<state> output = std::make_shared<state>(state::accepting::accepting);
+        std::shared_ptr<nstate> input = std::make_shared<nstate>(state::context::rejecting);
+        std::shared_ptr<nstate> output = std::make_shared<nstate>(state::context::accepting);
 
         input->connect(epsilon, lhs->input_);
         input->connect(epsilon, rhs->input_);
 
         lhs->output_->connect(epsilon, output);
-        lhs->output_->set(state::accepting::nonaccepting);
+        lhs->output_->set(state::context::rejecting);
         rhs->output_->connect(epsilon, output);
-        rhs->output_->set(state::accepting::nonaccepting);
+        rhs->output_->set(state::context::rejecting);
 
         return std::make_shared<nfa>(input, output);
     }
 
     std::shared_ptr<nfa> nfa::from_kleene(std::shared_ptr<nfa> expression)
     {
-        std::shared_ptr<state> input = std::make_shared<state>(state::accepting::nonaccepting);
-        std::shared_ptr<state> output = std::make_shared<state>(state::accepting::accepting);
+        std::shared_ptr<nstate> input = std::make_shared<nstate>(state::context::rejecting);
+        std::shared_ptr<nstate> output = std::make_shared<nstate>(state::context::accepting);
 
-        expression->output_->set(state::accepting::nonaccepting);
+        expression->output_->set(state::context::rejecting);
 
         input->connect(epsilon, expression->input_);
         input->connect(epsilon, output);
         expression->output_->connect(epsilon, output);
-        output->connect(epsilon, std::weak_ptr<state>(expression->input_));
+        output->connect(epsilon, std::weak_ptr<nstate>(expression->input_));
 
         return std::make_shared<nfa>(input, output);
     }
 
-    void nfa::walk(std::function<void(std::weak_ptr<state>)> callback)
+    void nfa::walk(std::function<void(std::shared_ptr<state>)> callback)
     {
         input_->walk(callback);
     }
 
     match nfa::run(std::basic_string_view<character_type> str)
     {
-        return input_->next(str);
+        return input_->run(str);
     }
 
     void generator::callback(const regex::token &token)

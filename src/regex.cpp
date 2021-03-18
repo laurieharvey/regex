@@ -3,8 +3,8 @@
 #include <sstream>
 
 #include "parser.h"
-#include "nfa.h"
-#include "state.h"
+#include "automata/nfa.h"
+#include "state/state.h"
 #include "compile.h"
 
 int main(int argc, char **argv)

@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "nfa.h"
+#include "automata/nfa.h"
 
 TEST(nfa_test, character)
 {

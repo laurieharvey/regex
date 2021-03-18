@@ -8,11 +8,11 @@
 #include <set>
 
 #include "ast.h"
-#include "state.h"
+#include "state/state.h"
 
 namespace regex
 {
-	class dstate
+	class dstate : public state, public std::enable_shared_from_this<dstate>
 	{
 	public:
 		enum class accepting
@@ -21,11 +21,7 @@ namespace regex
 			nonaccepting
 		};
 
-		dstate(accepting acc = accepting::nonaccepting);
-
-		void set(accepting acc);
-
-		bool is_accepting() const;
+		dstate(state::context ctx = state::context::rejecting);
 
 		void connect(regex::character_type symbol, std::shared_ptr<dstate> st);
 
@@ -33,12 +29,19 @@ namespace regex
 
         friend void copy(std::shared_ptr<const dstate> src, std::shared_ptr<dstate> target);
 
-        std::map<character_type, std::shared_ptr<dstate>> get_transitions();
+		group get_transitions(regex::character_type symbol) override;
+
+		group get_epsilon_closure() override;
+
+		std::map<character_type, group> get_transitions() override;
+
+        // std::map<character_type, std::shared_ptr<dstate>> get_transitions();
+
+		void walk(std::function<void(std::shared_ptr<state>)> callback, std::set<std::shared_ptr<state>> visited = std::set<std::shared_ptr<state>>()) override;
 
 		match next(std::basic_string_view<regex::character_type> str);
 
 	private:
-		accepting acc_;
 		std::map<regex::character_type, std::shared_ptr<dstate>> transitions_;
 	};
 } // namespace regex

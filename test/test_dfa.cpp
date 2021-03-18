@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "dfa.h"
+#include "automata/dfa.h"
 
 TEST(dfa, character)
 {
@@ -42,7 +42,7 @@ TEST(dfa, alternation)
 TEST(dfa, kleene)
 {
 	EXPECT_EQ(regex::dfa::from_kleene(regex::dfa::from_character('a'))->run(""),
-			regex::match::accepted);
+			  regex::match::accepted);
 
 	EXPECT_EQ(regex::dfa::from_kleene(regex::dfa::from_character('a'))->run("a"),
 			  regex::match::accepted);

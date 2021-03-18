@@ -1,6 +1,6 @@
 #pragma once
 
-#include "state.h"
+#include "state/state.h"
 #include "ast.h"
 
 namespace regex
@@ -10,7 +10,7 @@ namespace regex
     public:
         using character_type = regex::character_type;
 
-        virtual void walk(std::function<void(std::weak_ptr<state>)> callback) = 0;
+        virtual void walk(std::function<void(std::shared_ptr<state>)> callback) = 0;
 
         virtual match run(std::basic_string_view<character_type> str) = 0;
     };

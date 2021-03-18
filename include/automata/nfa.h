@@ -3,17 +3,17 @@
 #include <memory>
 #include <string_view>
 
-#include "state.h"
+#include "state/nstate.h"
 #include "stack.h"
 #include "ast.h"
-#include "fa.h"
+#include "automata/fa.h"
 
 namespace regex
 {
     class nfa : public fa
     {
-        std::shared_ptr<state> input_;
-        std::shared_ptr<state> output_;
+        std::shared_ptr<nstate> input_;
+        std::shared_ptr<nstate> output_;
 
         static const regex::character_type epsilon = 0x01;
         static const regex::character_type any     = 0x02;
@@ -21,7 +21,7 @@ namespace regex
     public:
         using character_type = regex::character_type;
 
-        explicit nfa(std::shared_ptr<state> input, std::shared_ptr<state> output);
+        explicit nfa(std::shared_ptr<nstate> input, std::shared_ptr<nstate> output);
         explicit nfa(const nfa &other) = delete;
         explicit nfa(nfa &&other) = delete;
         /*
@@ -77,7 +77,7 @@ namespace regex
          */
         static std::shared_ptr<nfa> from_kleene(std::shared_ptr<nfa> expression);
 
-        void walk(std::function<void(std::weak_ptr<state>)> callback) override;
+        void walk(std::function<void(std::shared_ptr<state>)> callback) override;
 
         match run(std::basic_string_view<character_type> str) override;
     };
