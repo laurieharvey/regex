@@ -142,6 +142,13 @@ namespace regex
         return std::make_shared<dfa>(expression->input_, expression->outputs_);
     }
 
+    std::shared_ptr<dfa> dfa::from_zero_or_one(std::shared_ptr<dfa> expression)
+    {
+        expression->input_->set(state::context::accepting);
+
+        return expression;
+    }
+
     match dfa::run(std::basic_string_view<character_type> str)
     {
         return input_->next(str);
@@ -180,7 +187,7 @@ namespace regex
             s_.push(dfa::from_kleene(s_.pop()));
             break;
         case regex::type::zero_or_one:
-            s_.push(dfa::from_alternation(dfa::from_epsilon(), s_.pop()));
+            s_.push(dfa::from_zero_or_one(s_.pop()));
             break;
         case regex::type::one_or_more:
             lhs = s_.pop();

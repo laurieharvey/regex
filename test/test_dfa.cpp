@@ -60,6 +60,27 @@ TEST(dfa, kleene)
 			  regex::match::rejected);
 }
 
+TEST(dfa, zero_or_one)
+{
+	EXPECT_EQ(regex::dfa::from_zero_or_one(regex::dfa::from_character('a'))->run(""),
+			  regex::match::accepted);
+
+	EXPECT_EQ(regex::dfa::from_zero_or_one(regex::dfa::from_character('a'))->run("a"),
+			  regex::match::accepted);
+
+	EXPECT_EQ(regex::dfa::from_zero_or_one(regex::dfa::from_character('a'))->run("aa"),
+			  regex::match::rejected);
+
+	EXPECT_EQ(regex::dfa::from_zero_or_one(regex::dfa::from_character('a'))->run("b"),
+			  regex::match::rejected);
+
+	EXPECT_EQ(regex::dfa::from_zero_or_one(regex::dfa::from_character('a'))->run("ab"),
+			  regex::match::rejected);
+
+	EXPECT_EQ(regex::dfa::from_zero_or_one(regex::dfa::from_character('a'))->run("ba"),
+			  regex::match::rejected);
+}
+
 TEST(dfa, complex)
 {
 	auto state_machine = regex::dfa::from_alternation(
