@@ -15,7 +15,7 @@ int main(int argc, char **argv)
   std::stringstream pattern(argv[1]);
   std::string input_line;
 
-  std::shared_ptr<regex::fa> nfa = compile(std::move(pattern));
+  std::shared_ptr<regex::fa> nfa = compile(std::move(pattern), compile_flag::nfa);
 
   while (std::getline(std::cin, input_line))
   {

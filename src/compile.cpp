@@ -7,9 +7,16 @@
 #include "automata/dfa.h"
 #include "ast.h"
 
-std::shared_ptr<regex::fa> compile(std::basic_stringstream<regex::character_type> pattern, compile_flags flags)
+std::shared_ptr<regex::fa> compile(std::basic_stringstream<regex::character_type> pattern, compile_flag flag)
 {
-  return compile_nfa(std::move(pattern));
+  if (flag == compile_flag::nfa)
+  {
+    return compile_nfa(std::move(pattern));
+  }
+  else
+  {
+    return compile_dfa(std::move(pattern));
+  }
 }
 
 std::shared_ptr<regex::nfa> compile_nfa(std::basic_stringstream<regex::character_type> pattern)
@@ -26,5 +33,12 @@ std::shared_ptr<regex::nfa> compile_nfa(std::basic_stringstream<regex::character
 
 std::shared_ptr<regex::dfa> compile_dfa(std::basic_stringstream<regex::character_type> pattern)
 {
-  return std::shared_ptr<regex::dfa>();
+  std::basic_stringstream<regex::character_type> explicit_pattern = regex::make_explicit(pattern);
+  std::unique_ptr<regex::token> ast = regex::parse(explicit_pattern);
+
+  regex::dfa_generator g;
+
+  ast->walk(std::bind(&regex::dfa_generator::callback, &g, std::placeholders::_1));
+
+  return g.result();
 }

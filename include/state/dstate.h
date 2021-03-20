@@ -21,7 +21,9 @@ namespace regex
 			nonaccepting
 		};
 
-		dstate(state::context ctx = state::context::rejecting);
+		explicit dstate(state::context ctx = state::context::rejecting);
+		explicit dstate(const dstate&);
+		explicit dstate(dstate&&) = delete;
 
 		void connect(regex::character_type symbol, std::shared_ptr<dstate> st);
 

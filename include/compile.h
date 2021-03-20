@@ -8,16 +8,15 @@
 #include "automata/dfa.h"
 #include "ast.h"
 
-enum compile_flag
+enum class compile_flag
 {
-    COMPILE_NFA = 0x01,
-    COMPILE_DFA = 0x02,
+    nfa,
+    dfa,
 };
-using compile_flags = std::underlying_type<compile_flag>::type;
 /*
  * Compile the regular expression to its finite automaton
  */
-std::shared_ptr<regex::fa> compile(std::basic_stringstream<regex::character_type> pattern, compile_flags flags = COMPILE_NFA);
+std::shared_ptr<regex::fa> compile(std::basic_stringstream<regex::character_type> pattern, compile_flag flag);
 /*
  * Compile the regular expression to its non-deterministic finite automaton
  */

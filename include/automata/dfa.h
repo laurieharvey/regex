@@ -23,11 +23,8 @@ namespace regex
         using character_type = regex::character_type;
 
         explicit dfa(std::shared_ptr<dstate> input, const std::set<std::shared_ptr<dstate>> &outputs);
-        explicit dfa(std::shared_ptr<nfa>);
-        explicit dfa(const dfa &other) = delete;
+        explicit dfa(const dfa &other);
         explicit dfa(dfa &&other) = delete;
-
-        static std::shared_ptr<dfa> from_nfa(std::shared_ptr<nfa>);
         /*
          *
          * 

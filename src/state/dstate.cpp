@@ -15,6 +15,16 @@ namespace regex
     {
     }
 
+    dstate::dstate(const dstate &src)
+        : state(src.get_type()),
+          transitions_()
+    {
+        for (const auto &transition : src.transitions_)
+        {
+            transitions_.insert({transition.first, std::make_shared<dstate>(*transition.second)});
+        }
+    }
+
     void dstate::connect(regex::character_type symbol, std::shared_ptr<dstate> st)
     {
         transitions_[symbol] = st;
@@ -52,14 +62,14 @@ namespace regex
     {
         auto ptr = transitions_.find(symbol);
 
-        if(ptr == std::cend(transitions_))
+        if (ptr == std::cend(transitions_))
         {
             return group();
         }
         else
         {
-            return group{ ptr->second };
-        }        
+            return group{ptr->second};
+        }
     }
 
     group dstate::get_epsilon_closure()
@@ -73,7 +83,7 @@ namespace regex
 
         for (const auto &transition : transitions_)
         {
-            result.insert({transition.first, group{ transition.second }});
+            result.insert({transition.first, group{transition.second}});
         }
 
         return result;
