@@ -15,10 +15,10 @@ namespace regex
     }
 
     dfa::dfa(const dfa &other)
-        : input_(std::make_shared<dstate>(*other.input_))
+        : input_()
         , outputs_()
     {
-        
+        std::tie( input_, outputs_ ) = duplicate(other.input_);
     }
 
     std::shared_ptr<dfa> dfa::from_character(character_type c)
@@ -40,7 +40,7 @@ namespace regex
     {
         for (auto &lhs_output : lhs->outputs_)
         {
-            copy(rhs->input_, lhs_output);
+            merge(rhs->input_, lhs_output);
 
             if (rhs->input_->get_type() == state::context::rejecting)
             {
@@ -67,7 +67,7 @@ namespace regex
 
     std::shared_ptr<dfa> dfa::from_alternation(std::shared_ptr<dfa> lhs, std::shared_ptr<dfa> rhs)
     {
-        copy(lhs->input_, rhs->input_);
+        merge(lhs->input_, rhs->input_);
         rhs->outputs_.merge(lhs->outputs_);
         return std::make_shared<dfa>(rhs->input_, rhs->outputs_);
     }
@@ -134,7 +134,7 @@ namespace regex
             break;
         case regex::type::one_or_more:
             lhs = s_.pop();
-            rhs = lhs;
+            rhs = std::make_shared<dfa>(*lhs);
             s_.push(dfa::from_concatenation(lhs, dfa::from_kleene(rhs)));
             break;
        case regex::type::parenthesis:

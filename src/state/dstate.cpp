@@ -58,6 +58,29 @@ namespace regex
         }
     }
 
+    std::pair<std::shared_ptr<dstate>, std::set<std::shared_ptr<dstate>>> duplicate(std::shared_ptr<const dstate> src)
+    {
+        auto dup = std::make_shared<dstate>(src->get_type());
+
+        std::set<std::shared_ptr<dstate>> accepting_states;
+
+        for (const auto &transition : src->transitions_)
+        {
+            auto next = duplicate(transition.second);
+
+            accepting_states.merge(next.second);
+
+            dup->transitions_.insert({transition.first, next.first});
+        }
+
+        if (src->get_type() == state::context::accepting)
+        {
+            accepting_states.insert(dup);
+        }
+
+        return {dup, accepting_states};
+    }
+
     group dstate::get_transitions(regex::character_type symbol)
     {
         auto ptr = transitions_.find(symbol);
