@@ -31,7 +31,15 @@ namespace regex
 
     std::shared_ptr<nfa> nfa::from_any()
     {
-        return from_character(any);
+        auto input = std::make_shared<nstate>(state::context::rejecting);
+        auto output = std::make_shared<nstate>(state::context::accepting);
+
+        for(const auto letter : get_alphabet() )
+        {
+            input->connect(letter, output);
+        }
+
+        return std::make_shared<nfa>(input, output);
     }
 
     std::shared_ptr<nfa> nfa::from_concatenation(std::shared_ptr<nfa> lhs, std::shared_ptr<nfa> rhs)

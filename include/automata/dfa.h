@@ -36,13 +36,13 @@ namespace regex
          */
         static std::shared_ptr<dfa> from_character(character_type);
         /*
-         *
-         * 
-         *      +---+      a     +---+
-         *      | i |------>-----| o |
-         *      +---+            +---+
-         * 
-         * 
+         *                 a
+         *             ---->---
+         *      +---+/          \+---+
+         *      | i |----- b ----| o |
+         *      +---+\          /+---+
+         *             ---->---
+         *                 c
          */
         static std::shared_ptr<dfa> from_any();
         /*
