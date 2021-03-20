@@ -15,10 +15,9 @@ namespace regex
     }
 
     dfa::dfa(const dfa &other)
-        : input_()
-        , outputs_()
+        : input_(), outputs_()
     {
-        std::tie( input_, outputs_ ) = duplicate(other.input_);
+        std::tie(input_, outputs_) = duplicate(other.input_);
     }
 
     std::shared_ptr<dfa> dfa::from_character(character_type c)
@@ -33,14 +32,22 @@ namespace regex
 
     std::shared_ptr<dfa> dfa::from_any()
     {
-        return from_character(dfa::any);
+        auto input = std::make_shared<dstate>(state::context::rejecting);
+        auto output = std::make_shared<dstate>(state::context::accepting);
+
+        for (const auto letter : get_alphabet())
+        {
+            input->connect(letter, output);
+        }
+
+        return std::make_shared<dfa>(input, std::set<std::shared_ptr<dstate>>{output});
     }
 
     std::shared_ptr<dfa> dfa::from_concatenation(std::shared_ptr<dfa> lhs, std::shared_ptr<dfa> rhs)
     {
         for (auto &lhs_output : lhs->outputs_)
         {
-            merge(rhs->input_, lhs_output);
+            copy(rhs->input_, lhs_output);
 
             if (rhs->input_->get_type() == state::context::rejecting)
             {
@@ -137,7 +144,7 @@ namespace regex
             rhs = std::make_shared<dfa>(*lhs);
             s_.push(dfa::from_concatenation(lhs, dfa::from_kleene(rhs)));
             break;
-       case regex::type::parenthesis:
+        case regex::type::parenthesis:
             break;
         }
     }

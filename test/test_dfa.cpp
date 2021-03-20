@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 #include "automata/dfa.h"
+#include "utilities.h"
 
 TEST(dfa, character)
 {
@@ -12,7 +13,14 @@ TEST(dfa, character)
 
 TEST(dfa, any)
 {
+	EXPECT_EQ(regex::dfa::from_any()->run("a"),
+			  regex::match::accepted);
 
+	EXPECT_EQ(regex::dfa::from_any()->run("b"),
+			  regex::match::accepted);
+
+	EXPECT_EQ(regex::dfa::from_any()->run("c"),
+			  regex::match::accepted);
 }
 
 TEST(dfa, concatenation)
