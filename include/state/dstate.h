@@ -29,7 +29,7 @@ namespace regex
 
 		friend void merge(std::shared_ptr<dstate> src, std::shared_ptr<dstate> target);
 
-		friend void copy(std::shared_ptr<const dstate> src, std::shared_ptr<dstate> target);
+		friend void copy(std::shared_ptr<const dstate> src, std::shared_ptr<dstate> target, int i);
 
 		friend std::pair<std::shared_ptr<dstate>, std::set<std::shared_ptr<dstate>>>
 		duplicate(std::shared_ptr<const dstate> src);

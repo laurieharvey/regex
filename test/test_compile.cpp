@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 
 #include "compile.h"
+#include "utilities.h"
 
 TEST(compile_nfa, character)
 {
@@ -95,7 +96,9 @@ TEST(compile_dfa, one_or_more)
 
 TEST(compile_dfa, complex)
 {
-    // EXPECT_EQ(compile(std::stringstream("a?.*(c*|d+)b*e"), compile_flag::dfa)->run("afffbbe"), regex::match::accepted);
+    auto r = generate_table(compile(std::stringstream("a*a*"), compile_flag::nfa));
+    std::cout << r.first << std::endl;
+    // EXPECT_EQ(compile(std::stringstream("a*a*"), compile_flag::nfa)->run("afffbbe"), regex::match::accepted);
     // EXPECT_EQ(compile(std::stringstream("a?.*(c*|d+)b*e"), compile_flag::dfa)->run("adbbe"), regex::match::accepted);
     // EXPECT_EQ(compile(std::stringstream("a?.*(c+|d+)b*e"), compile_flag::dfa)->run("afffbbe"), regex::match::rejected);
 }
