@@ -3,7 +3,7 @@
 
 #include "parser.h"
 
-TEST( make_explicit_test, character )
+TEST( make_explicit, character )
 {
 	std::stringstream implicit_regex( "a" );
 	std::stringstream explicit_regex = regex::make_explicit( implicit_regex );
@@ -11,7 +11,7 @@ TEST( make_explicit_test, character )
 	EXPECT_EQ( explicit_regex.str(), implicit_regex.str() );
 }
 
-TEST( make_explicit_test, any )
+TEST( make_explicit, any )
 {
 	std::stringstream implicit_regex( "." );
 	std::stringstream explicit_regex = regex::make_explicit( implicit_regex );
@@ -19,7 +19,7 @@ TEST( make_explicit_test, any )
 	EXPECT_EQ( explicit_regex.str(), implicit_regex.str() );
 }
 
-TEST( make_explicit_test, alternation )
+TEST( make_explicit, alternation )
 {
 	std::stringstream implicit_regex( "a|b" );
 	std::stringstream explicit_regex = regex::make_explicit( implicit_regex );
@@ -27,7 +27,7 @@ TEST( make_explicit_test, alternation )
 	EXPECT_EQ( explicit_regex.str(), implicit_regex.str() );
 }
 
-TEST( make_explicit_test, question )
+TEST( make_explicit, question )
 {
 	std::stringstream implicit_regex( "a?" );
 	std::stringstream explicit_regex = regex::make_explicit( implicit_regex );
@@ -35,7 +35,7 @@ TEST( make_explicit_test, question )
 	EXPECT_EQ( explicit_regex.str( ), implicit_regex.str() );
 }
 
-TEST( make_explicit_test, kleene )
+TEST( make_explicit, kleene )
 {
 	std::stringstream implicit_regex( "a*" );
 	std::stringstream explicit_regex = regex::make_explicit( implicit_regex );
@@ -43,7 +43,7 @@ TEST( make_explicit_test, kleene )
 	EXPECT_EQ( explicit_regex.str( ), implicit_regex.str() );
 }
 
-TEST( make_explicit_test, one_or_more )
+TEST( make_explicit, one_or_more )
 {
 	std::stringstream implicit_regex( "a+" );
 	std::stringstream explicit_regex = regex::make_explicit( implicit_regex );
@@ -51,7 +51,7 @@ TEST( make_explicit_test, one_or_more )
 	EXPECT_EQ( explicit_regex.str( ), implicit_regex.str() );
 }
 
-TEST( make_explicit_test, parenthesis )
+TEST( make_explicit, parenthesis )
 {
 	std::stringstream implicit_regex( "(c)" );
 	std::stringstream explicit_regex = regex::make_explicit( implicit_regex );
@@ -59,7 +59,7 @@ TEST( make_explicit_test, parenthesis )
 	EXPECT_EQ( explicit_regex.str( ), implicit_regex.str() );
 }
 
-TEST( make_explicit_test, complex )
+TEST( make_explicit, complex )
 {
 	std::stringstream implicit_regex( "a?.(c*|d+)b*e" );
 	std::stringstream explicit_regex = regex::make_explicit( implicit_regex );
@@ -67,7 +67,7 @@ TEST( make_explicit_test, complex )
 	EXPECT_EQ( explicit_regex.str( ), std::string( "a?-.-(c*|d+)-b*-e" ) );
 }
 
-TEST( parse_test, character )
+TEST( parse, character )
 {
 	std::stringstream input( "a" );
 	std::stringstream output;
@@ -77,7 +77,7 @@ TEST( parse_test, character )
 	EXPECT_EQ( output.str( ), input.str( ) );
 }
 
-TEST( parse_test, any )
+TEST( parse, any )
 {
 	std::stringstream input( "." );
 	std::stringstream output;
@@ -87,7 +87,7 @@ TEST( parse_test, any )
 	EXPECT_EQ( output.str( ), input.str() );
 }
 
-TEST( parse_test, alternation )
+TEST( parse, alternation )
 {
 	std::stringstream input( "a|b" );
 	std::stringstream output;
@@ -97,7 +97,7 @@ TEST( parse_test, alternation )
 	EXPECT_EQ( output.str( ), input.str( ) );
 }
 
-TEST( parse_test, question )
+TEST( parse, question )
 {
 	std::stringstream input( "a?" );
 	std::stringstream output;
@@ -107,7 +107,7 @@ TEST( parse_test, question )
 	EXPECT_EQ( output.str( ), input.str() );
 }
 
-TEST( parse_test, kleene )
+TEST( parse, kleene )
 {
 	std::stringstream input( "a*" );
 	std::stringstream output;
@@ -117,7 +117,7 @@ TEST( parse_test, kleene )
 	EXPECT_EQ( output.str( ), input.str() );
 }
 
-TEST( parse_test, one_or_more )
+TEST( parse, one_or_more )
 {
 	std::stringstream input( "a+" );
 	std::stringstream output;
@@ -127,7 +127,7 @@ TEST( parse_test, one_or_more )
 	EXPECT_EQ( output.str( ), input.str() );
 }
 
-TEST( parse_test, parenthesis )
+TEST( parse, parenthesis )
 {
 	std::stringstream input( "(c)" );
 	std::stringstream output;
@@ -137,7 +137,7 @@ TEST( parse_test, parenthesis )
 	EXPECT_EQ( output.str( ), input.str() );
 }
 
-TEST( parse_test, complex )
+TEST( parse, complex )
 {
 	std::stringstream input( "a?-.-(c*|d+)-b*-e" );
 	std::stringstream output;

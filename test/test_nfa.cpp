@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include "automata/nfa.h"
 
-TEST(nfa_test, character)
+TEST(nfa, character)
 {
 	EXPECT_EQ(regex::nfa::from_character('a')->run("a"),
 			  regex::match::accepted);
@@ -10,13 +10,13 @@ TEST(nfa_test, character)
 			  regex::match::rejected);
 }
 
-TEST(nfa_test, epsilon)
+TEST(nfa, epsilon)
 {
 	EXPECT_EQ(regex::nfa::from_epsilon()->run("a"),
 			  regex::match::rejected);
 }
 
-TEST(nfa_test, any)
+TEST(nfa, any)
 {
 	EXPECT_EQ(regex::nfa::from_any()->run("a"),
 			  regex::match::accepted);
@@ -28,7 +28,7 @@ TEST(nfa_test, any)
 			  regex::match::accepted);
 }
 
-TEST(nfa_test, concatenation)
+TEST(nfa, concatenation)
 {
 	EXPECT_EQ(regex::nfa::from_concatenation(regex::nfa::from_character('a'), regex::nfa::from_character('b'))->run("ab"),
 			  regex::match::accepted);
@@ -37,7 +37,7 @@ TEST(nfa_test, concatenation)
 			  regex::match::rejected);
 }
 
-TEST(nfa_test, alternation)
+TEST(nfa, alternation)
 {
 	EXPECT_EQ(regex::nfa::from_alternation(
 				  regex::nfa::from_concatenation(regex::nfa::from_character('a'), regex::nfa::from_character('b')),
@@ -52,7 +52,7 @@ TEST(nfa_test, alternation)
 			  regex::match::rejected);
 }
 
-TEST(nfa_test, kleene)
+TEST(nfa, kleene)
 {
 	EXPECT_EQ(regex::nfa::from_kleene(regex::nfa::from_character('a'))->run(""),
 			  regex::match::accepted);
@@ -73,7 +73,7 @@ TEST(nfa_test, kleene)
 			  regex::match::rejected);
 }
 
-TEST(nfa_test, complex)
+TEST(nfa, complex)
 {
 	auto state_machine = regex::nfa::from_alternation(
 		regex::nfa::from_concatenation(
