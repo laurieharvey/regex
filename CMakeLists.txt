@@ -9,8 +9,8 @@ include_directories(include)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin")
 
-add_executable(tests test/test_parser.cpp test/test_compile.cpp test/test_nfa.cpp test/test_dfa.cpp src/ast.cpp src/parser.cpp src/state/state.cpp src/state/nstate.cpp src/state/dstate.cpp src/automata/nfa.cpp src/automata/dfa.cpp src/compile.cpp src/table.cpp src/utilities.cpp)
-add_executable(regex src/regex.cpp src/ast.cpp src/parser.cpp src/state/state.cpp src/state/nstate.cpp src/state/dstate.cpp src/automata/nfa.cpp src/automata/dfa.cpp src/compile.cpp src/table.cpp src/utilities.cpp)
+add_executable(tests test/test_parser.cpp test/test_compile.cpp test/test_nfa.cpp test/test_dfa.cpp src/language/ast.cpp src/language/parser.cpp src/state/state.cpp src/state/nstate.cpp src/state/dstate.cpp src/automata/nfa.cpp src/automata/dfa.cpp src/compile.cpp src/table.cpp src/utilities.cpp)
+add_executable(regex src/regex.cpp src/language/ast.cpp src/language/parser.cpp src/state/state.cpp src/state/nstate.cpp src/state/dstate.cpp src/automata/nfa.cpp src/automata/dfa.cpp src/compile.cpp src/table.cpp src/utilities.cpp)
 
 target_link_libraries(tests libgtest.a)
 target_link_libraries(tests libgtest_main.a)
