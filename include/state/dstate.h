@@ -7,7 +7,7 @@
 #include <vector>
 #include <set>
 
-#include "ast.h"
+#include "language/ast.h"
 #include "state/state.h"
 
 namespace regex

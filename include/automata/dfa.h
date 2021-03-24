@@ -6,7 +6,7 @@
 
 #include "state/dstate.h"
 #include "stack.h"
-#include "ast.h"
+#include "language/ast.h"
 #include "automata/fa.h"
 #include "automata/nfa.h"
 

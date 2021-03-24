@@ -5,7 +5,7 @@
 #include "automata/fa.h"
 #include "automata/nfa.h"
 #include "automata/dfa.h"
-#include "ast.h"
+#include "language/ast.h"
 
 std::shared_ptr<regex::fa> compile(std::basic_stringstream<regex::character_type> pattern, compile_flag flag)
 {

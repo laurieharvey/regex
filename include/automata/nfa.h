@@ -5,7 +5,7 @@
 
 #include "state/nstate.h"
 #include "stack.h"
-#include "ast.h"
+#include "language/ast.h"
 #include "automata/fa.h"
 
 namespace regex

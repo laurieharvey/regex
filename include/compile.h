@@ -6,7 +6,7 @@
 #include "automata/fa.h"
 #include "automata/nfa.h"
 #include "automata/dfa.h"
-#include "ast.h"
+#include "language/ast.h"
 
 enum class compile_flag
 {

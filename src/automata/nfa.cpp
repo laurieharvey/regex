@@ -3,7 +3,7 @@
 
 #include "state/state.h"
 #include "stack.h"
-#include "ast.h"
+#include "language/ast.h"
 #include "automata/nfa.h"
 
 namespace regex
