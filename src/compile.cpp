@@ -1,7 +1,7 @@
 #include <sstream>
 
 #include "compile.h"
-#include "parser.h"
+#include "language/parser.h"
 #include "automata/fa.h"
 #include "automata/nfa.h"
 #include "automata/dfa.h"

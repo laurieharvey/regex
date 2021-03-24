@@ -1,7 +1,7 @@
 #include <sstream>
 #include <gtest/gtest.h>
 
-#include "parser.h"
+#include "language/parser.h"
 
 TEST( make_explicit, character )
 {

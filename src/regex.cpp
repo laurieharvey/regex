@@ -2,7 +2,7 @@
 #include <functional>
 #include <sstream>
 
-#include "parser.h"
+#include "language/parser.h"
 #include "automata/nfa.h"
 #include "state/state.h"
 #include "compile.h"
