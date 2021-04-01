@@ -1,12 +1,11 @@
-#include "compile.h"
-
 #include <sstream>
 
-#include "ast.h"
-#include "automata/dfa.h"
+#include "compile.h"
+#include "language/ast.h"
+#include "parser.h"
 #include "automata/fa.h"
 #include "automata/nfa.h"
-#include "parser.h"
+#include "automata/dfa.h"
 
 std::shared_ptr<regex::fa> compile( std::basic_stringstream<regex::character_type> pattern, compile_flag flag )
 {

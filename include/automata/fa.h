@@ -1,7 +1,7 @@
 #pragma once
 
-#include "ast.h"
 #include "state/state.h"
+#include "language/ast.h"
 
 namespace regex
 {

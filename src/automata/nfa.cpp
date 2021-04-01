@@ -1,11 +1,10 @@
-#include "automata/nfa.h"
-
 #include <memory>
 #include <string_view>
 
-#include "ast.h"
-#include "stack.h"
 #include "state/state.h"
+#include "stack.h"
+#include "language/ast.h"
+#include "automata/nfa.h"
 
 namespace regex
 {

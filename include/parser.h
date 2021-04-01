@@ -5,7 +5,7 @@
 #include <memory>
 #include <ostream>
 
-#include "ast.h"
+#include "language/ast.h"
 #include "stack.h"
 
 namespace regex

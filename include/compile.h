@@ -3,10 +3,10 @@
 #include <memory>
 #include <sstream>
 
-#include "ast.h"
-#include "automata/dfa.h"
 #include "automata/fa.h"
 #include "automata/nfa.h"
+#include "automata/dfa.h"
+#include "language/ast.h"
 
 enum class compile_flag
 {

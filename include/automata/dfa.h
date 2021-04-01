@@ -4,7 +4,9 @@
 #include <set>
 #include <string_view>
 
-#include "ast.h"
+#include "state/dstate.h"
+#include "stack.h"
+#include "language/ast.h"
 #include "automata/fa.h"
 #include "automata/nfa.h"
 #include "stack.h"

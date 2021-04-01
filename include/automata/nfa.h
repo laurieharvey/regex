@@ -3,7 +3,9 @@
 #include <memory>
 #include <string_view>
 
-#include "ast.h"
+#include "state/nstate.h"
+#include "stack.h"
+#include "language/ast.h"
 #include "automata/fa.h"
 #include "stack.h"
 #include "state/nstate.h"
