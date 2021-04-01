@@ -4,7 +4,7 @@
 
 namespace regex
 {
-    bool is_operator( character_type token )
+    bool is_operator( language::character_type token )
     {
         switch( token )
         {
@@ -21,7 +21,7 @@ namespace regex
         }
     }
 
-    bool is_unary_operator( character_type token )
+    bool is_unary_operator( language::character_type token )
     {
         switch( token )
         {
@@ -36,16 +36,16 @@ namespace regex
         }
     }
 
-    bool is_character( character_type token )
+    bool is_character( language::character_type token )
     {
         return !is_operator( token ) && token != 0;
     }
 
-    std::basic_stringstream<character_type> make_explicit( std::basic_istream<character_type> &input )
+    std::basic_stringstream<language::character_type> make_explicit( std::basic_istream<language::character_type> &input )
     {
-        character_type current_token, previous_token = 0;
+        language::character_type current_token, previous_token = 0;
 
-        std::basic_stringstream<character_type> output;
+        std::basic_stringstream<language::character_type> output;
 
         while( input.get( current_token ) )
         {
@@ -57,14 +57,14 @@ namespace regex
         return output;
     }
 
-    std::unique_ptr<regex::token> parse( std::basic_istream<character_type, std::char_traits<character_type>> &expression )
+    std::unique_ptr<language::token> parse( std::basic_istream<language::character_type, std::char_traits<language::character_type>> &expression )
     {
-        character_type token;
-        stack<std::unique_ptr<regex::token>> output;
-        stack<character_type> ops;
+        language::character_type token;
+        stack<std::unique_ptr<language::token>> output;
+        stack<language::character_type> ops;
 
-        std::unique_ptr<regex::token> lhs;
-        std::unique_ptr<regex::token> rhs;
+        std::unique_ptr<language::token> lhs;
+        std::unique_ptr<language::token> rhs;
 
         while( expression.get( token ) )
         {
@@ -75,23 +75,23 @@ namespace regex
                     switch( ops.top( ) )
                     {
                         case '*':
-                            output.push( std::make_unique<kleene>( output.pop( ) ) );
+                            output.push( std::make_unique<language::kleene>( output.pop( ) ) );
                             break;
                         case '?':
-                            output.push( std::make_unique<zero_or_one>( output.pop( ) ) );
+                            output.push( std::make_unique<language::zero_or_one>( output.pop( ) ) );
                             break;
                         case '+':
-                            output.push( std::make_unique<one_or_more>( output.pop( ) ) );
+                            output.push( std::make_unique<language::one_or_more>( output.pop( ) ) );
                             break;
                         case '-':
                             rhs = output.pop( );
                             lhs = output.pop( );
-                            output.push( std::make_unique<concatenation>( std::move( lhs ), std::move( rhs ) ) );
+                            output.push( std::make_unique<language::concatenation>( std::move( lhs ), std::move( rhs ) ) );
                             break;
                         case '|':
                             rhs = output.pop( );
                             lhs = output.pop( );
-                            output.push( std::make_unique<alternation>( std::move( lhs ), std::move( rhs ) ) );
+                            output.push( std::make_unique<language::alternation>( std::move( lhs ), std::move( rhs ) ) );
                             break;
                     }
                     ops.pop( );
@@ -109,39 +109,39 @@ namespace regex
                     switch( ops.top( ) )
                     {
                         case '*':
-                            output.push( std::make_unique<kleene>( output.pop( ) ) );
+                            output.push( std::make_unique<language::kleene>( output.pop( ) ) );
                             break;
                         case '?':
-                            output.push( std::make_unique<zero_or_one>( output.pop( ) ) );
+                            output.push( std::make_unique<language::zero_or_one>( output.pop( ) ) );
                             break;
                         case '+':
-                            output.push( std::make_unique<one_or_more>( output.pop( ) ) );
+                            output.push( std::make_unique<language::one_or_more>( output.pop( ) ) );
                             break;
                         case '-':
                             rhs = output.pop( );
                             lhs = output.pop( );
-                            output.push( std::make_unique<concatenation>( std::move( lhs ), std::move( rhs ) ) );
+                            output.push( std::make_unique<language::concatenation>( std::move( lhs ), std::move( rhs ) ) );
                             break;
                         case '|':
                             rhs = output.pop( );
                             lhs = output.pop( );
-                            output.push( std::make_unique<alternation>( std::move( lhs ), std::move( rhs ) ) );
+                            output.push( std::make_unique<language::alternation>( std::move( lhs ), std::move( rhs ) ) );
                             break;
                     }
                     ops.pop( );
                 }
-                output.push( std::make_unique<parenthesis>( output.pop( ) ) );
+                output.push( std::make_unique<language::parenthesis>( output.pop( ) ) );
                 ops.pop( );
             }
             else
             {
                 if( token == '.' )
                 {
-                    output.push( std::make_unique<any>( ) );
+                    output.push( std::make_unique<language::any>( ) );
                 }
                 else
                 {
-                    output.push( std::make_unique<character>( token ) );
+                    output.push( std::make_unique<language::character>( token ) );
                 }
             }
         }
@@ -150,29 +150,29 @@ namespace regex
             switch( ops.top( ) )
             {
                 case '*':
-                    output.push( std::make_unique<kleene>( output.pop( ) ) );
+                    output.push( std::make_unique<language::kleene>( output.pop( ) ) );
                     break;
                 case '?':
-                    output.push( std::make_unique<zero_or_one>( output.pop( ) ) );
+                    output.push( std::make_unique<language::zero_or_one>( output.pop( ) ) );
                     break;
                 case '+':
-                    output.push( std::make_unique<one_or_more>( output.pop( ) ) );
+                    output.push( std::make_unique<language::one_or_more>( output.pop( ) ) );
                     break;
                 case '-':
                     rhs = output.pop( );
                     lhs = output.pop( );
-                    output.push( std::make_unique<concatenation>( std::move( lhs ), std::move( rhs ) ) );
+                    output.push( std::make_unique<language::concatenation>( std::move( lhs ), std::move( rhs ) ) );
                     break;
                 case '|':
                     rhs = output.pop( );
                     lhs = output.pop( );
-                    output.push( std::make_unique<alternation>( std::move( lhs ), std::move( rhs ) ) );
+                    output.push( std::make_unique<language::alternation>( std::move( lhs ), std::move( rhs ) ) );
                     break;
                 case ')':
-                    output.push( std::make_unique<parenthesis>( output.pop( ) ) );
+                    output.push( std::make_unique<language::parenthesis>( output.pop( ) ) );
                     break;
                 case '(':
-                    output.push( std::make_unique<parenthesis>( output.pop( ) ) );
+                    output.push( std::make_unique<language::parenthesis>( output.pop( ) ) );
                     break;
             }
             ops.pop( );
@@ -180,4 +180,4 @@ namespace regex
 
         return std::move( output.top( ) );
     }
-}  // namespace regex
+}

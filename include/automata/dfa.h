@@ -9,8 +9,6 @@
 #include "language/ast.h"
 #include "automata/fa.h"
 #include "automata/nfa.h"
-#include "stack.h"
-#include "state/dstate.h"
 
 namespace regex
 {
@@ -20,8 +18,6 @@ namespace regex
         std::set<std::shared_ptr<dstate>> outputs_;
 
     public:
-        using character_type = regex::character_type;
-
         explicit dfa( std::shared_ptr<dstate> input, const std::set<std::shared_ptr<dstate>> &outputs );
         explicit dfa( const dfa &other );
         explicit dfa( dfa &&other ) = delete;
@@ -34,7 +30,7 @@ namespace regex
          *
          *
          */
-        static std::shared_ptr<dfa> from_character( character_type );
+        static std::shared_ptr<dfa> from_character( language::character_type );
         /*
          *                 a
          *             ---->---
@@ -88,14 +84,14 @@ namespace regex
 
         void walk( std::function<void( std::shared_ptr<state> )> callback ) override;
 
-        match run( std::basic_string_view<character_type> str ) override;
+        match run( std::basic_string_view<language::character_type> str ) override;
     };
 
     struct dfa_generator
     {
         stack<std::shared_ptr<dfa>> s_;
 
-        void callback( const regex::token &token );
+        void callback( const regex::language::token &token );
 
         std::shared_ptr<dfa> result( );
     };

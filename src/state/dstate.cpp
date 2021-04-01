@@ -21,7 +21,7 @@ namespace regex
         }
     }
 
-    void dstate::connect( regex::character_type symbol, std::shared_ptr<dstate> st )
+    void dstate::connect( language::character_type symbol, std::shared_ptr<dstate> st )
     {
         transitions_[symbol] = st;
         set( state::context::rejecting );
@@ -79,7 +79,7 @@ namespace regex
         return { dup, accepting_states };
     }
 
-    group dstate::get_transitions( regex::character_type symbol )
+    group dstate::get_transitions( language::character_type symbol )
     {
         auto ptr = transitions_.find( symbol );
 
@@ -98,9 +98,9 @@ namespace regex
         return group( );
     }
 
-    std::map<character_type, group> dstate::get_transitions( )
+    std::map<language::character_type, group> dstate::get_transitions( )
     {
-        std::map<character_type, group> result;
+        std::map<language::character_type, group> result;
 
         for( const auto &transition : transitions_ )
         {
@@ -110,7 +110,7 @@ namespace regex
         return result;
     }
 
-    match dstate::next( std::basic_string_view<regex::character_type> str )
+    match dstate::next( std::basic_string_view<language::character_type> str )
     {
         if( str.empty( ) )
         {

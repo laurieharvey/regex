@@ -15,28 +15,28 @@ namespace regex
     {
     }
 
-    void nstate::connect( regex::character_type symbol, std::shared_ptr<nstate> st )
+    void nstate::connect( language::character_type symbol, std::shared_ptr<nstate> st )
     {
         strong_transitions_[symbol].insert( st );
     }
 
-    void nstate::connect( regex::character_type symbol, std::weak_ptr<nstate> st )
+    void nstate::connect( language::character_type symbol, std::weak_ptr<nstate> st )
     {
         weak_transitions_[symbol].insert( st );
     }
 
-    group nstate::get_transitions( regex::character_type symbol )
+    group nstate::get_transitions( language::character_type symbol )
     {
         group result;
 
-        typename std::map<regex::character_type, std::set<std::shared_ptr<nstate>>>::const_iterator strong_transitions = strong_transitions_.find( symbol );
+        typename std::map<language::character_type, std::set<std::shared_ptr<nstate>>>::const_iterator strong_transitions = strong_transitions_.find( symbol );
 
         if( strong_transitions != std::cend( strong_transitions_ ) )
         {
             std::copy( strong_transitions->second.cbegin( ), strong_transitions->second.cend( ), std::inserter( result, result.begin( ) ) );
         }
 
-        typename std::map<regex::character_type, std::set<std::weak_ptr<nstate>, std::owner_less<std::weak_ptr<nstate>>>>::const_iterator weak_transitions = weak_transitions_.find( symbol );
+        typename std::map<language::character_type, std::set<std::weak_ptr<nstate>, std::owner_less<std::weak_ptr<nstate>>>>::const_iterator weak_transitions = weak_transitions_.find( symbol );
 
         if( weak_transitions != std::cend( weak_transitions_ ) )
         {
@@ -63,9 +63,9 @@ namespace regex
         return result;
     }
 
-    std::map<character_type, group> nstate::get_transitions( )
+    std::map<language::character_type, group> nstate::get_transitions( )
     {
-        std::map<character_type, group> result;
+        std::map<language::character_type, group> result;
 
         for( const auto &weak_transition : weak_transitions_ )
         {
@@ -117,7 +117,7 @@ namespace regex
         }
     }
 
-    match nstate::run( std::basic_string_view<regex::character_type> str, std::set<std::shared_ptr<nstate>> visited )
+    match nstate::run( std::basic_string_view<language::character_type> str, std::set<std::shared_ptr<nstate>> visited )
     {
         if( visited.find( shared_from_this( ) ) != std::end( visited ) )
         {

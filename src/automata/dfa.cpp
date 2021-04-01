@@ -19,7 +19,7 @@ namespace regex
         std::tie( input_, outputs_ ) = duplicate( other.input_ );
     }
 
-    std::shared_ptr<dfa> dfa::from_character( character_type c )
+    std::shared_ptr<dfa> dfa::from_character( language::character_type c )
     {
         auto input = std::make_shared<dstate>( state::context::rejecting );
         auto output = std::make_shared<dstate>( state::context::accepting );
@@ -34,7 +34,7 @@ namespace regex
         auto input = std::make_shared<dstate>( state::context::rejecting );
         auto output = std::make_shared<dstate>( state::context::accepting );
 
-        for( const auto letter : get_alphabet( ) )
+        for( const auto letter : language::get_alphabet( ) )
         {
             input->connect( letter, output );
         }
@@ -98,7 +98,7 @@ namespace regex
         return expression;
     }
 
-    match dfa::run( std::basic_string_view<character_type> str )
+    match dfa::run( std::basic_string_view<language::character_type> str )
     {
         return input_->next( str );
     }
@@ -108,42 +108,42 @@ namespace regex
         input_->walk( callback );
     }
 
-    void dfa_generator::callback( const regex::token &token )
+    void dfa_generator::callback( const language::token &token )
     {
-        std::shared_ptr<regex::dfa> lhs;
-        std::shared_ptr<regex::dfa> rhs;
-        std::vector<regex::character_type> alphabet = regex::get_alphabet( );
+        std::shared_ptr<dfa> lhs;
+        std::shared_ptr<dfa> rhs;
+        std::vector<language::character_type> alphabet = regex::language::get_alphabet( );
 
         switch( token.get_type( ) )
         {
-            case regex::type::character:
+            case language::type::character:
                 s_.push( dfa::from_character( token.get_token( ) ) );
                 break;
-            case regex::type::any:
+            case language::type::any:
                 s_.push( dfa::from_any( ) );
                 break;
-            case regex::type::alternation:
+            case language::type::alternation:
                 rhs = s_.pop( );
                 lhs = s_.pop( );
                 s_.push( dfa::from_alternation( lhs, rhs ) );
                 break;
-            case regex::type::concatenation:
+            case language::type::concatenation:
                 rhs = s_.pop( );
                 lhs = s_.pop( );
                 s_.push( dfa::from_concatenation( lhs, rhs ) );
                 break;
-            case regex::type::kleene:
+            case language::type::kleene:
                 s_.push( dfa::from_kleene( s_.pop( ) ) );
                 break;
-            case regex::type::zero_or_one:
+            case language::type::zero_or_one:
                 s_.push( dfa::from_zero_or_one( s_.pop( ) ) );
                 break;
-            case regex::type::one_or_more:
+            case language::type::one_or_more:
                 lhs = s_.pop( );
                 rhs = std::make_shared<dfa>( *lhs );
                 s_.push( dfa::from_concatenation( lhs, dfa::from_kleene( rhs ) ) );
                 break;
-            case regex::type::parenthesis:
+            case language::type::parenthesis:
                 break;
         }
     }

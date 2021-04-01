@@ -17,12 +17,10 @@ namespace regex
         std::shared_ptr<nstate> input_;
         std::shared_ptr<nstate> output_;
 
-        static const regex::character_type epsilon = 0x01;
-        static const regex::character_type any = 0x02;
+        static const regex::language::character_type epsilon = 0x01;
+        static const regex::language::character_type any = 0x02;
 
     public:
-        using character_type = regex::character_type;
-
         explicit nfa( std::shared_ptr<nstate> input, std::shared_ptr<nstate> output );
         explicit nfa( const nfa &other ) = delete;
         explicit nfa( nfa &&other ) = delete;
@@ -35,7 +33,7 @@ namespace regex
          *
          *
          */
-        static std::shared_ptr<nfa> from_character( character_type c );
+        static std::shared_ptr<nfa> from_character( language::character_type c );
         /*
          *
          *
@@ -89,14 +87,14 @@ namespace regex
 
         void walk( std::function<void( std::shared_ptr<state> )> callback ) override;
 
-        match run( std::basic_string_view<character_type> str ) override;
+        match run( std::basic_string_view<language::character_type> str ) override;
     };
 
     struct nfa_generator
     {
         stack<std::shared_ptr<nfa>> s_;
 
-        void callback( const regex::token &token );
+        void callback( const regex::language::token &token );
 
         std::shared_ptr<nfa> result( );
     };
