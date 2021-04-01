@@ -25,9 +25,11 @@ TEST( dfa, concatenation )
 TEST( dfa, alternation )
 {
     EXPECT_EQ( regex::dfa::from_alternation( regex::dfa::from_concatenation( regex::dfa::from_character( 'a' ), regex::dfa::from_character( 'b' ) ),
-                                             regex::dfa::from_concatenation( regex::dfa::from_character( 'a' ), regex::dfa::from_character( 'c' ) ) )->run( "ac" ), regex::match::accepted );
+                                             regex::dfa::from_concatenation( regex::dfa::from_character( 'a' ), regex::dfa::from_character( 'c' ) ) )->run( "ac" ), 
+                                             regex::match::accepted );
     EXPECT_EQ( regex::dfa::from_alternation( regex::dfa::from_concatenation( regex::dfa::from_character( 'a' ), regex::dfa::from_character( 'b' ) ),
-                                             regex::dfa::from_concatenation( regex::dfa::from_character( 'a' ), regex::dfa::from_character( 'c' ) ) )->run( "a" ),  regex::match::rejected );
+                                             regex::dfa::from_concatenation( regex::dfa::from_character( 'a' ), regex::dfa::from_character( 'c' ) ) )->run( "a" ),  
+                                             regex::match::rejected );
 }
 
 TEST( dfa, kleene )
