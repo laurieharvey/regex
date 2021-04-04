@@ -98,7 +98,7 @@ namespace regex
         return expression;
     }
 
-    match dfa::run( std::basic_string_view<language::character_type> str )
+    match dfa::execute( std::basic_string_view<language::character_type> str )
     {
         return input_->next( str );
     }

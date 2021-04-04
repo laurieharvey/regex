@@ -18,7 +18,7 @@ int main( int argc, char **argv )
 
     while( std::getline( std::cin, input_line ) )
     {
-        regex::match result = nfa->run( input_line );
+        regex::match result = nfa->execute( input_line );
 
         if( result == regex::match::accepted )
         {

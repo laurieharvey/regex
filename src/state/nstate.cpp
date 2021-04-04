@@ -117,7 +117,7 @@ namespace regex
         }
     }
 
-    match nstate::run( std::basic_string_view<language::character_type> str, std::set<std::shared_ptr<nstate>> visited )
+    match nstate::execute( std::basic_string_view<language::character_type> str, std::set<std::shared_ptr<nstate>> visited )
     {
         if( visited.find( shared_from_this( ) ) != std::end( visited ) )
         {
@@ -135,7 +135,7 @@ namespace regex
 
             for( const std::shared_ptr<nstate> &next : strong_transitions_[0x01] )
             {
-                if( next->run( str, visited ) == match::accepted )
+                if( next->execute( str, visited ) == match::accepted )
                 {
                     return match::accepted;
                 }
@@ -143,7 +143,7 @@ namespace regex
 
             for( const std::weak_ptr<nstate> &next : weak_transitions_[0x01] )
             {
-                if( next.lock( )->run( str, visited ) == match::accepted )
+                if( next.lock( )->execute( str, visited ) == match::accepted )
                 {
                     return match::accepted;
                 }
@@ -154,7 +154,7 @@ namespace regex
 
         for( const std::shared_ptr<nstate> &next : strong_transitions_[str[0]] )
         {
-            if( next->run( str.substr( 1 ) ) == match::accepted )
+            if( next->execute( str.substr( 1 ) ) == match::accepted )
             {
                 return match::accepted;
             }
@@ -162,7 +162,7 @@ namespace regex
 
         for( const std::weak_ptr<nstate> &next : weak_transitions_[str[0]] )
         {
-            if( next.lock( )->run( str.substr( 1 ) ) == match::accepted )
+            if( next.lock( )->execute( str.substr( 1 ) ) == match::accepted )
             {
                 return match::accepted;
             }
@@ -170,7 +170,7 @@ namespace regex
 
         for( const std::shared_ptr<nstate> &next : strong_transitions_[0x02] )
         {
-            if( next->run( str.substr( 1 ) ) == match::accepted )
+            if( next->execute( str.substr( 1 ) ) == match::accepted )
             {
                 return match::accepted;
             }
@@ -178,7 +178,7 @@ namespace regex
 
         for( const std::weak_ptr<nstate> &next : weak_transitions_[0x02] )
         {
-            if( next.lock( )->run( str.substr( 1 ) ) == match::accepted )
+            if( next.lock( )->execute( str.substr( 1 ) ) == match::accepted )
             {
                 return match::accepted;
             }
@@ -186,7 +186,7 @@ namespace regex
 
         for( const std::shared_ptr<nstate> &next : strong_transitions_[0x01] )
         {
-            if( next->run( str, visited ) == match::accepted )
+            if( next->execute( str, visited ) == match::accepted )
             {
                 return match::accepted;
             }
@@ -194,7 +194,7 @@ namespace regex
 
         for( const std::weak_ptr<nstate> &next : weak_transitions_[0x01] )
         {
-            if( next.lock( )->run( str, visited ) == match::accepted )
+            if( next.lock( )->execute( str, visited ) == match::accepted )
             {
                 return match::accepted;
             }

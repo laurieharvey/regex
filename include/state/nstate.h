@@ -28,7 +28,7 @@ namespace regex
 
         void walk( std::function<void( std::shared_ptr<state> )> callback, std::set<std::shared_ptr<state>> visited = std::set<std::shared_ptr<state>>( ) ) override;
 
-        match run( std::basic_string_view<language::character_type> str, std::set<std::shared_ptr<nstate>> visited = std::set<std::shared_ptr<nstate>>( ) );
+        match execute( std::basic_string_view<language::character_type> str, std::set<std::shared_ptr<nstate>> visited = std::set<std::shared_ptr<nstate>>( ) );
 
     private:
         std::map<language::character_type, std::set<std::shared_ptr<nstate>>> strong_transitions_;
