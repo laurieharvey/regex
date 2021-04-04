@@ -32,7 +32,7 @@ namespace regex
         auto input = std::make_shared<nstate>( state::context::rejecting );
         auto output = std::make_shared<nstate>( state::context::accepting );
 
-        for( const auto letter : language::get_alphabet( ) )
+        for( const auto letter : language::alphabet )
         {
             input->connect( letter, output );
         }
@@ -95,7 +95,6 @@ namespace regex
     {
         std::shared_ptr<regex::nfa> lhs;
         std::shared_ptr<regex::nfa> rhs;
-        std::vector<language::character_type> alphabet = language::get_alphabet( );
 
         switch( token.get_type( ) )
         {

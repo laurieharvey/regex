@@ -6,16 +6,12 @@
 #include <ostream>
 #include <vector>
 
+#include "alphabet.h"
+
 namespace regex
 {
     namespace language
     {
-        using character_type = char;
-
-        std::vector<character_type> get_operators( );
-
-        std::vector<character_type> get_alphabet( );
-
         enum class type
         {
             character,

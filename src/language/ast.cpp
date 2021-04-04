@@ -4,26 +4,6 @@ namespace regex
 {
     namespace language
     {
-        std::vector<character_type> get_operators( )
-        {
-            return { '(', ')', '*', '?', '+', '.', '|' };
-        }
-
-        std::vector<language::character_type> get_alphabet( )
-        {
-            std::vector<character_type> alphabet, operators = get_operators( );
-
-            for( auto i = std::numeric_limits<character_type>::min( ); i < std::numeric_limits<character_type>::max( ); ++i )
-            {
-                if( std::find( std::cbegin( operators ), std::cend( operators ), i ) == std::cend( operators ) )
-                {
-                    alphabet.push_back( i );
-                }
-            }
-
-            return alphabet;
-        }
-
         token::~token( )
         {
         }
