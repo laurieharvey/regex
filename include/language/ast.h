@@ -1,170 +1,169 @@
 #pragma once
 
-#include <memory>
-#include <limits>
-#include <vector>
-#include <ostream>
 #include <functional>
+#include <limits>
+#include <memory>
+#include <ostream>
+#include <vector>
+
+#include "alphabet.h"
 
 namespace regex
 {
-	using character_type = char;
+    namespace language
+    {
+        enum class type
+        {
+            character,
+            parenthesis,
+            kleene,
+            zero_or_one,
+            one_or_more,
+            alternation,
+            concatenation,
+            any
+        };
 
-	std::vector<character_type> get_operators();
+        class token
+        {
+        public:
+            using ostream = std::basic_ostream<character_type, std::char_traits<character_type>>;
 
-	std::vector<character_type> get_alphabet();
+            virtual void print( ostream &os ) const = 0;
 
-	enum class type
-	{
-		character,
-		parenthesis,
-		kleene,
-		zero_or_one,
-		one_or_more,
-		alternation,
-		concatenation,
-		any
-	};
+            virtual void walk( std::function<void( const token & )> callback ) const = 0;
 
-	class token
-	{
-	public:
-		using ostream = std::basic_ostream<character_type, std::char_traits<character_type>>;
+            virtual character_type get_token( ) const = 0;
 
-		virtual void print(ostream &os) const = 0;
+            virtual type get_type( ) const = 0;
 
-		virtual void walk(std::function<void(const regex::token &)> callback) const = 0;
+            virtual ~token( );
+        };
 
-		virtual character_type get_token() const = 0;
+        class character : public token
+        {
+            character_type value_;
 
-		virtual type get_type() const = 0;
+        public:
+            explicit character( character_type value );
 
-		virtual ~token();
-	};
+            void print( typename token::ostream &os ) const override;
 
-	class character : public token
-	{
-		character_type value_;
+            void walk( std::function<void( const token & )> callback ) const override;
 
-	public:
-		explicit character(character_type value);
+            character_type get_token( ) const override;
 
-		void print(typename token::ostream &os) const override;
+            type get_type( ) const override;
+        };
 
-		void walk(std::function<void(const regex::token &)> callback) const override;
+        class parenthesis : public token
+        {
+            std::unique_ptr<token> lhs_;
 
-		character_type get_token() const override;
+        public:
+            explicit parenthesis( std::unique_ptr<token> lhs );
 
-		type get_type() const override;
-	};
+            void print( typename token::ostream &os ) const override;
 
-	class parenthesis : public token
-	{
-		std::unique_ptr<token> lhs_;
+            void walk( std::function<void( const token & )> callback ) const override;
 
-	public:
-		explicit parenthesis(std::unique_ptr<token> lhs);
+            character_type get_token( ) const override;
 
-		void print(typename token::ostream &os) const override;
+            type get_type( ) const override;
+        };
 
-		void walk(std::function<void(const regex::token &)> callback) const override;
+        class kleene : public token
+        {
+            std::unique_ptr<token> lhs_;
 
-		character_type get_token() const override;
+        public:
+            explicit kleene( std::unique_ptr<token> lhs );
 
-		type get_type() const override;
-	};
+            void print( typename token::ostream &os ) const override;
 
-	class kleene : public token
-	{
-		std::unique_ptr<token> lhs_;
+            void walk( std::function<void( const token & )> callback ) const override;
 
-	public:
-		explicit kleene(std::unique_ptr<token> lhs);
+            character_type get_token( ) const override;
 
-		void print(typename token::ostream &os) const override;
+            type get_type( ) const override;
+        };
 
-		void walk(std::function<void(const regex::token &)> callback) const override;
+        class zero_or_one : public token
+        {
+            std::unique_ptr<token> lhs_;
 
-		character_type get_token() const override;
+        public:
+            explicit zero_or_one( std::unique_ptr<token> lhs );
 
-		type get_type() const override;
-	};
+            void print( typename token::ostream &os ) const override;
 
-	class zero_or_one : public token
-	{
-		std::unique_ptr<token> lhs_;
+            void walk( std::function<void( const token & )> callback ) const override;
 
-	public:
-		explicit zero_or_one(std::unique_ptr<token> lhs);
+            character_type get_token( ) const override;
 
-		void print(typename token::ostream &os) const override;
+            type get_type( ) const override;
+        };
 
-		void walk(std::function<void(const regex::token &)> callback) const override;
+        class one_or_more : public token
+        {
+            std::unique_ptr<token> exp_;
 
-		character_type get_token() const override;
+        public:
+            explicit one_or_more( std::unique_ptr<token> exp );
 
-		type get_type() const override;
-	};
+            void print( typename token::ostream &os ) const override;
 
-	class one_or_more : public token
-	{
-		std::unique_ptr<token> exp_;
+            void walk( std::function<void( const token & )> callback ) const override;
 
-	public:
-		explicit one_or_more(std::unique_ptr<token> exp);
+            character_type get_token( ) const override;
 
-		void print(typename token::ostream &os) const override;
+            type get_type( ) const override;
+        };
 
-		void walk(std::function<void(const regex::token &)> callback) const override;
+        class alternation : public token
+        {
+            std::unique_ptr<token> lhs_, rhs_;
 
-		character_type get_token() const override;
+        public:
+            explicit alternation( std::unique_ptr<token> lhs, std::unique_ptr<token> rhs );
 
-		type get_type() const override;
-	};
+            void print( typename token::ostream &os ) const override;
 
-	class alternation : public token
-	{
-		std::unique_ptr<token> lhs_, rhs_;
+            void walk( std::function<void( const token & )> callback ) const override;
 
-	public:
-		explicit alternation(std::unique_ptr<token> lhs, std::unique_ptr<token> rhs);
+            character_type get_token( ) const override;
 
-		void print(typename token::ostream &os) const override;
+            type get_type( ) const override;
+        };
 
-		void walk(std::function<void(const regex::token &)> callback) const override;
+        class concatenation : public token
+        {
+            std::unique_ptr<token> lhs_, rhs_;
 
-		character_type get_token() const override;
+        public:
+            explicit concatenation( std::unique_ptr<token> lhs, std::unique_ptr<token> rhs );
 
-		type get_type() const override;
-	};
+            void print( typename token::ostream &os ) const override;
 
-	class concatenation : public token
-	{
-		std::unique_ptr<token> lhs_, rhs_;
+            void walk( std::function<void( const token & )> callback ) const override;
 
-	public:
-		explicit concatenation(std::unique_ptr<token> lhs, std::unique_ptr<token> rhs);
+            character_type get_token( ) const override;
 
-		void print(typename token::ostream &os) const override;
+            type get_type( ) const override;
+        };
 
-		void walk(std::function<void(const regex::token &)> callback) const override;
+        class any : public token
+        {
+        public:
+            explicit any( );
 
-		character_type get_token() const override;
+            void print( typename token::ostream &os ) const override;
 
-		type get_type() const override;
-	};
+            void walk( std::function<void( const token & )> callback ) const override;
 
-	class any : public token
-	{
-	public:
-		explicit any();
+            character_type get_token( ) const override;
 
-		void print(typename token::ostream &os) const override;
-
-		void walk(std::function<void(const regex::token &)> callback) const override;
-		
-		character_type get_token() const override;
-
-		type get_type() const override;
-	};
-} // namespace ast
+            type get_type( ) const override;
+        };
+    }
+}

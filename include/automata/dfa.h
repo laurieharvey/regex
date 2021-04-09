@@ -17,24 +17,20 @@ namespace regex
         std::shared_ptr<dstate> input_;
         std::set<std::shared_ptr<dstate>> outputs_;
 
-        static const regex::character_type any     = 0x02;
-
     public:
-        using character_type = regex::character_type;
-
-        explicit dfa(std::shared_ptr<dstate> input, const std::set<std::shared_ptr<dstate>> &outputs);
-        explicit dfa(const dfa &other);
-        explicit dfa(dfa &&other) = delete;
+        explicit dfa( std::shared_ptr<dstate> input, const std::set<std::shared_ptr<dstate>> &outputs );
+        explicit dfa( const dfa &other );
+        explicit dfa( dfa &&other ) = delete;
         /*
          *
-         * 
+         *
          *      +---+      c     +---+
          *      | i |------>-----| o |
          *      +---+            +---+
-         * 
-         * 
+         *
+         *
          */
-        static std::shared_ptr<dfa> from_character(character_type);
+        static std::shared_ptr<dfa> from_character( language::character_type );
         /*
          *                 a
          *             ---->---
@@ -44,7 +40,7 @@ namespace regex
          *             ---->---
          *                 c
          */
-        static std::shared_ptr<dfa> from_any();
+        static std::shared_ptr<dfa> from_any( );
         /*
          *                       +---+
          *                       |   |
@@ -54,7 +50,7 @@ namespace regex
          *                       |   |
          *                       +---+
          */
-        static std::shared_ptr<dfa> from_concatenation(std::shared_ptr<dfa> lhs, std::shared_ptr<dfa> rhs);
+        static std::shared_ptr<dfa> from_concatenation( std::shared_ptr<dfa> lhs, std::shared_ptr<dfa> rhs );
         /*
          *                       +---+            +---+
          *                       |   |------>-----| o |
@@ -64,39 +60,39 @@ namespace regex
          *                       |   |------>-----| o |
          *                       +---+            +---+
          */
-        static std::shared_ptr<dfa> from_alternation(std::shared_ptr<dfa> lhs, std::shared_ptr<dfa> rhs);
+        static std::shared_ptr<dfa> from_alternation( std::shared_ptr<dfa> lhs, std::shared_ptr<dfa> rhs );
         /*
-         *        
+         *
          *                         +--------<-------+
          *                         |                |
          *      +---+            +---+            +---+
          *      |i o|------------|   |------>-----| o |
          *      +---+            +---+            +---+
-         * 
+         *
          */
-        static std::shared_ptr<dfa> from_kleene(std::shared_ptr<dfa> expression);
+        static std::shared_ptr<dfa> from_kleene( std::shared_ptr<dfa> expression );
         /*
          *
-         * 
+         *
          *      +---+            +---+
          *      |i o|------>-----| o |
          *      +---+            +---+
-         * 
-         * 
+         *
+         *
          */
-        static std::shared_ptr<dfa> from_zero_or_one(std::shared_ptr<dfa> expression);
+        static std::shared_ptr<dfa> from_zero_or_one( std::shared_ptr<dfa> expression );
 
-        void walk(std::function<void(std::shared_ptr<state>)> callback) override;
+        void walk( std::function<void( std::shared_ptr<state> )> callback ) override;
 
-        match run(std::basic_string_view<character_type> str) override;
+        match execute( std::basic_string_view<language::character_type> str ) override;
     };
 
     struct dfa_generator
     {
         stack<std::shared_ptr<dfa>> s_;
 
-        void callback(const regex::token &token);
+        void callback( const regex::language::token &token );
 
-        std::shared_ptr<dfa> result();
+        std::shared_ptr<dfa> result( );
     };
-} // namespace fa
+}  // namespace regex

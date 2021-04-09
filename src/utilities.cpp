@@ -1,35 +1,37 @@
-#include <queue>
-#include <iostream>
 #include "utilities.h"
 
-std::pair<regex::table, regex::group> generate_table(std::shared_ptr<regex::fa> fa)
+#include <iostream>
+#include <queue>
+
+std::pair<regex::table, regex::group> generate_table( std::shared_ptr<regex::fa> fa )
 {
     regex::table table;
     regex::group start;
 
-    fa->walk([&table, &start](std::shared_ptr<regex::state> state) {
-        if (start.empty())
+    fa->walk( [&table, &start]( std::shared_ptr<regex::state> state ) {
+        if( start.empty( ) )
         {
-            start = state->get_epsilon_closure();
+            start = state->get_epsilon_closure( );
         }
 
-        if (table.find(regex::group({state})) != std::cend(table))
+        if( table.find( regex::group( { state } ) ) != std::cend( table ) )
         {
             return;
         }
         else
         {
-            for (auto &transition : state->get_transitions())
+            for( auto &transition : state->get_transitions( ) )
             {
-                table.update(regex::group({state}), transition.first, transition.second);
+                table.update( regex::group( { state } ), transition.first, transition.second );
             }
         }
-    });
+    } );
 
-    return {table, start};
+    return { table, start };
 }
 
-// std::pair<regex::table, regex::group> generate_nfa_table(std::shared_ptr<regex::fa> nfa)
+// std::pair<regex::table, regex::group>
+// generate_nfa_table(std::shared_ptr<regex::fa> nfa)
 // {
 //     regex::table table;
 //     regex::group start;
@@ -48,7 +50,8 @@ std::pair<regex::table, regex::group> generate_table(std::shared_ptr<regex::fa> 
 //         {
 //             for (auto &transition : state.lock()->get_transitions())
 //             {
-//                 table.update(regex::group({state.lock()}), transition.first, transition.second);
+//                 table.update(regex::group({state.lock()}), transition.first,
+//                 transition.second);
 //             }
 //         }
 //     });
@@ -56,7 +59,8 @@ std::pair<regex::table, regex::group> generate_table(std::shared_ptr<regex::fa> 
 //     return {table, start};
 // }
 
-// std::pair<regex::table, regex::group> generate_dfa_table(std::shared_ptr<regex::fa> nfa)
+// std::pair<regex::table, regex::group>
+// generate_dfa_table(std::shared_ptr<regex::fa> nfa)
 // {
 //     regex::table nfa_table, dfa_table;
 //     regex::group start;
@@ -89,7 +93,8 @@ std::pair<regex::table, regex::group> generate_table(std::shared_ptr<regex::fa> 
 
 //                         for( auto transition_state : transition_group)
 //                         {
-//                             auto dfa_state = nfa_table.find(regex::group({transition_state}))->second[epsilon_col];
+//                             auto dfa_state =
+//                             nfa_table.find(regex::group({transition_state}))->second[epsilon_col];
 
 //                             next_dfa_states[transition_character].merge(dfa_state);
 //                         }
@@ -99,7 +104,8 @@ std::pair<regex::table, regex::group> generate_table(std::shared_ptr<regex::fa> 
 
 //             for(const auto& next_dfa_state: next_dfa_states)
 //             {
-//                 dfa_table.update(regex::group({start}), next_dfa_state.first, next_dfa_state.second);
+//                 dfa_table.update(regex::group({start}), next_dfa_state.first,
+//                 next_dfa_state.second);
 //             }
 
 //             return next_dfa_states;
