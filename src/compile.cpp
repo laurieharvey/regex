@@ -25,8 +25,7 @@ namespace regex
 
     std::shared_ptr<regex::nfa> compile_nfa( std::basic_stringstream<language::character_type> pattern )
     {
-        std::basic_stringstream<language::character_type> explicit_pattern = regex::make_explicit( pattern );
-        std::unique_ptr<language::token> ast = regex::parse( explicit_pattern );
+        std::unique_ptr<language::token> ast = regex::parse( pattern );
 
         regex::nfa_generator g;
 
@@ -37,8 +36,7 @@ namespace regex
 
     std::shared_ptr<regex::dfa> compile_dfa( std::basic_stringstream<language::character_type> pattern )
     {
-        std::basic_stringstream<language::character_type> explicit_pattern = regex::make_explicit( pattern );
-        std::unique_ptr<language::token> ast = regex::parse( explicit_pattern );
+        std::unique_ptr<language::token> ast = regex::parse( pattern );
 
         regex::dfa_generator g;
 

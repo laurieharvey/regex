@@ -6,7 +6,15 @@
 
 namespace regex
 {
-    bool is_operator( language::character_type token )
+    /*
+     * 3 { '(', ')' } 2 { '*', '?', '+' } 1 { '-' }
+     */
+    static const std::array<int, 128> precedence{
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 2, 2, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    };
+
+    constexpr static bool is_operator( language::character_type token )
     {
         switch( token )
         {
@@ -23,7 +31,7 @@ namespace regex
         }
     }
 
-    bool is_unary_operator( language::character_type token )
+    constexpr static bool is_unary_operator( language::character_type token )
     {
         switch( token )
         {
@@ -38,12 +46,12 @@ namespace regex
         }
     }
 
-    bool is_character( language::character_type token )
+    constexpr static bool is_character( language::character_type token )
     {
         return !is_operator( token ) && token != 0;
     }
 
-    std::basic_stringstream<language::character_type> make_explicit( std::basic_istream<language::character_type> &input )
+    static std::basic_stringstream<language::character_type> make_explicit( std::basic_istream<language::character_type, std::char_traits<language::character_type>> &input )
     {
         language::character_type current_token, previous_token = 0;
 
@@ -61,6 +69,8 @@ namespace regex
 
     std::unique_ptr<language::token> parse( std::basic_istream<language::character_type, std::char_traits<language::character_type>> &expression )
     {
+        auto explicit_pattern = make_explicit( expression );
+
         language::character_type token;
         stack<std::unique_ptr<language::token>> output;
         stack<language::character_type> ops;
@@ -68,7 +78,7 @@ namespace regex
         std::unique_ptr<language::token> lhs;
         std::unique_ptr<language::token> rhs;
 
-        while( expression.get( token ) )
+        while( explicit_pattern.get( token ) )
         {
             if( token == '*' || token == '?' || token == '|' || token == '-' || token == '+' )
             {
