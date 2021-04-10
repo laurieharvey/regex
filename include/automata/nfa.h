@@ -2,13 +2,11 @@
 
 #include <memory>
 #include <string_view>
+#include <stack>
 
 #include "state/nstate.h"
-#include "stack.h"
 #include "language/ast.h"
 #include "automata/fa.h"
-#include "stack.h"
-#include "state/nstate.h"
 
 namespace regex
 {
@@ -92,7 +90,7 @@ namespace regex
 
     struct nfa_generator
     {
-        stack<std::shared_ptr<nfa>> s_;
+        std::stack<std::shared_ptr<nfa>> s_;
 
         void callback( const regex::language::token &token );
 

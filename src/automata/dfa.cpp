@@ -110,8 +110,7 @@ namespace regex
 
     void dfa_generator::callback( const language::token &token )
     {
-        std::shared_ptr<dfa> lhs;
-        std::shared_ptr<dfa> rhs;
+        std::shared_ptr<dfa> lhs, rhs;
 
         switch( token.get_type( ) )
         {
@@ -122,23 +121,32 @@ namespace regex
                 s_.push( dfa::from_any( ) );
                 break;
             case language::type::alternation:
-                rhs = s_.pop( );
-                lhs = s_.pop( );
+                rhs = s_.top();
+                s_.pop( );
+                lhs = s_.top();
+                s_.pop( );
                 s_.push( dfa::from_alternation( lhs, rhs ) );
                 break;
             case language::type::concatenation:
-                rhs = s_.pop( );
-                lhs = s_.pop( );
+                rhs = s_.top();
+                s_.pop( );
+                lhs = s_.top();
+                s_.pop( );
                 s_.push( dfa::from_concatenation( lhs, rhs ) );
                 break;
             case language::type::kleene:
-                s_.push( dfa::from_kleene( s_.pop( ) ) );
+                lhs = s_.top();
+                s_.pop( );            
+                s_.push( dfa::from_kleene( lhs ) );
                 break;
             case language::type::zero_or_one:
-                s_.push( dfa::from_zero_or_one( s_.pop( ) ) );
+                lhs = s_.top();
+                s_.pop( ); 
+                s_.push( dfa::from_zero_or_one( lhs ) );
                 break;
             case language::type::one_or_more:
-                lhs = s_.pop( );
+                lhs = s_.top();
+                s_.pop( ); 
                 rhs = std::make_shared<dfa>( *lhs );
                 s_.push( dfa::from_concatenation( lhs, dfa::from_kleene( rhs ) ) );
                 break;
@@ -149,6 +157,6 @@ namespace regex
 
     std::shared_ptr<dfa> dfa_generator::result( )
     {
-        return s_.pop( );
+        return s_.top( );
     }
 }

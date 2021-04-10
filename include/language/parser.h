@@ -6,7 +6,6 @@
 #include <ostream>
 
 #include "language/ast.h"
-#include "stack.h"
 
 namespace regex
 {

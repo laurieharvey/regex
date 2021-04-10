@@ -1,8 +1,7 @@
 #include <sstream>
+#include <stack>
 
 #include "language/parser.h"
-
-#include <sstream>
 
 namespace regex
 {
@@ -74,8 +73,8 @@ namespace regex
             auto explicit_pattern = make_explicit( expression );
 
             language::character_type token;
-            stack<std::unique_ptr<language::token>> output;
-            stack<language::character_type> ops;
+            std::stack<std::unique_ptr<language::token>> output;
+            std::stack<language::character_type> ops;
 
             std::unique_ptr<language::token> lhs;
             std::unique_ptr<language::token> rhs;
@@ -89,22 +88,32 @@ namespace regex
                         switch( ops.top( ) )
                         {
                             case '*':
-                                output.push( std::make_unique<language::kleene>( output.pop( ) ) );
+                                lhs = std::move( output.top( ) );
+                                output.pop( );
+                                output.push( std::make_unique<language::kleene>( std::move( lhs ) ) );
                                 break;
                             case '?':
-                                output.push( std::make_unique<language::zero_or_one>( output.pop( ) ) );
+                                lhs = std::move( output.top( ) );
+                                output.pop( );
+                                output.push( std::make_unique<language::zero_or_one>( std::move( lhs ) ) );
                                 break;
                             case '+':
-                                output.push( std::make_unique<language::one_or_more>( output.pop( ) ) );
+                                lhs = std::move( output.top( ) );
+                                output.pop( );                            
+                                output.push( std::make_unique<language::one_or_more>(std::move( lhs ) ) );
                                 break;
                             case '-':
-                                rhs = output.pop( );
-                                lhs = output.pop( );
+                                rhs = std::move( output.top( ) );
+                                output.pop( );
+                                lhs = std::move( output.top( ) );
+                                output.pop( );
                                 output.push( std::make_unique<language::concatenation>( std::move( lhs ), std::move( rhs ) ) );
                                 break;
                             case '|':
-                                rhs = output.pop( );
-                                lhs = output.pop( );
+                                rhs = std::move( output.top( ) );
+                                output.pop( );
+                                lhs = std::move( output.top( ) );
+                                output.pop( );
                                 output.push( std::make_unique<language::alternation>( std::move( lhs ), std::move( rhs ) ) );
                                 break;
                         }
@@ -123,28 +132,40 @@ namespace regex
                         switch( ops.top( ) )
                         {
                             case '*':
-                                output.push( std::make_unique<language::kleene>( output.pop( ) ) );
+                                lhs = std::move( output.top( ) );
+                                output.pop( );
+                                output.push( std::make_unique<language::kleene>( std::move( lhs ) ) );
                                 break;
                             case '?':
-                                output.push( std::make_unique<language::zero_or_one>( output.pop( ) ) );
+                                lhs = std::move( output.top( ) );
+                                output.pop( );
+                                output.push( std::make_unique<language::zero_or_one>( std::move( lhs ) ) );
                                 break;
                             case '+':
-                                output.push( std::make_unique<language::one_or_more>( output.pop( ) ) );
+                                lhs = std::move( output.top( ) );
+                                output.pop( );                            
+                                output.push( std::make_unique<language::one_or_more>( std::move( lhs ) ) );
                                 break;
                             case '-':
-                                rhs = output.pop( );
-                                lhs = output.pop( );
+                                rhs = std::move( output.top( ) );
+                                output.pop( );
+                                lhs = std::move( output.top( ) );
+                                output.pop( );
                                 output.push( std::make_unique<language::concatenation>( std::move( lhs ), std::move( rhs ) ) );
                                 break;
                             case '|':
-                                rhs = output.pop( );
-                                lhs = output.pop( );
+                                rhs = std::move( output.top( ) );
+                                output.pop( );
+                                lhs = std::move( output.top( ) );
+                                output.pop( );
                                 output.push( std::make_unique<language::alternation>( std::move( lhs ), std::move( rhs ) ) );
                                 break;
                         }
                         ops.pop( );
                     }
-                    output.push( std::make_unique<language::parenthesis>( output.pop( ) ) );
+                    lhs = std::move( output.top( ) );
+                    output.pop( );
+                    output.push( std::make_unique<language::parenthesis>( std::move( lhs ) ) );
                     ops.pop( );
                 }
                 else
@@ -164,29 +185,43 @@ namespace regex
                 switch( ops.top( ) )
                 {
                     case '*':
-                        output.push( std::make_unique<language::kleene>( output.pop( ) ) );
+                        lhs = std::move( output.top( ) );
+                        output.pop( );
+                        output.push( std::make_unique<language::kleene>( std::move( lhs ) ) );
                         break;
                     case '?':
-                        output.push( std::make_unique<language::zero_or_one>( output.pop( ) ) );
+                        lhs = std::move( output.top( ) );
+                        output.pop( );
+                        output.push( std::make_unique<language::zero_or_one>( std::move( lhs ) ) );
                         break;
                     case '+':
-                        output.push( std::make_unique<language::one_or_more>( output.pop( ) ) );
+                        lhs = std::move( output.top( ) );
+                        output.pop( );                            
+                        output.push( std::make_unique<language::one_or_more>( std::move( lhs ) ) );
                         break;
                     case '-':
-                        rhs = output.pop( );
-                        lhs = output.pop( );
+                        rhs = std::move( output.top( ) );
+                        output.pop( );
+                        lhs = std::move( output.top( ) );
+                        output.pop( );
                         output.push( std::make_unique<language::concatenation>( std::move( lhs ), std::move( rhs ) ) );
                         break;
                     case '|':
-                        rhs = output.pop( );
-                        lhs = output.pop( );
+                        rhs = std::move( output.top( ) );
+                        output.pop( );
+                        lhs = std::move( output.top( ) );
+                        output.pop( );
                         output.push( std::make_unique<language::alternation>( std::move( lhs ), std::move( rhs ) ) );
                         break;
                     case ')':
-                        output.push( std::make_unique<language::parenthesis>( output.pop( ) ) );
+                        lhs = std::move( output.top( ) );
+                        output.pop( );                        
+                        output.push( std::make_unique<language::parenthesis>( std::move( lhs ) ) );
                         break;
                     case '(':
-                        output.push( std::make_unique<language::parenthesis>( output.pop( ) ) );
+                        lhs = std::move( output.top( ) );
+                        output.pop( );                      
+                        output.push( std::make_unique<language::parenthesis>( std::move( lhs ) ) );
                         break;
                 }
                 ops.pop( );

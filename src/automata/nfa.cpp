@@ -2,7 +2,6 @@
 #include <string_view>
 
 #include "state/state.h"
-#include "stack.h"
 #include "language/ast.h"
 #include "automata/nfa.h"
 
@@ -93,8 +92,7 @@ namespace regex
 
     void nfa_generator::callback( const language::token &token )
     {
-        std::shared_ptr<regex::nfa> lhs;
-        std::shared_ptr<regex::nfa> rhs;
+        std::shared_ptr<regex::nfa> lhs, rhs;
 
         switch( token.get_type( ) )
         {
@@ -105,23 +103,32 @@ namespace regex
                 s_.push( nfa::from_any( ) );
                 break;
             case language::type::alternation:
-                rhs = s_.pop( );
-                lhs = s_.pop( );
+                rhs = s_.top( );
+                s_.pop( );
+                lhs = s_.top( );
+                s_.pop( );
                 s_.push( nfa::from_alternation( lhs, rhs ) );
                 break;
             case language::type::concatenation:
-                rhs = s_.pop( );
-                lhs = s_.pop( );
+                rhs = s_.top( );
+                s_.pop( );
+                lhs = s_.top( );
+                s_.pop( );
                 s_.push( nfa::from_concatenation( lhs, rhs ) );
                 break;
             case language::type::kleene:
-                s_.push( nfa::from_kleene( s_.pop( ) ) );
+                lhs = s_.top( );
+                s_.pop( );            
+                s_.push( nfa::from_kleene( lhs ) );
                 break;
             case language::type::zero_or_one:
-                s_.push( nfa::from_alternation( nfa::from_epsilon( ), s_.pop( ) ) );
+                lhs = s_.top( );
+                s_.pop( );            
+                s_.push( nfa::from_alternation( nfa::from_epsilon( ), lhs ) );
                 break;
             case language::type::one_or_more:
-                lhs = s_.pop( );
+                lhs = s_.top( );
+                s_.pop( );  
                 rhs = lhs;
                 s_.push( nfa::from_concatenation( lhs, nfa::from_kleene( rhs ) ) );
                 break;
@@ -132,6 +139,6 @@ namespace regex
 
     std::shared_ptr<nfa> nfa_generator::result( )
     {
-        return s_.pop( );
+        return s_.top( );
     }
 }  // namespace fa

@@ -2,10 +2,10 @@
 
 #include <memory>
 #include <set>
+#include <stack>
 #include <string_view>
 
 #include "state/dstate.h"
-#include "stack.h"
 #include "language/ast.h"
 #include "automata/fa.h"
 #include "automata/nfa.h"
@@ -89,7 +89,7 @@ namespace regex
 
     struct dfa_generator
     {
-        stack<std::shared_ptr<dfa>> s_;
+        std::stack<std::shared_ptr<dfa>> s_;
 
         void callback( const regex::language::token &token );
 
