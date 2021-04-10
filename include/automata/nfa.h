@@ -87,7 +87,7 @@ namespace regex
 
         void walk( std::function<void( std::shared_ptr<state> )> callback ) override;
 
-        match execute( std::basic_string_view<language::character_type> str ) override;
+        match execute( std::basic_string_view<language::character_type> target ) override;
     };
 
     struct nfa_generator

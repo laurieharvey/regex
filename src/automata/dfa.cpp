@@ -98,9 +98,9 @@ namespace regex
         return expression;
     }
 
-    match dfa::execute( std::basic_string_view<language::character_type> str )
+    match dfa::execute( std::basic_string_view<language::character_type> target )
     {
-        return input_->next( str );
+        return input_->next( target );
     }
 
     void dfa::walk( std::function<void( std::shared_ptr<state> )> callback )

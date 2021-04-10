@@ -86,9 +86,9 @@ namespace regex
         input_->walk( callback );
     }
 
-    match nfa::execute( std::basic_string_view<language::character_type> str )
+    match nfa::execute( std::basic_string_view<language::character_type> target )
     {
-        return input_->execute( str );
+        return input_->execute( target );
     }
 
     void nfa_generator::callback( const language::token &token )
