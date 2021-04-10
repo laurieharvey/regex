@@ -39,8 +39,6 @@ namespace regex
 
         std::map<language::character_type, group> get_transitions( ) override;
 
-        // std::map<character_type, std::shared_ptr<dstate>> get_transitions();
-
         void walk( std::function<void( std::shared_ptr<state> )> callback, std::set<std::shared_ptr<state>> visited = std::set<std::shared_ptr<state>>( ) ) override;
 
         match execute( std::basic_string_view<language::character_type> str );

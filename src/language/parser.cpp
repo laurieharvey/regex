@@ -6,190 +6,193 @@
 
 namespace regex
 {
-    /*
-     * 3 { '(', ')' } 2 { '*', '?', '+' } 1 { '-' }
-     */
-    static const std::array<int, 128> precedence{
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 2, 2, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    };
-
-    constexpr static bool is_operator( language::character_type token )
+    namespace language
     {
-        switch( token )
+        /*
+        * 3 { '(', ')' } 2 { '*', '?', '+' } 1 { '-' }
+        */
+        static const std::array<int, 128> precedence{
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 2, 2, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        };
+
+        constexpr static bool is_operator( language::character_type token )
         {
-            case '*':
-            case '?':
-            case '+':
-            case '-':
-            case '|':
-            case '(':
-            case ')':
-                return true;
-            default:
-                return false;
-        }
-    }
-
-    constexpr static bool is_unary_operator( language::character_type token )
-    {
-        switch( token )
-        {
-            case '*':
-            case '?':
-            case '+':
-            case '-':
-            case ')':
-                return true;
-            default:
-                return false;
-        }
-    }
-
-    constexpr static bool is_character( language::character_type token )
-    {
-        return !is_operator( token ) && token != 0;
-    }
-
-    static std::basic_stringstream<language::character_type> make_explicit( std::basic_istream<language::character_type, std::char_traits<language::character_type>> &input )
-    {
-        language::character_type current_token, previous_token = 0;
-
-        std::basic_stringstream<language::character_type> output;
-
-        while( input.get( current_token ) )
-        {
-            if( ( is_character( current_token ) || current_token == '(' ) && ( is_unary_operator( previous_token ) || is_character( previous_token ) ) ) output.put( '-' );
-            output.put( current_token );
-            previous_token = current_token;
-        }
-
-        return output;
-    }
-
-    std::unique_ptr<language::token> parse( std::basic_istream<language::character_type, std::char_traits<language::character_type>> &expression )
-    {
-        auto explicit_pattern = make_explicit( expression );
-
-        language::character_type token;
-        stack<std::unique_ptr<language::token>> output;
-        stack<language::character_type> ops;
-
-        std::unique_ptr<language::token> lhs;
-        std::unique_ptr<language::token> rhs;
-
-        while( explicit_pattern.get( token ) )
-        {
-            if( token == '*' || token == '?' || token == '|' || token == '-' || token == '+' )
+            switch( token )
             {
-                while( ops.size( ) && ops.top( ) != '(' && precedence[token] < precedence[ops.top( )] )
+                case '*':
+                case '?':
+                case '+':
+                case '-':
+                case '|':
+                case '(':
+                case ')':
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
+        constexpr static bool is_unary_operator( language::character_type token )
+        {
+            switch( token )
+            {
+                case '*':
+                case '?':
+                case '+':
+                case '-':
+                case ')':
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
+        constexpr static bool is_character( language::character_type token )
+        {
+            return !is_operator( token ) && token != 0;
+        }
+
+        static std::basic_stringstream<language::character_type> make_explicit( std::basic_istream<language::character_type, std::char_traits<language::character_type>> &input )
+        {
+            language::character_type current_token, previous_token = 0;
+
+            std::basic_stringstream<language::character_type> output;
+
+            while( input.get( current_token ) )
+            {
+                if( ( is_character( current_token ) || current_token == '(' ) && ( is_unary_operator( previous_token ) || is_character( previous_token ) ) ) output.put( '-' );
+                output.put( current_token );
+                previous_token = current_token;
+            }
+
+            return output;
+        }
+
+        std::unique_ptr<language::token> parse( std::basic_istream<language::character_type, std::char_traits<language::character_type>> &expression )
+        {
+            auto explicit_pattern = make_explicit( expression );
+
+            language::character_type token;
+            stack<std::unique_ptr<language::token>> output;
+            stack<language::character_type> ops;
+
+            std::unique_ptr<language::token> lhs;
+            std::unique_ptr<language::token> rhs;
+
+            while( explicit_pattern.get( token ) )
+            {
+                if( token == '*' || token == '?' || token == '|' || token == '-' || token == '+' )
                 {
-                    switch( ops.top( ) )
+                    while( ops.size( ) && ops.top( ) != '(' && precedence[token] < precedence[ops.top( )] )
                     {
-                        case '*':
-                            output.push( std::make_unique<language::kleene>( output.pop( ) ) );
-                            break;
-                        case '?':
-                            output.push( std::make_unique<language::zero_or_one>( output.pop( ) ) );
-                            break;
-                        case '+':
-                            output.push( std::make_unique<language::one_or_more>( output.pop( ) ) );
-                            break;
-                        case '-':
-                            rhs = output.pop( );
-                            lhs = output.pop( );
-                            output.push( std::make_unique<language::concatenation>( std::move( lhs ), std::move( rhs ) ) );
-                            break;
-                        case '|':
-                            rhs = output.pop( );
-                            lhs = output.pop( );
-                            output.push( std::make_unique<language::alternation>( std::move( lhs ), std::move( rhs ) ) );
-                            break;
+                        switch( ops.top( ) )
+                        {
+                            case '*':
+                                output.push( std::make_unique<language::kleene>( output.pop( ) ) );
+                                break;
+                            case '?':
+                                output.push( std::make_unique<language::zero_or_one>( output.pop( ) ) );
+                                break;
+                            case '+':
+                                output.push( std::make_unique<language::one_or_more>( output.pop( ) ) );
+                                break;
+                            case '-':
+                                rhs = output.pop( );
+                                lhs = output.pop( );
+                                output.push( std::make_unique<language::concatenation>( std::move( lhs ), std::move( rhs ) ) );
+                                break;
+                            case '|':
+                                rhs = output.pop( );
+                                lhs = output.pop( );
+                                output.push( std::make_unique<language::alternation>( std::move( lhs ), std::move( rhs ) ) );
+                                break;
+                        }
+                        ops.pop( );
                     }
-                    ops.pop( );
+                    ops.push( token );
                 }
-                ops.push( token );
-            }
-            else if( token == '(' )
-            {
-                ops.push( token );
-            }
-            else if( token == ')' )
-            {
-                while( ops.top( ) != '(' )
+                else if( token == '(' )
                 {
-                    switch( ops.top( ) )
+                    ops.push( token );
+                }
+                else if( token == ')' )
+                {
+                    while( ops.top( ) != '(' )
                     {
-                        case '*':
-                            output.push( std::make_unique<language::kleene>( output.pop( ) ) );
-                            break;
-                        case '?':
-                            output.push( std::make_unique<language::zero_or_one>( output.pop( ) ) );
-                            break;
-                        case '+':
-                            output.push( std::make_unique<language::one_or_more>( output.pop( ) ) );
-                            break;
-                        case '-':
-                            rhs = output.pop( );
-                            lhs = output.pop( );
-                            output.push( std::make_unique<language::concatenation>( std::move( lhs ), std::move( rhs ) ) );
-                            break;
-                        case '|':
-                            rhs = output.pop( );
-                            lhs = output.pop( );
-                            output.push( std::make_unique<language::alternation>( std::move( lhs ), std::move( rhs ) ) );
-                            break;
+                        switch( ops.top( ) )
+                        {
+                            case '*':
+                                output.push( std::make_unique<language::kleene>( output.pop( ) ) );
+                                break;
+                            case '?':
+                                output.push( std::make_unique<language::zero_or_one>( output.pop( ) ) );
+                                break;
+                            case '+':
+                                output.push( std::make_unique<language::one_or_more>( output.pop( ) ) );
+                                break;
+                            case '-':
+                                rhs = output.pop( );
+                                lhs = output.pop( );
+                                output.push( std::make_unique<language::concatenation>( std::move( lhs ), std::move( rhs ) ) );
+                                break;
+                            case '|':
+                                rhs = output.pop( );
+                                lhs = output.pop( );
+                                output.push( std::make_unique<language::alternation>( std::move( lhs ), std::move( rhs ) ) );
+                                break;
+                        }
+                        ops.pop( );
                     }
+                    output.push( std::make_unique<language::parenthesis>( output.pop( ) ) );
                     ops.pop( );
-                }
-                output.push( std::make_unique<language::parenthesis>( output.pop( ) ) );
-                ops.pop( );
-            }
-            else
-            {
-                if( token == '.' )
-                {
-                    output.push( std::make_unique<language::any>( ) );
                 }
                 else
                 {
-                    output.push( std::make_unique<language::character>( token ) );
+                    if( token == '.' )
+                    {
+                        output.push( std::make_unique<language::any>( ) );
+                    }
+                    else
+                    {
+                        output.push( std::make_unique<language::character>( token ) );
+                    }
                 }
             }
-        }
-        while( ops.size( ) )
-        {
-            switch( ops.top( ) )
+            while( ops.size( ) )
             {
-                case '*':
-                    output.push( std::make_unique<language::kleene>( output.pop( ) ) );
-                    break;
-                case '?':
-                    output.push( std::make_unique<language::zero_or_one>( output.pop( ) ) );
-                    break;
-                case '+':
-                    output.push( std::make_unique<language::one_or_more>( output.pop( ) ) );
-                    break;
-                case '-':
-                    rhs = output.pop( );
-                    lhs = output.pop( );
-                    output.push( std::make_unique<language::concatenation>( std::move( lhs ), std::move( rhs ) ) );
-                    break;
-                case '|':
-                    rhs = output.pop( );
-                    lhs = output.pop( );
-                    output.push( std::make_unique<language::alternation>( std::move( lhs ), std::move( rhs ) ) );
-                    break;
-                case ')':
-                    output.push( std::make_unique<language::parenthesis>( output.pop( ) ) );
-                    break;
-                case '(':
-                    output.push( std::make_unique<language::parenthesis>( output.pop( ) ) );
-                    break;
+                switch( ops.top( ) )
+                {
+                    case '*':
+                        output.push( std::make_unique<language::kleene>( output.pop( ) ) );
+                        break;
+                    case '?':
+                        output.push( std::make_unique<language::zero_or_one>( output.pop( ) ) );
+                        break;
+                    case '+':
+                        output.push( std::make_unique<language::one_or_more>( output.pop( ) ) );
+                        break;
+                    case '-':
+                        rhs = output.pop( );
+                        lhs = output.pop( );
+                        output.push( std::make_unique<language::concatenation>( std::move( lhs ), std::move( rhs ) ) );
+                        break;
+                    case '|':
+                        rhs = output.pop( );
+                        lhs = output.pop( );
+                        output.push( std::make_unique<language::alternation>( std::move( lhs ), std::move( rhs ) ) );
+                        break;
+                    case ')':
+                        output.push( std::make_unique<language::parenthesis>( output.pop( ) ) );
+                        break;
+                    case '(':
+                        output.push( std::make_unique<language::parenthesis>( output.pop( ) ) );
+                        break;
+                }
+                ops.pop( );
             }
-            ops.pop( );
-        }
 
-        return std::move( output.top( ) );
+            return std::move( output.top( ) );
+        }
     }
 }
