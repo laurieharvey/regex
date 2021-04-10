@@ -11,21 +11,21 @@
 
 namespace regex
 {
-    std::shared_ptr<regex::fa> compile( std::basic_stringstream<language::character_type> pattern, compile_flag flag )
+    std::shared_ptr<regex::fa> compile( std::basic_stringstream<language::character_type> expression, compile_flag flag )
     {
         if( flag == compile_flag::nfa )
         {
-            return compile_nfa( std::move( pattern ) );
+            return compile_nfa( std::move( expression ) );
         }
         else
         {
-            return compile_dfa( std::move( pattern ) );
+            return compile_dfa( std::move( expression ) );
         }
     }
 
-    std::shared_ptr<regex::nfa> compile_nfa( std::basic_stringstream<language::character_type> pattern )
+    std::shared_ptr<regex::nfa> compile_nfa( std::basic_stringstream<language::character_type> expression )
     {
-        std::unique_ptr<language::token> ast = regex::parse( pattern );
+        std::unique_ptr<language::token> ast = regex::parse( expression );
 
         regex::nfa_generator g;
 
@@ -34,9 +34,9 @@ namespace regex
         return g.result( );
     }
 
-    std::shared_ptr<regex::dfa> compile_dfa( std::basic_stringstream<language::character_type> pattern )
+    std::shared_ptr<regex::dfa> compile_dfa( std::basic_stringstream<language::character_type> expression )
     {
-        std::unique_ptr<language::token> ast = regex::parse( pattern );
+        std::unique_ptr<language::token> ast = regex::parse( expression );
 
         regex::dfa_generator g;
 
