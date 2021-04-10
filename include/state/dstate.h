@@ -43,7 +43,7 @@ namespace regex
 
         void walk( std::function<void( std::shared_ptr<state> )> callback, std::set<std::shared_ptr<state>> visited = std::set<std::shared_ptr<state>>( ) ) override;
 
-        match next( std::basic_string_view<language::character_type> str );
+        match execute( std::basic_string_view<language::character_type> str );
 
     private:
         std::map<language::character_type, std::shared_ptr<dstate>> transitions_;

@@ -110,7 +110,7 @@ namespace regex
         return result;
     }
 
-    match dstate::next( std::basic_string_view<language::character_type> str )
+    match dstate::execute( std::basic_string_view<language::character_type> str )
     {
         if( str.empty( ) )
         {
@@ -119,7 +119,7 @@ namespace regex
 
         if( transitions_.find( str[0] ) != std::cend( transitions_ ) )
         {
-            return transitions_.find( str[0] )->second->next( str.substr( 1 ) );
+            return transitions_.find( str[0] )->second->execute( str.substr( 1 ) );
         }
         else
         {

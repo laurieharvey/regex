@@ -100,7 +100,7 @@ namespace regex
 
     match dfa::execute( std::basic_string_view<language::character_type> target )
     {
-        return input_->next( target );
+        return input_->execute( target );
     }
 
     void dfa::walk( std::function<void( std::shared_ptr<state> )> callback )
