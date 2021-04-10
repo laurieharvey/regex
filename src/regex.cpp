@@ -2,9 +2,9 @@
 #include <iostream>
 #include <sstream>
 
-#include "language/parser.h"
 #include "automata/nfa.h"
 #include "compile.h"
+#include "language/parser.h"
 #include "state/state.h"
 
 int main( int argc, char **argv )

@@ -121,32 +121,32 @@ namespace regex
                 s_.push( dfa::from_any( ) );
                 break;
             case language::type::alternation:
-                rhs = s_.top();
+                rhs = s_.top( );
                 s_.pop( );
-                lhs = s_.top();
+                lhs = s_.top( );
                 s_.pop( );
                 s_.push( dfa::from_alternation( lhs, rhs ) );
                 break;
             case language::type::concatenation:
-                rhs = s_.top();
+                rhs = s_.top( );
                 s_.pop( );
-                lhs = s_.top();
+                lhs = s_.top( );
                 s_.pop( );
                 s_.push( dfa::from_concatenation( lhs, rhs ) );
                 break;
             case language::type::kleene:
-                lhs = s_.top();
-                s_.pop( );            
+                lhs = s_.top( );
+                s_.pop( );
                 s_.push( dfa::from_kleene( lhs ) );
                 break;
             case language::type::zero_or_one:
-                lhs = s_.top();
-                s_.pop( ); 
+                lhs = s_.top( );
+                s_.pop( );
                 s_.push( dfa::from_zero_or_one( lhs ) );
                 break;
             case language::type::one_or_more:
-                lhs = s_.top();
-                s_.pop( ); 
+                lhs = s_.top( );
+                s_.pop( );
                 rhs = std::make_shared<dfa>( *lhs );
                 s_.push( dfa::from_concatenation( lhs, dfa::from_kleene( rhs ) ) );
                 break;

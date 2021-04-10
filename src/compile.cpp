@@ -2,12 +2,12 @@
 
 #include <sstream>
 
-#include "compile.h"
-#include "language/parser.h"
 #include "automata/dfa.h"
 #include "automata/fa.h"
 #include "automata/nfa.h"
+#include "compile.h"
 #include "language/ast.h"
+#include "language/parser.h"
 
 namespace regex
 {

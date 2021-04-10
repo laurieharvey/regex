@@ -1,9 +1,10 @@
+#include "automata/nfa.h"
+
 #include <memory>
 #include <string_view>
 
-#include "state/state.h"
 #include "language/ast.h"
-#include "automata/nfa.h"
+#include "state/state.h"
 
 namespace regex
 {
@@ -118,17 +119,17 @@ namespace regex
                 break;
             case language::type::kleene:
                 lhs = s_.top( );
-                s_.pop( );            
+                s_.pop( );
                 s_.push( nfa::from_kleene( lhs ) );
                 break;
             case language::type::zero_or_one:
                 lhs = s_.top( );
-                s_.pop( );            
+                s_.pop( );
                 s_.push( nfa::from_alternation( nfa::from_epsilon( ), lhs ) );
                 break;
             case language::type::one_or_more:
                 lhs = s_.top( );
-                s_.pop( );  
+                s_.pop( );
                 rhs = lhs;
                 s_.push( nfa::from_concatenation( lhs, nfa::from_kleene( rhs ) ) );
                 break;

@@ -1,18 +1,19 @@
+#include "language/parser.h"
+
 #include <sstream>
 #include <stack>
-
-#include "language/parser.h"
 
 namespace regex
 {
     namespace language
     {
         /*
-        * 3 { '(', ')' } 2 { '*', '?', '+' } 1 { '-' }
-        */
+         * 3 { '(', ')' } 2 { '*', '?', '+' } 1 { '-' }
+         */
         static const std::array<int, 128> precedence{
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 2, 2, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2,
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 2,
+            2, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         };
 
         constexpr static bool is_operator( language::character_type token )
@@ -99,8 +100,8 @@ namespace regex
                                 break;
                             case '+':
                                 lhs = std::move( output.top( ) );
-                                output.pop( );                            
-                                output.push( std::make_unique<language::one_or_more>(std::move( lhs ) ) );
+                                output.pop( );
+                                output.push( std::make_unique<language::one_or_more>( std::move( lhs ) ) );
                                 break;
                             case '-':
                                 rhs = std::move( output.top( ) );
@@ -143,7 +144,7 @@ namespace regex
                                 break;
                             case '+':
                                 lhs = std::move( output.top( ) );
-                                output.pop( );                            
+                                output.pop( );
                                 output.push( std::make_unique<language::one_or_more>( std::move( lhs ) ) );
                                 break;
                             case '-':
@@ -196,7 +197,7 @@ namespace regex
                         break;
                     case '+':
                         lhs = std::move( output.top( ) );
-                        output.pop( );                            
+                        output.pop( );
                         output.push( std::make_unique<language::one_or_more>( std::move( lhs ) ) );
                         break;
                     case '-':
@@ -215,12 +216,12 @@ namespace regex
                         break;
                     case ')':
                         lhs = std::move( output.top( ) );
-                        output.pop( );                        
+                        output.pop( );
                         output.push( std::make_unique<language::parenthesis>( std::move( lhs ) ) );
                         break;
                     case '(':
                         lhs = std::move( output.top( ) );
-                        output.pop( );                      
+                        output.pop( );
                         output.push( std::make_unique<language::parenthesis>( std::move( lhs ) ) );
                         break;
                 }
