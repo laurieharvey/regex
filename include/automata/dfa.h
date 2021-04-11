@@ -86,13 +86,4 @@ namespace regex
 
         match execute( std::basic_string_view<language::character_type> target ) override;
     };
-
-    struct dfa_generator
-    {
-        std::stack<std::shared_ptr<dfa>> s_;
-
-        void callback( const regex::language::token &token );
-
-        std::shared_ptr<dfa> result( );
-    };
-}  // namespace regex
+}

@@ -21,25 +21,126 @@ namespace regex
         }
     }
 
+    std::shared_ptr<nfa> compile_nfa( std::unique_ptr<language::token> expression )
+    {
+        std::stack<std::shared_ptr<nfa>> result;
+
+        auto generator = [ &result ]( const language::token &token ){
+
+            std::shared_ptr<regex::nfa> lhs, rhs;
+
+            switch( token.get_type( ) )
+            {
+                case language::type::character:
+                    result.push( nfa::from_character( token.get_token( ) ) );
+                    break;
+                case language::type::any:
+                    result.push( nfa::from_any( ) );
+                    break;
+                case language::type::alternation:
+                    rhs = result.top( );
+                    result.pop( );
+                    lhs = result.top( );
+                    result.pop( );
+                    result.push( nfa::from_alternation( lhs, rhs ) );
+                    break;
+                case language::type::concatenation:
+                    rhs = result.top( );
+                    result.pop( );
+                    lhs = result.top( );
+                    result.pop( );
+                    result.push( nfa::from_concatenation( lhs, rhs ) );
+                    break;
+                case language::type::kleene:
+                    lhs = result.top( );
+                    result.pop( );
+                    result.push( nfa::from_kleene( lhs ) );
+                    break;
+                case language::type::zero_or_one:
+                    lhs = result.top( );
+                    result.pop( );
+                    result.push( nfa::from_alternation( nfa::from_epsilon( ), lhs ) );
+                    break;
+                case language::type::one_or_more:
+                    lhs = result.top( );
+                    result.pop( );
+                    rhs = lhs;
+                    result.push( nfa::from_concatenation( lhs, nfa::from_kleene( rhs ) ) );
+                    break;
+                case language::type::parenthesis:
+                    break;
+            }
+        };
+
+        expression->walk( generator );
+
+        return result.top( );
+    }
+
     std::shared_ptr<regex::nfa> compile_nfa( std::basic_stringstream<language::character_type> expression )
     {
-        std::unique_ptr<language::token> ast = regex::language::parse( std::move( expression ) );
+        return compile_nfa( regex::language::parse( std::move( expression ) ) );
+    }
 
-        regex::nfa_generator g;
+    std::shared_ptr<regex::dfa> compile_dfa( std::unique_ptr<language::token> expression )
+    {
+        std::stack<std::shared_ptr<dfa>> result;
 
-        ast->walk( std::bind( &regex::nfa_generator::callback, &g, std::placeholders::_1 ) );
+        auto generator = [ &result ]( const language::token &token ){
 
-        return g.result( );
+            std::shared_ptr<dfa> lhs, rhs;
+
+            switch( token.get_type( ) )
+            {
+                case language::type::character:
+                    result.push( dfa::from_character( token.get_token( ) ) );
+                    break;
+                case language::type::any:
+                    result.push( dfa::from_any( ) );
+                    break;
+                case language::type::alternation:
+                    rhs = result.top( );
+                    result.pop( );
+                    lhs = result.top( );
+                    result.pop( );
+                    result.push( dfa::from_alternation( lhs, rhs ) );
+                    break;
+                case language::type::concatenation:
+                    rhs = result.top( );
+                    result.pop( );
+                    lhs = result.top( );
+                    result.pop( );
+                    result.push( dfa::from_concatenation( lhs, rhs ) );
+                    break;
+                case language::type::kleene:
+                    lhs = result.top( );
+                    result.pop( );
+                    result.push( dfa::from_kleene( lhs ) );
+                    break;
+                case language::type::zero_or_one:
+                    lhs = result.top( );
+                    result.pop( );
+                    result.push( dfa::from_zero_or_one( lhs ) );
+                    break;
+                case language::type::one_or_more:
+                    lhs = result.top( );
+                    result.pop( );
+                    rhs = std::make_shared<dfa>( *lhs );
+                    result.push( dfa::from_concatenation( lhs, dfa::from_kleene( rhs ) ) );
+                    break;
+                case language::type::parenthesis:
+                    break;
+            }
+
+        };
+
+        expression->walk( generator );
+
+        return result.top( );
     }
 
     std::shared_ptr<regex::dfa> compile_dfa( std::basic_stringstream<language::character_type> expression )
     {
-        std::unique_ptr<language::token> ast = regex::language::parse( std::move( expression ) );
-
-        regex::dfa_generator g;
-
-        ast->walk( std::bind( &regex::dfa_generator::callback, &g, std::placeholders::_1 ) );
-
-        return g.result( );
+        return compile_dfa( regex::language::parse( std::move( expression ) ) );
     }
 }
