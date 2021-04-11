@@ -16,7 +16,6 @@ namespace regex
         std::shared_ptr<nstate> output_;
 
         static const regex::language::character_type epsilon = 0x01;
-        static const regex::language::character_type any = 0x02;
 
     public:
         explicit nfa( std::shared_ptr<nstate> input, std::shared_ptr<nstate> output );
