@@ -23,7 +23,7 @@ namespace regex
 
     std::shared_ptr<regex::nfa> compile_nfa( std::basic_stringstream<language::character_type> expression )
     {
-        std::unique_ptr<language::token> ast = regex::language::parse( expression );
+        std::unique_ptr<language::token> ast = regex::language::parse( std::move( expression ) );
 
         regex::nfa_generator g;
 
@@ -34,7 +34,7 @@ namespace regex
 
     std::shared_ptr<regex::dfa> compile_dfa( std::basic_stringstream<language::character_type> expression )
     {
-        std::unique_ptr<language::token> ast = regex::language::parse( expression );
+        std::unique_ptr<language::token> ast = regex::language::parse( std::move( expression ) );
 
         regex::dfa_generator g;
 

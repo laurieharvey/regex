@@ -20,6 +20,6 @@ namespace regex
          *	https://en.wikipedia.org/wiki/Shunting-yard_algorithm
          */
         std::unique_ptr<regex::language::token> parse(
-            std::basic_istream<language::character_type, std::char_traits<language::character_type>> &expression );
+            std::basic_istream<language::character_type, std::char_traits<language::character_type>> &&expression );
     }
 }

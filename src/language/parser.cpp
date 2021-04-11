@@ -58,7 +58,7 @@ namespace regex
             return !is_operator( token ) && token != 0;
         }
 
-        static std::basic_stringstream<language::character_type> make_explicit( std::basic_istream<language::character_type, std::char_traits<language::character_type>> &input )
+        static std::basic_stringstream<language::character_type> make_explicit( std::basic_istream<language::character_type, std::char_traits<language::character_type>> &&input )
         {
             language::character_type current_token, previous_token = 0;
 
@@ -74,9 +74,9 @@ namespace regex
             return output;
         }
 
-        std::unique_ptr<language::token> parse( std::basic_istream<language::character_type, std::char_traits<language::character_type>> &expression )
+        std::unique_ptr<language::token> parse( std::basic_istream<language::character_type, std::char_traits<language::character_type>> &&expression )
         {
-            auto explicit_pattern = make_explicit( expression );
+            auto explicit_pattern = make_explicit( std::move( expression ) );
 
             language::character_type token;
             std::stack<std::unique_ptr<language::token>> output;

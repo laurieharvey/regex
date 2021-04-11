@@ -5,87 +5,85 @@
 
 TEST( parse, character )
 {
-    std::stringstream input( "a" );
+    std::string input( "a" );
     std::stringstream output;
+    
+    regex::language::parse( std::stringstream( input ) )->print( output );
 
-    regex::language::parse( input )->print( output );
-
-    EXPECT_EQ( output.str( ), input.str( ) );
+    EXPECT_EQ( output.str( ), input );
 }
 
 TEST( parse, any )
 {
-    std::stringstream input( "." );
+    std::string input( "." );
     std::stringstream output;
 
-    regex::language::parse( input )->print( output );
+    regex::language::parse( std::stringstream( input ) )->print( output );
 
-    EXPECT_EQ( output.str( ), input.str( ) );
+    EXPECT_EQ( output.str( ), input );
 }
 
 TEST( parse, alternation )
 {
-    std::stringstream input( "a|b" );
+    std::string input( "a|b" );
     std::stringstream output;
 
-    regex::language::parse( input )->print( output );
+    regex::language::parse( std::stringstream( input ) )->print( output );
 
-    EXPECT_EQ( output.str( ), input.str( ) );
+    EXPECT_EQ( output.str( ), input );
 }
 
 TEST( parse, question )
 {
-    std::stringstream input( "a?" );
+    std::string input( "a?" );
     std::stringstream output;
 
-    regex::language::parse( input )->print( output );
+    regex::language::parse( std::stringstream( input ) )->print( output );
 
-    EXPECT_EQ( output.str( ), input.str( ) );
+    EXPECT_EQ( output.str( ), input );
 }
 
 TEST( parse, kleene )
 {
-    std::stringstream input( "a*" );
+    std::string input( "a*" );
     std::stringstream output;
 
-    regex::language::parse( input )->print( output );
+    regex::language::parse( std::stringstream( input ) )->print( output );
 
-    EXPECT_EQ( output.str( ), input.str( ) );
+    EXPECT_EQ( output.str( ), input );
 }
 
 TEST( parse, one_or_more )
 {
-    std::stringstream input( "a+" );
+    std::string input( "a+" );
     std::stringstream output;
 
-    regex::language::parse( input )->print( output );
+    regex::language::parse( std::stringstream( input ) )->print( output );
 
-    EXPECT_EQ( output.str( ), input.str( ) );
+    EXPECT_EQ( output.str( ), input );
 }
 
 TEST( parse, parenthesis )
 {
-    std::stringstream input( "(c)" );
+    std::string input( "(c)" );
     std::stringstream output;
 
-    regex::language::parse( input )->print( output );
+    regex::language::parse( std::stringstream( input ) )->print( output );
 
-    EXPECT_EQ( output.str( ), input.str( ) );
+    EXPECT_EQ( output.str( ), input );
 }
 
 TEST( parse, complex )
 {
-    std::stringstream input( "a?.(c*|d+)b*e" );
+    std::string input( "a?.(c*|d+)b*e" );
     std::stringstream output;
 
-    regex::language::parse( input )->print( output );
+    regex::language::parse( std::stringstream( input ) )->print( output );
 
-    EXPECT_EQ( output.str( ), std::string( "a?.(c*|d+)b*e" ) );
+    EXPECT_EQ( output.str( ), input );
 }
 
 TEST( parse, bad )
 {
-    std::stringstream input( "?" );
-
-    EXPECT_THROW( regex::language::parse( input ), regex::language::exception );
+    EXPECT_THROW( regex::language::parse( std::stringstream( "?" ) ), regex::language::exception );
 }
