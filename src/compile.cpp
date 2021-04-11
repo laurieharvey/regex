@@ -1,11 +1,9 @@
-#include "compile.h"
-
 #include <sstream>
 
 #include "automata/dfa.h"
 #include "automata/fa.h"
 #include "automata/nfa.h"
-#include "compile.h"
+#include "utilities/compile.h"
 #include "language/ast.h"
 #include "language/parser.h"
 

@@ -3,7 +3,7 @@
 #include <sstream>
 
 #include "automata/nfa.h"
-#include "compile.h"
+#include "utilities/compile.h"
 #include "language/parser.h"
 #include "state/state.h"
 

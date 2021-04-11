@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "compile.h"
+#include "utilities/compile.h"
 #include "utilities.h"
 
 TEST( compile_nfa, character )
