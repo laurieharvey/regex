@@ -7,7 +7,8 @@ namespace regex
 {
     namespace language
     {
-        static const std::array<short, 128> precedence{
+        static const std::array<short, 128> precedence
+        {
 
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
@@ -81,6 +82,13 @@ namespace regex
             std::stack<std::unique_ptr<language::token>> output;
             std::stack<language::character_type> ops;
 
+            auto check_args = [ &output ]( short args_needed ){
+
+                if( output.size( ) < args_needed )
+                    throw exception();
+
+            };
+
             std::unique_ptr<language::token> lhs, rhs;
 
             while( explicit_pattern.get( token ) )
@@ -92,21 +100,25 @@ namespace regex
                         switch( ops.top( ) )
                         {
                             case '*':
+                                check_args( 1 );
                                 lhs = std::move( output.top( ) );
                                 output.pop( );
                                 output.push( std::make_unique<language::kleene>( std::move( lhs ) ) );
                                 break;
                             case '?':
+                                check_args( 1 );
                                 lhs = std::move( output.top( ) );
                                 output.pop( );
                                 output.push( std::make_unique<language::zero_or_one>( std::move( lhs ) ) );
                                 break;
                             case '+':
+                                check_args( 1 );                            
                                 lhs = std::move( output.top( ) );
                                 output.pop( );
                                 output.push( std::make_unique<language::one_or_more>( std::move( lhs ) ) );
                                 break;
                             case '-':
+                                check_args( 2 );                            
                                 rhs = std::move( output.top( ) );
                                 output.pop( );
                                 lhs = std::move( output.top( ) );
@@ -114,6 +126,7 @@ namespace regex
                                 output.push( std::make_unique<language::concatenation>( std::move( lhs ), std::move( rhs ) ) );
                                 break;
                             case '|':
+                                check_args( 2 );                            
                                 rhs = std::move( output.top( ) );
                                 output.pop( );
                                 lhs = std::move( output.top( ) );
@@ -136,21 +149,25 @@ namespace regex
                         switch( ops.top( ) )
                         {
                             case '*':
+                                check_args( 1 );                            
                                 lhs = std::move( output.top( ) );
                                 output.pop( );
                                 output.push( std::make_unique<language::kleene>( std::move( lhs ) ) );
                                 break;
                             case '?':
+                                check_args( 1 );                            
                                 lhs = std::move( output.top( ) );
                                 output.pop( );
                                 output.push( std::make_unique<language::zero_or_one>( std::move( lhs ) ) );
                                 break;
                             case '+':
+                                check_args( 1 );                            
                                 lhs = std::move( output.top( ) );
                                 output.pop( );
                                 output.push( std::make_unique<language::one_or_more>( std::move( lhs ) ) );
                                 break;
                             case '-':
+                                check_args( 2 );                            
                                 rhs = std::move( output.top( ) );
                                 output.pop( );
                                 lhs = std::move( output.top( ) );
@@ -158,6 +175,7 @@ namespace regex
                                 output.push( std::make_unique<language::concatenation>( std::move( lhs ), std::move( rhs ) ) );
                                 break;
                             case '|':
+                                check_args( 2 );
                                 rhs = std::move( output.top( ) );
                                 output.pop( );
                                 lhs = std::move( output.top( ) );
@@ -189,21 +207,25 @@ namespace regex
                 switch( ops.top( ) )
                 {
                     case '*':
+                        check_args( 1 );                    
                         lhs = std::move( output.top( ) );
                         output.pop( );
                         output.push( std::make_unique<language::kleene>( std::move( lhs ) ) );
                         break;
                     case '?':
+                        check_args( 1 );                    
                         lhs = std::move( output.top( ) );
                         output.pop( );
                         output.push( std::make_unique<language::zero_or_one>( std::move( lhs ) ) );
                         break;
                     case '+':
+                        check_args( 1 );                    
                         lhs = std::move( output.top( ) );
                         output.pop( );
                         output.push( std::make_unique<language::one_or_more>( std::move( lhs ) ) );
                         break;
                     case '-':
+                        check_args( 2 );                    
                         rhs = std::move( output.top( ) );
                         output.pop( );
                         lhs = std::move( output.top( ) );
@@ -211,6 +233,7 @@ namespace regex
                         output.push( std::make_unique<language::concatenation>( std::move( lhs ), std::move( rhs ) ) );
                         break;
                     case '|':
+                        check_args( 2 );                    
                         rhs = std::move( output.top( ) );
                         output.pop( );
                         lhs = std::move( output.top( ) );
@@ -218,11 +241,13 @@ namespace regex
                         output.push( std::make_unique<language::alternation>( std::move( lhs ), std::move( rhs ) ) );
                         break;
                     case ')':
+                        check_args( 1 );                    
                         lhs = std::move( output.top( ) );
                         output.pop( );
                         output.push( std::make_unique<language::parenthesis>( std::move( lhs ) ) );
                         break;
                     case '(':
+                        check_args( 1 );                    
                         lhs = std::move( output.top( ) );
                         output.pop( );
                         output.push( std::make_unique<language::parenthesis>( std::move( lhs ) ) );
@@ -233,5 +258,12 @@ namespace regex
 
             return std::move( output.top( ) );
         }
+
+        // std::unique_ptr<regex::language::token> parse(
+        //     std::basic_istream<language::character_type, std::char_traits<language::character_type>> &&expression )
+        //     {
+        //         auto copy = expression;
+        //         parse( copy );
+        //     }
     }
 }

@@ -82,3 +82,10 @@ TEST( parse, complex )
 
     EXPECT_EQ( output.str( ), std::string( "a?.(c*|d+)b*e" ) );
 }
+
+TEST( parse, bad )
+{
+    std::stringstream input( "?" );
+
+    EXPECT_THROW( regex::language::parse( input ), regex::language::exception );
+}
