@@ -9,6 +9,18 @@
 
 namespace regex
 {
+    std::shared_ptr<regex::fa> compile( std::unique_ptr<language::token> expression, compile_flag flag )
+    {
+        if( flag == compile_flag::nfa )
+        {
+            return compile_nfa( std::move( expression ) );
+        }
+        else
+        {
+            return compile_dfa( std::move( expression ) );
+        }
+    }
+
     std::shared_ptr<regex::fa> compile( std::basic_stringstream<language::character_type> expression, compile_flag flag )
     {
         if( flag == compile_flag::nfa )

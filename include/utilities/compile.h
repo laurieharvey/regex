@@ -19,6 +19,10 @@ namespace regex
     /*
      * Compile the regular expression to its finite automaton
      */
+    std::shared_ptr<fa> compile( std::unique_ptr<language::token> expression, compile_flag flag );
+    /*
+     * Compile the regular expression to its finite automaton
+     */
     std::shared_ptr<fa> compile( std::basic_stringstream<language::character_type> expression, compile_flag flag );
     /*
      * Compile the regular expression to its non-deterministic finite automaton
