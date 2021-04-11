@@ -83,7 +83,13 @@ TEST( parse, complex )
     EXPECT_EQ( output.str( ), input );
 }
 
-TEST( parse, bad )
+TEST( parse, invalid )
 {
-    EXPECT_THROW( regex::language::parse( std::stringstream( "?" ) ), regex::language::exception );
+    EXPECT_THROW( regex::language::parse( std::stringstream( "" ) ),   regex::language::exception );
+    EXPECT_THROW( regex::language::parse( std::stringstream( "?" ) ),  regex::language::exception );
+    EXPECT_THROW( regex::language::parse( std::stringstream( "|" ) ),  regex::language::exception );
+    EXPECT_THROW( regex::language::parse( std::stringstream( "|b" ) ), regex::language::exception );
+    EXPECT_THROW( regex::language::parse( std::stringstream( "a|" ) ), regex::language::exception );
+    EXPECT_THROW( regex::language::parse( std::stringstream( "*" ) ),  regex::language::exception );
+    EXPECT_THROW( regex::language::parse( std::stringstream( "+" ) ),  regex::language::exception );
 }

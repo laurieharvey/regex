@@ -85,7 +85,9 @@ namespace regex
             auto check_args = [ &output ]( short args_needed ){
 
                 if( output.size( ) < args_needed )
+                {
                     throw exception();
+                }
 
             };
 
@@ -256,14 +258,12 @@ namespace regex
                 ops.pop( );
             }
 
+            if( output.size() == 0 )
+            {
+                throw exception();
+            }
+
             return std::move( output.top( ) );
         }
-
-        // std::unique_ptr<regex::language::token> parse(
-        //     std::basic_istream<language::character_type, std::char_traits<language::character_type>> &&expression )
-        //     {
-        //         auto copy = expression;
-        //         parse( copy );
-        //     }
     }
 }
