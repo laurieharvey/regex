@@ -15,12 +15,6 @@ namespace regex
     class dstate : public state, public std::enable_shared_from_this<dstate>
     {
     public:
-        enum class accepting
-        {
-            accepting,
-            nonaccepting
-        };
-
         explicit dstate( state::context ctx = state::context::rejecting );
         explicit dstate( const dstate& );
         explicit dstate( dstate&& ) = delete;
