@@ -21,10 +21,10 @@ namespace regex
         }
     }
 
-    void dstate::connect( language::character_type symbol, std::shared_ptr<dstate> st )
+    void connect( std::shared_ptr<dstate> src, std::shared_ptr<dstate> dest, regex::language::character_type symbol )
     {
-        transitions_[symbol] = st;
-        set( state::context::rejecting );
+        src->transitions_[symbol] = dest;
+        src->set( state::context::rejecting );
     }
 
     void merge( std::shared_ptr<dstate> source, std::shared_ptr<dstate> target )

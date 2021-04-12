@@ -19,12 +19,12 @@ namespace regex
         std::tie( input_, outputs_ ) = duplicate( other.input_ );
     }
 
-    std::shared_ptr<dfa> dfa::from_character( language::character_type c )
+    std::shared_ptr<dfa> dfa::from_character( language::character_type letter )
     {
         auto input = std::make_shared<dstate>( state::context::rejecting );
         auto output = std::make_shared<dstate>( state::context::accepting );
 
-        input->connect( c, output );
+        connect( input, output, letter );
 
         return std::make_shared<dfa>( input, std::set<std::shared_ptr<dstate>>{ output } );
     }
@@ -36,7 +36,7 @@ namespace regex
 
         for( const auto letter : language::alphabet )
         {
-            input->connect( letter, output );
+            connect( input, output, letter );
         }
 
         return std::make_shared<dfa>( input, std::set<std::shared_ptr<dstate>>{ output } );

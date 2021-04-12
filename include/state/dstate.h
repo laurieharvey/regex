@@ -25,7 +25,7 @@ namespace regex
         explicit dstate( const dstate& );
         explicit dstate( dstate&& ) = delete;
 
-        void connect( regex::language::character_type symbol, std::shared_ptr<dstate> st );
+        friend void connect( std::shared_ptr<dstate> src, std::shared_ptr<dstate> dest, regex::language::character_type symbol );
 
         friend void merge( std::shared_ptr<dstate> src, std::shared_ptr<dstate> target );
 
