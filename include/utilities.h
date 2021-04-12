@@ -15,4 +15,4 @@
 
 // std::pair<regex::table, regex::group> generate_dfa_table(std::shared_ptr<regex::fa> nfa);
 
-std::pair<regex::table, regex::group> generate_table( std::shared_ptr<regex::fa> fa );
+std::pair<regex::table, regex::group> generate_table( std::shared_ptr<regex::nfa> fa );

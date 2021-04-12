@@ -82,7 +82,7 @@ namespace regex
          */
         static std::shared_ptr<dfa> from_zero_or_one( std::shared_ptr<dfa> expression );
 
-        void walk( std::function<void( std::shared_ptr<state> )> callback ) override;
+        void walk( std::function<void( std::shared_ptr<dstate> )> callback );
 
         match execute( std::basic_string_view<language::character_type> target ) override;
     };

@@ -81,7 +81,7 @@ namespace regex
         return std::make_shared<nfa>( input, output );
     }
 
-    void nfa::walk( std::function<void( std::shared_ptr<state> )> callback )
+    void nfa::walk( std::function<void( std::shared_ptr<nstate> )> callback )
     {
         input_->walk( callback );
     }

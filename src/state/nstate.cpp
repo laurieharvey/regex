@@ -85,7 +85,7 @@ namespace regex
         return result;
     }
 
-    void nstate::walk( std::function<void( std::shared_ptr<state> )> callback, std::set<std::shared_ptr<state>> visited )
+    void nstate::walk( std::function<void( std::shared_ptr<nstate> )> callback, std::set<std::shared_ptr<nstate>> visited )
     {
         if( visited.find( shared_from_this( ) ) != std::end( visited ) )
         {

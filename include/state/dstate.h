@@ -18,22 +18,25 @@ namespace regex
         explicit dstate( state::context ctx = state::context::rejecting );
         explicit dstate( const dstate& );
         explicit dstate( dstate&& ) = delete;
-
+        /*
+         *  Connect src state to dest state via symbol, any pre-existing transition is overwritten
+         */
         friend void connect( std::shared_ptr<dstate> src, std::shared_ptr<dstate> dest, regex::language::character_type symbol );
-
+        /*
+         *  Merge src state into target state, all src transitions are transferred to target,
+         *  if target has an existing transition for a src symbol then the child states are merged recursively
+         *  to completion
+         *  Src is left in an invalid state
+         */
         friend void merge( std::shared_ptr<dstate> src, std::shared_ptr<dstate> target );
-
+        /*
+         *  
+         */
         friend void shallow_copy( std::shared_ptr<const dstate> src, std::shared_ptr<dstate> target, std::set<std::shared_ptr<dstate>> );
 
         friend std::pair<std::shared_ptr<dstate>, std::set<std::shared_ptr<dstate>>> duplicate( std::shared_ptr<const dstate> src );
 
-        group get_transitions( language::character_type symbol ) override;
-
-        group get_epsilon_closure( ) override;
-
-        std::map<language::character_type, group> get_transitions( ) override;
-
-        void walk( std::function<void( std::shared_ptr<state> )> callback, std::set<std::shared_ptr<state>> visited = std::set<std::shared_ptr<state>>( ) ) override;
+        void walk( std::function<void( std::shared_ptr<dstate> )> callback, std::set<std::shared_ptr<dstate>> visited = std::set<std::shared_ptr<dstate>>( ) );
 
         match execute( std::basic_string_view<language::character_type> str );
 

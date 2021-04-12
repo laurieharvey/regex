@@ -3,12 +3,12 @@
 #include <iostream>
 #include <queue>
 
-std::pair<regex::table, regex::group> generate_table( std::shared_ptr<regex::fa> fa )
+std::pair<regex::table, regex::group> generate_table( std::shared_ptr<regex::nfa> fa )
 {
     regex::table table;
     regex::group start;
 
-    fa->walk( [&table, &start]( std::shared_ptr<regex::state> state ) {
+    fa->walk( [&table, &start]( std::shared_ptr<regex::nstate> state ) {
         if( start.empty( ) )
         {
             start = state->get_epsilon_closure( );

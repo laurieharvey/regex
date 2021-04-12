@@ -6,7 +6,7 @@
 #include <string>
 #include <vector>
 
-#include "state/state.h"
+#include "state/nstate.h"
 
 namespace regex
 {

@@ -11,6 +11,10 @@
 
 namespace regex
 {
+    class nstate;
+
+    using group = std::set<std::shared_ptr<nstate>>;
+
     class nstate : public state, public std::enable_shared_from_this<nstate>
     {
     public:
@@ -20,13 +24,13 @@ namespace regex
 
         void connect( language::character_type symbol, std::weak_ptr<nstate> st );
 
-        group get_transitions( language::character_type symbol ) override;
+        group get_transitions( language::character_type symbol );
 
-        group get_epsilon_closure( ) override;
+        group get_epsilon_closure( );
 
-        std::map<language::character_type, group> get_transitions( ) override;
+        std::map<language::character_type, group> get_transitions( );
 
-        void walk( std::function<void( std::shared_ptr<state> )> callback, std::set<std::shared_ptr<state>> visited = std::set<std::shared_ptr<state>>( ) ) override;
+        void walk( std::function<void( std::shared_ptr<nstate> )> callback, std::set<std::shared_ptr<nstate>> visited = std::set<std::shared_ptr<nstate>>( ) );
 
         match execute( std::basic_string_view<language::character_type> str, std::set<std::shared_ptr<nstate>> visited = std::set<std::shared_ptr<nstate>>( ) );
 

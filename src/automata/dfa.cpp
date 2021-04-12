@@ -103,7 +103,7 @@ namespace regex
         return input_->execute( target );
     }
 
-    void dfa::walk( std::function<void( std::shared_ptr<state> )> callback )
+    void dfa::walk( std::function<void( std::shared_ptr<dstate> )> callback )
     {
         input_->walk( callback );
     }

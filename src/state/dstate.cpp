@@ -50,7 +50,6 @@ namespace regex
             if( existed && ( visited.find( target ) != std::cend( visited ) ) )
             {
                 visited.insert( target );
-                ;
                 shallow_copy( source_transition.second, position->second, visited );
             }
         }
@@ -79,37 +78,6 @@ namespace regex
         return { dup, accepting_states };
     }
 
-    group dstate::get_transitions( language::character_type symbol )
-    {
-        auto ptr = transitions_.find( symbol );
-
-        if( ptr == std::cend( transitions_ ) )
-        {
-            return group( );
-        }
-        else
-        {
-            return group{ ptr->second };
-        }
-    }
-
-    group dstate::get_epsilon_closure( )
-    {
-        return group( );
-    }
-
-    std::map<language::character_type, group> dstate::get_transitions( )
-    {
-        std::map<language::character_type, group> result;
-
-        for( const auto &transition : transitions_ )
-        {
-            result.insert( { transition.first, group{ transition.second } } );
-        }
-
-        return result;
-    }
-
     match dstate::execute( std::basic_string_view<language::character_type> str )
     {
         if( str.empty( ) )
@@ -127,7 +95,7 @@ namespace regex
         }
     }
 
-    void dstate::walk( std::function<void( std::shared_ptr<state> )> callback, std::set<std::shared_ptr<state>> visited )
+    void dstate::walk( std::function<void( std::shared_ptr<dstate> )> callback, std::set<std::shared_ptr<dstate>> visited )
     {
         if( visited.find( shared_from_this( ) ) != std::end( visited ) )
         {

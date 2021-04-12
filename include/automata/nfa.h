@@ -82,7 +82,7 @@ namespace regex
          */
         static std::shared_ptr<nfa> from_kleene( std::shared_ptr<nfa> expression );
 
-        void walk( std::function<void( std::shared_ptr<state> )> callback ) override;
+        void walk( std::function<void( std::shared_ptr<nstate> )> callback );
 
         match execute( std::basic_string_view<language::character_type> target ) override;
     };
