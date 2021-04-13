@@ -15,32 +15,37 @@ namespace regex
     class dstate : public state, public std::enable_shared_from_this<dstate>
     {
     public:
-        explicit dstate( state::context ctx = state::context::rejecting );
-        explicit dstate( const dstate& );
-        explicit dstate( dstate&& ) = delete;
+        explicit dstate(state::context ctx = state::context::rejecting);
+        explicit dstate(const dstate &);
+        explicit dstate(dstate &&) = delete;
         /*
          *  Connect src state to dest state via symbol, any pre-existing transition is overwritten
          */
-        friend void connect( std::shared_ptr<dstate> src, std::shared_ptr<dstate> dest, regex::language::character_type symbol );
+        friend void connect(std::shared_ptr<dstate> src, std::shared_ptr<dstate> dest, regex::language::character_type symbol);
         /*
          *  Merge src state into target state, all src transitions are transferred to target,
          *  if target has an existing transition for a src symbol then the child states are merged recursively
          *  to completion
          *  Src is left in an invalid state
          */
-        friend void merge( std::shared_ptr<dstate> src, std::shared_ptr<dstate> target );
+        friend void merge(std::shared_ptr<dstate> src, std::shared_ptr<dstate> target);
+        /*
+         *  Shallow copy src transitions to target leaving src unchanged
+         *  If target has an existing transition of a src symbol then the child states are copied recursively
+         *  to completion
+         */
+        friend void shallow_copy(std::shared_ptr<const dstate> src, std::shared_ptr<dstate> target,
+                                 std::set<std::shared_ptr<dstate>> visited );
         /*
          *  
          */
-        friend void shallow_copy( std::shared_ptr<const dstate> src, std::shared_ptr<dstate> target, std::set<std::shared_ptr<dstate>> );
+        friend std::pair<std::shared_ptr<dstate>, std::set<std::shared_ptr<dstate>>> duplicate(std::shared_ptr<const dstate> src);
 
-        friend std::pair<std::shared_ptr<dstate>, std::set<std::shared_ptr<dstate>>> duplicate( std::shared_ptr<const dstate> src );
+        void walk(std::function<void(std::shared_ptr<dstate>)> callback, std::set<std::shared_ptr<dstate>> visited = std::set<std::shared_ptr<dstate>>());
 
-        void walk( std::function<void( std::shared_ptr<dstate> )> callback, std::set<std::shared_ptr<dstate>> visited = std::set<std::shared_ptr<dstate>>( ) );
-
-        match execute( std::basic_string_view<language::character_type> str );
+        match execute(std::basic_string_view<language::character_type> str);
 
     private:
         std::map<language::character_type, std::shared_ptr<dstate>> transitions_;
     };
-}  // namespace regex
+} // namespace regex
