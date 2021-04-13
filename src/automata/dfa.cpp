@@ -16,7 +16,7 @@ namespace regex
 
     dfa::dfa( const dfa &other ) : input_( ), outputs_( )
     {
-        std::tie( input_, outputs_ ) = duplicate( other.input_ );
+        std::tie( input_, outputs_ ) = dstate::duplicate( other.input_ );
     }
 
     std::shared_ptr<dfa> dfa::from_character( language::character_type letter )
@@ -24,7 +24,7 @@ namespace regex
         auto input = std::make_shared<dstate>( state::context::rejecting );
         auto output = std::make_shared<dstate>( state::context::accepting );
 
-        connect( input, output, letter );
+        dstate::connect( input, output, letter );
 
         return std::make_shared<dfa>( input, std::set<std::shared_ptr<dstate>>{ output } );
     }
@@ -36,7 +36,7 @@ namespace regex
 
         for( const auto letter : language::alphabet )
         {
-            connect( input, output, letter );
+            dstate::connect( input, output, letter );
         }
 
         return std::make_shared<dfa>( input, std::set<std::shared_ptr<dstate>>{ output } );
@@ -46,7 +46,7 @@ namespace regex
     {
         for( auto &lhs_output : lhs->outputs_ )
         {
-            shallow_copy( rhs->input_, lhs_output, std::set<std::shared_ptr<dstate>>( ) );
+            dstate::shallow_copy( rhs->input_, lhs_output, std::set<std::shared_ptr<dstate>>( ) );
 
             if( rhs->input_->get_type( ) == state::context::rejecting )
             {
@@ -73,7 +73,7 @@ namespace regex
 
     std::shared_ptr<dfa> dfa::from_alternation( std::shared_ptr<dfa> lhs, std::shared_ptr<dfa> rhs )
     {
-        merge( lhs->input_, rhs->input_ );
+        dstate::merge( lhs->input_, rhs->input_ );
         rhs->outputs_.merge( lhs->outputs_ );
         return std::make_shared<dfa>( rhs->input_, rhs->outputs_ );
     }
@@ -82,7 +82,7 @@ namespace regex
     {
         for( auto &output : expression->outputs_ )
         {
-            shallow_copy( expression->input_, output, std::set<std::shared_ptr<dstate>>( ) );
+            dstate::shallow_copy( expression->input_, output, std::set<std::shared_ptr<dstate>>( ) );
         }
 
         expression->input_->set( state::context::accepting );

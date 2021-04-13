@@ -21,13 +21,13 @@ namespace regex
         }
     }
 
-    void connect( std::shared_ptr<dstate> src, std::shared_ptr<dstate> dest, regex::language::character_type symbol )
+    void dstate::connect( std::shared_ptr<dstate> src, std::shared_ptr<dstate> dest, regex::language::character_type symbol )
     {
         src->transitions_[symbol] = dest;
         src->set( state::context::rejecting );
     }
 
-    void merge( std::shared_ptr<dstate> source, std::shared_ptr<dstate> target )
+    void dstate::merge( std::shared_ptr<dstate> source, std::shared_ptr<dstate> target )
     {
         target->set( source->get_type( ) == state::context::accepting || target->get_type( ) == state::context::accepting ? state::context::accepting : state::context::rejecting );
 
@@ -39,7 +39,7 @@ namespace regex
         }
     }
 
-    void shallow_copy( std::shared_ptr<const dstate> source, std::shared_ptr<dstate> target, std::set<std::shared_ptr<dstate>> visited )
+    void dstate::shallow_copy( std::shared_ptr<const dstate> source, std::shared_ptr<dstate> target, std::set<std::shared_ptr<dstate>> visited )
     {
         for( const auto &source_transition : source->transitions_ )
         {
@@ -55,7 +55,7 @@ namespace regex
         }
     }
 
-    std::pair<std::shared_ptr<dstate>, std::set<std::shared_ptr<dstate>>> duplicate( std::shared_ptr<const dstate> src )
+    std::pair<std::shared_ptr<dstate>, std::set<std::shared_ptr<dstate>>> dstate::duplicate( std::shared_ptr<const dstate> src )
     {
         auto dup = std::make_shared<dstate>( src->get_type( ) );
 
