@@ -24,18 +24,28 @@ namespace regex
     void dstate::connect( std::shared_ptr<dstate> src, std::shared_ptr<dstate> dest, regex::language::character_type symbol )
     {
         src->transitions_[symbol] = dest;
-        src->set( state::context::rejecting );
     }
 
-    void dstate::merge( std::shared_ptr<dstate> source, std::shared_ptr<dstate> target )
+    void dstate::merge( std::shared_ptr<dstate> source, std::shared_ptr<dstate> target, std::set<std::shared_ptr<dstate>> visited )
     {
         target->set( source->get_type( ) == state::context::accepting || target->get_type( ) == state::context::accepting ? state::context::accepting : state::context::rejecting );
 
-        target->transitions_.merge( source->transitions_ );
-
         for( const auto &source_transition : source->transitions_ )
         {
-            merge( source_transition.second, target->transitions_.find( source_transition.first )->second );
+            const auto &result = target->transitions_.insert( source_transition );
+            const auto &existed = !result.second;
+            const auto &position = result.first;
+
+            if( existed && ( visited.find( target ) == std::cend( visited ) ) )
+            {
+                visited.insert( target );
+                merge( source_transition.second, position->second, visited );
+            }
+        }
+
+        if( source != target )
+        {
+            source->transitions_.clear( );   
         }
     }
 
@@ -47,7 +57,7 @@ namespace regex
             const auto &existed = !result.second;
             const auto &position = result.first;
 
-            if( existed && ( visited.find( target ) != std::cend( visited ) ) )
+            if( existed && ( visited.find( target ) == std::cend( visited ) ) )
             {
                 visited.insert( target );
                 shallow_copy( source_transition.second, position->second, visited );
