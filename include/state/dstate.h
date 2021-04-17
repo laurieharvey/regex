@@ -35,7 +35,7 @@ namespace regex
          *  If target has an existing transition of a src symbol then the child states are copied recursively
          *  to completion
          */
-        static void shallow_copy(std::shared_ptr<const dstate> src, std::shared_ptr<dstate> target,
+        static void copy(std::shared_ptr<const dstate> src, std::shared_ptr<dstate> target,
                                  std::set<std::shared_ptr<dstate>> visited = std::set<std::shared_ptr<dstate>>( ) );
         /*
          *  

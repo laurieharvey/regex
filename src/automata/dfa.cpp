@@ -46,7 +46,7 @@ namespace regex
     {
         for( auto &lhs_output : lhs->outputs_ )
         {
-            dstate::shallow_copy( rhs->input_, lhs_output, std::set<std::shared_ptr<dstate>>( ) );
+            dstate::copy( rhs->input_, lhs_output );
 
             if( rhs->input_->get_type( ) == state::context::rejecting )
             {
@@ -82,7 +82,7 @@ namespace regex
     {
         for( auto &output : expression->outputs_ )
         {
-            dstate::shallow_copy( expression->input_, output, std::set<std::shared_ptr<dstate>>( ) );
+            dstate::copy( expression->input_, output );
         }
 
         expression->input_->set( state::context::accepting );

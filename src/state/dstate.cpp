@@ -49,8 +49,10 @@ namespace regex
         }
     }
 
-    void dstate::shallow_copy( std::shared_ptr<const dstate> source, std::shared_ptr<dstate> target, std::set<std::shared_ptr<dstate>> visited )
+    void dstate::copy( std::shared_ptr<const dstate> source, std::shared_ptr<dstate> target, std::set<std::shared_ptr<dstate>> visited )
     {
+        target->set( source->get_type( ) == state::context::accepting || target->get_type( ) == state::context::accepting ? state::context::accepting : state::context::rejecting );
+        
         for( const auto &source_transition : source->transitions_ )
         {
             const auto &result = target->transitions_.insert( source_transition );
@@ -60,7 +62,7 @@ namespace regex
             if( existed && ( visited.find( target ) == std::cend( visited ) ) )
             {
                 visited.insert( target );
-                shallow_copy( source_transition.second, position->second, visited );
+                copy( source_transition.second, position->second, visited );
             }
         }
     }
