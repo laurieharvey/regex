@@ -52,7 +52,7 @@ namespace regex
     void dstate::copy( std::shared_ptr<const dstate> source, std::shared_ptr<dstate> target, std::set<std::shared_ptr<dstate>> visited )
     {
         target->set( source->get_type( ) == state::context::accepting || target->get_type( ) == state::context::accepting ? state::context::accepting : state::context::rejecting );
-        
+
         for( const auto &source_transition : source->transitions_ )
         {
             const auto &result = target->transitions_.insert( source_transition );
@@ -67,27 +67,16 @@ namespace regex
         }
     }
 
-    std::pair<std::shared_ptr<dstate>, std::set<std::shared_ptr<dstate>>> dstate::duplicate( std::shared_ptr<const dstate> src )
+    std::shared_ptr<dstate> dstate::duplicate( std::shared_ptr<const dstate> src )
     {
         auto dup = std::make_shared<dstate>( src->get_type( ) );
 
-        std::set<std::shared_ptr<dstate>> accepting_states;
-
         for( const auto &transition : src->transitions_ )
         {
-            auto next = duplicate( transition.second );
-
-            accepting_states.merge( next.second );
-
-            dup->transitions_.insert( { transition.first, next.first } );
+            dup->transitions_.insert( { transition.first, duplicate( transition.second ) } );
         }
 
-        if( src->get_type( ) == state::context::accepting )
-        {
-            accepting_states.insert( dup );
-        }
-
-        return { dup, accepting_states };
+        return dup;
     }
 
     match dstate::execute( std::basic_string_view<language::character_type> str )

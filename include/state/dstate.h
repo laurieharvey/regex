@@ -40,7 +40,7 @@ namespace regex
         /*
          *  
          */
-        static std::pair<std::shared_ptr<dstate>, std::set<std::shared_ptr<dstate>>> duplicate(std::shared_ptr<const dstate> src);
+        static std::shared_ptr<dstate> duplicate(std::shared_ptr<const dstate> src);
 
         void walk(std::function<void(std::shared_ptr<dstate>)> callback, std::set<std::shared_ptr<dstate>> visited = std::set<std::shared_ptr<dstate>>());
 

@@ -16,7 +16,16 @@ namespace regex
 
     dfa::dfa( const dfa &other ) : input_( ), outputs_( )
     {
-        std::tie( input_, outputs_ ) = dstate::duplicate( other.input_ );
+        input_ = dstate::duplicate( other.input_ );
+
+        input_->walk( [ this ]( std::shared_ptr<dstate> s ){
+
+            if( s->get_type( ) == state::context::accepting )
+            {
+                this->outputs_.insert( s );
+            }
+
+        } );
     }
 
     std::shared_ptr<dfa> dfa::from_character( language::character_type letter )
