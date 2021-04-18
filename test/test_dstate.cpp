@@ -112,3 +112,21 @@ TEST( dstate, copy )
     EXPECT_EQ( loop->execute( "a" ),  regex::match::accepted );
     EXPECT_EQ( loop->execute( "aa" ), regex::match::accepted );
 }
+
+TEST( dstate, duplicate )
+{
+    auto state_11 = std::make_shared<regex::dstate>( regex::state::context::rejecting );
+    auto state_12 = std::make_shared<regex::dstate>( regex::state::context::rejecting );
+    auto state_13 = std::make_shared<regex::dstate>( regex::state::context::accepting );
+
+    regex::dstate::connect( state_11, state_12, 'a' );
+    regex::dstate::connect( state_12, state_13, 'b' );
+
+    auto state_21 = regex::dstate::duplicate( state_11 );
+
+    state_11.reset( );
+    state_12.reset( );
+    state_13.reset( );
+
+    EXPECT_EQ( state_21->execute( "ab" ), regex::match::accepted );
+}
