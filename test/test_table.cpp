@@ -1,16 +1,17 @@
 #include <gtest/gtest.h>
 
-#include "compile.h"
+#include "utilities/compile.h"
 #include "table.h"
+#include "table/utilities.hpp"
 #include "utilities.h"
 
 TEST( table, update )
 {
-    auto ta = generate_nfa_table( compile( std::stringstream( "(ab)*" ) ) );
+    auto ntb = generate_nfa_table( regex::compile_nfa( std::stringstream( "(ab)*" ) ) );
 
-    std::cout << ta.first << std::endl;
+    std::cout << ntb << std::endl;
 
-    auto tb = generate_dfa_table( compile( std::stringstream( "(abc)*" ) ) );
+    auto dtb = generate_dfa_table( regex::compile_dfa( std::stringstream( "(ab)*" ) ) );
 
-    std::cout << tb.first << std::endl;
+    std::cout << dtb << std::endl;
 }

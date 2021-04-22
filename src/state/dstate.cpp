@@ -79,6 +79,11 @@ namespace regex
         return dup;
     }
 
+    const dstate::transitions_type& dstate::get_transitions( ) const
+    {
+        return transitions_;
+    }
+
     match dstate::execute( std::basic_string_view<language::character_type> str )
     {
         if( str.empty( ) )

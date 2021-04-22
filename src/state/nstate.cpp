@@ -25,9 +25,9 @@ namespace regex
         weak_transitions_[symbol].insert( st );
     }
 
-    group nstate::get_transitions( language::character_type symbol )
+    std::set<std::shared_ptr<nstate>> nstate::get_transitions( language::character_type symbol )
     {
-        group result;
+        std::set<std::shared_ptr<nstate>> result;
 
         typename std::map<language::character_type, std::set<std::shared_ptr<nstate>>>::const_iterator strong_transitions = strong_transitions_.find( symbol );
 
@@ -49,9 +49,9 @@ namespace regex
         return result;
     }
 
-    group nstate::get_epsilon_closure( )
+    std::set<std::shared_ptr<nstate>> nstate::get_epsilon_closure( )
     {
-        group result;
+        std::set<std::shared_ptr<nstate>> result;
 
         result.insert( std::enable_shared_from_this<nstate>::shared_from_this( ) );
 
@@ -63,9 +63,9 @@ namespace regex
         return result;
     }
 
-    std::map<language::character_type, group> nstate::get_transitions( )
+    std::map<language::character_type, std::set<std::shared_ptr<nstate>>> nstate::get_transitions( )
     {
-        std::map<language::character_type, group> result;
+        std::map<language::character_type, std::set<std::shared_ptr<nstate>>> result;
 
         for( const auto &weak_transition : weak_transitions_ )
         {

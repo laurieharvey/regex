@@ -1,18 +1,14 @@
 #include "utilities.h"
+#include "automata/dfa.h"
 
 #include <iostream>
 #include <queue>
 
-std::pair<regex::table, regex::group> generate_table( std::shared_ptr<regex::nfa> fa )
+regex::table<regex::group> generate_nfa_table( std::shared_ptr<regex::nfa> fa )
 {
-    regex::table table;
-    regex::group start;
+    regex::table<regex::group> table;
 
-    fa->walk( [&table, &start]( std::shared_ptr<regex::nstate> state ) {
-        if( start.empty( ) )
-        {
-            start = state->get_epsilon_closure( );
-        }
+    fa->walk( [&table]( std::shared_ptr<regex::nstate> state ) {
 
         if( table.find( regex::group( { state } ) ) != std::cend( table ) )
         {
@@ -22,12 +18,37 @@ std::pair<regex::table, regex::group> generate_table( std::shared_ptr<regex::nfa
         {
             for( auto &transition : state->get_transitions( ) )
             {
-                table.update( regex::group( { state } ), transition.first, transition.second );
+                table.element( regex::group( { state } ), transition.first ).merge( transition.second );
             }
         }
+
     } );
 
-    return { table, start };
+    return table;
+}
+
+regex::table<std::shared_ptr<regex::dstate>> generate_dfa_table( std::shared_ptr<regex::dfa> fa )
+{
+    regex::table<std::shared_ptr<regex::dstate>> tb;
+
+    fa->walk( [&tb]( std::shared_ptr<regex::dstate> state ) {
+
+        if( tb.find( state ) != std::cend( tb ) )
+        {
+            return;
+        }
+        else
+        {
+            for( auto &transition : state->get_transitions( ) )
+            {
+                // tb.update( state, transition.first, transition.second );
+                tb.element( state, transition.first ) = transition.second;
+            }
+        }
+        
+    } );
+
+    return tb;
 }
 
 // std::pair<regex::table, regex::group>

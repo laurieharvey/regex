@@ -24,11 +24,11 @@ namespace regex
 
         void connect( language::character_type symbol, std::weak_ptr<nstate> st );
 
-        group get_transitions( language::character_type symbol );
+        std::set<std::shared_ptr<nstate>> get_transitions( language::character_type symbol );
 
-        group get_epsilon_closure( );
+        std::set<std::shared_ptr<nstate>> get_epsilon_closure( );
 
-        std::map<language::character_type, group> get_transitions( );
+        std::map<language::character_type, std::set<std::shared_ptr<nstate>>> get_transitions( );
 
         void walk( std::function<void( std::shared_ptr<nstate> )> callback, std::set<std::shared_ptr<nstate>> visited = std::set<std::shared_ptr<nstate>>( ) );
 
