@@ -9,7 +9,10 @@
 
 int main( int argc, char **argv )
 {
-    if( argc != 2 ) return 0;
+    if( argc != 2 ) 
+    {
+        return 0;
+    }
 
     std::stringstream pattern( argv[1] );
     std::string input_line;
