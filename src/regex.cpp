@@ -5,14 +5,14 @@
 #include "automata/nfa.h"
 #include "utilities/compile.h"
 #include "language/parser.h"
+#include "cmdline.h"
 #include "state/state.h"
 
 int main( int argc, char **argv )
 {
-    if( argc != 2 ) 
-    {
-        return 0;
-    }
+    regex::cmd::cmdline args;
+
+    args.add_flag(  )
 
     std::stringstream pattern( argv[1] );
     std::string input_line;
