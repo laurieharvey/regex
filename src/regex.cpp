@@ -10,10 +10,6 @@
 
 int main( int argc, char **argv )
 {
-    regex::cmd::cmdline args;
-
-    args.add_flag(  )
-
     std::stringstream pattern( argv[1] );
     std::string input_line;
 

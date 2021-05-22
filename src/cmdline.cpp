@@ -4,9 +4,26 @@ namespace regex
 {
     namespace cmd
     {
+        exception::exception( const std::string& msg )
+            : std::runtime_error( msg )
+        {
+
+        }
+
+        exception::exception( const char* msg )
+            : std::runtime_error( msg )
+        {
+
+        }
+
         static std::any parse_string( const std::string& val )
         {
             return std::any( val );
+        }
+
+        cmdline::cmdline( )
+        {
+
         }
 
         void cmdline::add_positional( const std::string& var,
@@ -19,8 +36,10 @@ namespace regex
         void cmdline::add_optional( const std::string& arg,
                                     const std::string& var,
                                     const type t,
+                                    const std::any& def,
                                     const std::string& description )
         {
+            args_[ var ] = def;
             optionals_.insert( { arg, { var, t } } );
         }
 
@@ -32,7 +51,7 @@ namespace regex
             flags_.insert( { arg, var } );
         }
 
-        void cmdline::parse( int argc, char **argv )
+        void cmdline::parse( int argc, const char** argv )
         {
             name_ = argv[ 0 ];
 
@@ -50,7 +69,7 @@ namespace regex
                     {
                         if( i + 1 >= argc )
                         {
-                            throw exception( );
+                            throw exception( "Expected a value to be supplied to an optional" );
                         }
                         else
                         {
@@ -58,7 +77,7 @@ namespace regex
 
                             if( val.starts_with( "-" ) )
                             {
-                                throw exception( );
+                                throw exception( "Expected a value to be supplied to an optional" );
                             }
                             else
                             {
@@ -66,7 +85,7 @@ namespace regex
 
                                 if( opt_iter == std::cend( optionals_ ) )
                                 {
-                                    throw exception( );
+                                    throw exception( std::string( "Unknown optional " ) + arg + std::string( " provided" ) ); // TODO use std::format when available
                                 }
                                 else
                                 {
@@ -74,6 +93,8 @@ namespace regex
                                 }
                             }
                         }
+
+                        ++i;
                     }
                     else
                     {
@@ -89,9 +110,14 @@ namespace regex
                     }
                     else
                     {
-                        throw exception( );
+                        throw exception( "Too many positionals provided" );
                     }
                 }
+            }
+
+            if( positional != std::cend( positionals_ ) )
+            {
+                throw exception( "Not all positional arguments supplied" );
             }
         }
 
@@ -99,7 +125,8 @@ namespace regex
         {
             os << c.name_ << ": " << c.error_ << '\n';
             os << "usage: \n";
-            
+
+            return os;            
         }
     }
 }

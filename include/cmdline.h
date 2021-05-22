@@ -7,12 +7,15 @@
 #include <map>
 #include <initializer_list>
 #include <ostream>
+#include <exception>
 
 namespace regex::cmd
 {
-    class exception
+    class exception : public std::runtime_error
     {
-
+    public:
+        explicit exception( const std::string& msg );
+        explicit exception( const char* msg );
     };
 
     class cmdline
@@ -39,6 +42,7 @@ namespace regex::cmd
         void add_optional( const std::string& arg,
                            const std::string& var,
                            const type,
+                           const std::any& def,
                            const std::string& description = std::string( ) );
         /*
          *  Add flag
@@ -51,9 +55,10 @@ namespace regex::cmd
          *  Parse command line args 
          *  Throw if incorrect
          */
-        void parse( int argc, char **argv );
+        void parse( int argc, const char** argv );
         /*
          *  Fetch argument assigned to var
+         *
          */
         template<typename T>
         T get_argument( const std::string& var )
