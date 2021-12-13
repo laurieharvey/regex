@@ -3,27 +3,43 @@
 #include <sstream>
 
 #include "automata/nfa.h"
-#include "utilities/compile.h"
-#include "language/parser.h"
 #include "cmdline.h"
+#include "language/parser.h"
 #include "state/state.h"
+#include "utilities/compile.h"
 
-int main( int argc, char **argv )
-{
-    std::stringstream pattern( argv[1] );
-    std::string input_line;
+int main(int argc, const char** argv) {
+  regex::cmd::cmdline args("Pattern matching tool");
 
-    std::shared_ptr<regex::fa> nfa = regex::compile( std::move( pattern ), regex::compile_flag::nfa );
+  args.add_optional("-t", "type", regex::cmd::cmdline::type::string, "nfa",
+                    "Type of finite automata", {"nfa", "dfa"});
+  args.add_flag("-v", "verbose", "Verbose logging");
+  args.add_positional("expression", regex::cmd::cmdline::type::string,
+                      "Regular expression");
+  args.add_positional("target", regex::cmd::cmdline::type::string,
+                      "Target to match");
 
-    while( std::getline( std::cin, input_line ) )
-    {
-        regex::match result = nfa->execute( input_line );
+  try {
+    args.parse(argc, argv);
+  } catch (const regex::cmd::exception& e) {
+    std::cerr << e.what() << '\n';
+    return 1;
+  }
 
-        if( result == regex::match::accepted )
-        {
-            std::cout << input_line << std::endl;
-        }
-    }
+  std::stringstream pattern(args.get_argument<std::string>("expression"));
+  std::string target(args.get_argument<std::string>("target"));
+  regex::compile_flag flag = args.get_argument<std::string>("type") == "nfa"
+                                 ? regex::compile_flag::nfa
+                                 : regex::compile_flag::dfa;
 
-    return 0;
+  std::shared_ptr<regex::fa> automata =
+      regex::compile(std::move(pattern), flag);
+
+  if (automata->execute(target) == regex::match::accepted) {
+    std::cout << "Match" << std::endl;
+  } else {
+    std::cout << "No match" << std::endl;
+  }
+
+  return 0;
 }

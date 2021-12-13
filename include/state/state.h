@@ -9,30 +9,23 @@
 
 #include "language/ast.h"
 
-namespace regex
-{
-    enum class match
-    {
-        accepted,
-        rejected
-    };
+namespace regex {
+enum class match { accepted, rejected };
 
-    class state
-    {
-    public:
-        enum class context
-        {
-            accepting,
-            rejecting,
-        };
+class state {
+ public:
+  enum class context {
+    accepting,
+    rejecting,
+  };
 
-        explicit state( context ctx );
+  explicit state(context ctx);
 
-        context get_type( ) const;
+  context get_type() const;
 
-        void set( state::context ctx );
+  void set(state::context ctx);
 
-    private:
-        context ctx_;
-    };
-}  // namespace fa
+ private:
+  context ctx_;
+};
+}  // namespace regex

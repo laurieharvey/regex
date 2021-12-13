@@ -1,89 +1,88 @@
 #pragma once
 
 #include <memory>
-#include <string_view>
 #include <stack>
+#include <string_view>
 
-#include "state/nstate.h"
-#include "language/ast.h"
 #include "automata/fa.h"
+#include "language/ast.h"
+#include "state/nstate.h"
 
-namespace regex
-{
-    class nfa : public fa
-    {
-        std::shared_ptr<nstate> input_;
-        std::shared_ptr<nstate> output_;
+namespace regex {
+class nfa : public fa {
+  std::shared_ptr<nstate> input_;
+  std::shared_ptr<nstate> output_;
 
-        static const regex::language::character_type epsilon = 0x01;
+  static const regex::language::character_type epsilon = 0x01;
 
-    public:
-        explicit nfa( std::shared_ptr<nstate> input, std::shared_ptr<nstate> output );
-        explicit nfa( const nfa &other ) = delete;
-        explicit nfa( nfa &&other ) = delete;
-        /*
-         *
-         *
-         *      +---+      c     +---+
-         *      | i |------>-----| o |
-         *      +---+            +---+
-         *
-         *
-         */
-        static std::shared_ptr<nfa> from_character( language::character_type c );
-        /*
-         *
-         *
-         *      +---+      e     +---+
-         *      | i |------>-----| o |
-         *      +---+            +---+
-         *
-         *
-         */
-        static std::shared_ptr<nfa> from_epsilon( );
-        /*
-         *                 a
-         *             ---->---
-         *      +---+/          \+---+
-         *      | i |----- b ----| o |
-         *      +---+\          /+---+
-         *             ---->---
-         *                 c
-         */
-        static std::shared_ptr<nfa> from_any( );
-        /*
-         *
-         *
-         *      +---+            +---+      e     +---+            +---+
-         *      | i |------>-----|   |------>-----|   |------>-----| o |
-         *      +---+            +---+            +---+            +---+
-         *
-         *
-         */
-        static std::shared_ptr<nfa> from_concatenation( std::shared_ptr<nfa> lhs, std::shared_ptr<nfa> rhs );
-        /*
-         *                   e   +---+            +---+    e
-         *              ----->---|   |------>-----|   |---->----
-         *      +---+ /          +---+            +---+          \ +---+
-         *      | i |                                              | o |
-         *      +---+ \          +---+            +---+          / +---+
-         *              ----->---|   |------>-----|   |---->----
-         *                   e   +---+            +---+    e
-         */
-        static std::shared_ptr<nfa> from_alternation( std::shared_ptr<nfa> lhs, std::shared_ptr<nfa> rhs );
-        /*
-         *                         +----------------<----------------+
-         *                         |                e                |
-         *      +---+      e     +---+            +---+      e     +---+
-         *      | i |------>-----|   |------------|   |------>-----| o |
-         *      +---+            +---+            +---+            +---+
-         *        |                           e                      |
-         *        +--------------------------->----------------------+
-         */
-        static std::shared_ptr<nfa> from_kleene( std::shared_ptr<nfa> expression );
+ public:
+  explicit nfa(std::shared_ptr<nstate> input, std::shared_ptr<nstate> output);
+  explicit nfa(const nfa& other) = delete;
+  explicit nfa(nfa&& other) = delete;
+  /*
+   *
+   *
+   *      +---+      c     +---+
+   *      | i |------>-----| o |
+   *      +---+            +---+
+   *
+   *
+   */
+  static std::shared_ptr<nfa> from_character(language::character_type c);
+  /*
+   *
+   *
+   *      +---+      e     +---+
+   *      | i |------>-----| o |
+   *      +---+            +---+
+   *
+   *
+   */
+  static std::shared_ptr<nfa> from_epsilon();
+  /*
+   *                 a
+   *             ---->---
+   *      +---+/          \+---+
+   *      | i |----- b ----| o |
+   *      +---+\          /+---+
+   *             ---->---
+   *                 c
+   */
+  static std::shared_ptr<nfa> from_any();
+  /*
+   *
+   *
+   *      +---+            +---+      e     +---+            +---+
+   *      | i |------>-----|   |------>-----|   |------>-----| o |
+   *      +---+            +---+            +---+            +---+
+   *
+   *
+   */
+  static std::shared_ptr<nfa> from_concatenation(std::shared_ptr<nfa> lhs,
+                                                 std::shared_ptr<nfa> rhs);
+  /*
+   *                   e   +---+            +---+    e
+   *              ----->---|   |------>-----|   |---->----
+   *      +---+ /          +---+            +---+          \ +---+
+   *      | i |                                              | o |
+   *      +---+ \          +---+            +---+          / +---+
+   *              ----->---|   |------>-----|   |---->----
+   *                   e   +---+            +---+    e
+   */
+  static std::shared_ptr<nfa> from_alternation(std::shared_ptr<nfa> lhs, std::shared_ptr<nfa> rhs);
+  /*
+   *                         +----------------<----------------+
+   *                         |                e                |
+   *      +---+      e     +---+            +---+      e     +---+
+   *      | i |------>-----|   |------------|   |------>-----| o |
+   *      +---+            +---+            +---+            +---+
+   *        |                           e                      |
+   *        +--------------------------->----------------------+
+   */
+  static std::shared_ptr<nfa> from_kleene(std::shared_ptr<nfa> expression);
 
-        void walk( std::function<void( std::shared_ptr<nstate> )> callback );
+  void walk(std::function<void(std::shared_ptr<nstate>)> callback);
 
-        match execute( std::basic_string_view<language::character_type> target ) override;
-    };
-}
+  match execute(std::basic_string_view<language::character_type> target) override;
+};
+}  // namespace regex
