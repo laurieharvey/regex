@@ -6,7 +6,7 @@
 
 TEST( cmdline, good )
 {
-    regex::cmd::cmdline args;
+    regex::cmd::cmdline args("description");
 
     args.add_optional( "-t", "type", regex::cmd::cmdline::type::string, "nfa", "Type of finite automata" );
     args.add_optional( "-l", "limit", regex::cmd::cmdline::type::integral, 1, "Limit" );
@@ -29,7 +29,7 @@ TEST( cmdline, good )
 
 TEST( cmdline, too_few_positionals )
 {
-    regex::cmd::cmdline args;
+    regex::cmd::cmdline args("description");
 
     args.add_optional( "-t", "type", regex::cmd::cmdline::type::string, "nfa", "Type of finite automata" );
     args.add_optional( "-l", "limit", regex::cmd::cmdline::type::integral, 1, "Limit" );
@@ -45,7 +45,7 @@ TEST( cmdline, too_few_positionals )
 
 TEST( cmdline, too_many_positionals )
 {
-    regex::cmd::cmdline args;
+    regex::cmd::cmdline args("description");
 
     args.add_optional( "-t", "type", regex::cmd::cmdline::type::string, "nfa", "Type of finite automata" );
     args.add_optional( "-l", "limit", regex::cmd::cmdline::type::integral, 1, "Limit" );
