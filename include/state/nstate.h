@@ -7,37 +7,39 @@
 #include <string_view>
 #include <vector>
 
-#include "state/state.h"
+namespace regex::state {
 
-namespace regex {
-class nstate;
+    class nstate {
+    public:
+        using transition_label_type = char;
+        using group_type = std::set<const nstate*>;
+        using transitions_type = std::map<transition_label_type, group_type>;
+        /*
+         * The null transition which consumes no characters
+         */
+        static const transition_label_type epsilon;
 
-using group = std::set<std::shared_ptr<nstate>>;
+        explicit nstate() = default;
+        explicit nstate(const nstate&) = delete;
+        explicit nstate(nstate&&) = delete;
+        /*
+         * Connect this to target via transition_label
+         */
+        void connect(nstate* target, transition_label_type transition_label);
+        /*
+         * Get the next nstate transitions
+         */
+        const transitions_type& transitions() const;
 
-class nstate : public state, public std::enable_shared_from_this<nstate> {
- public:
-  explicit nstate(state::context ctx = state::context::rejecting);
+    private:
+        transitions_type transitions_;
+    };
 
-  void connect(language::character_type symbol, std::shared_ptr<nstate> st);
+    /*
+     * Execute target string, returning on a match or false otherwise
+     */
+    bool execute(const nstate* start,
+                 const nstate* finish,
+                 std::basic_string_view<nstate::transition_label_type> target);
 
-  void connect(language::character_type symbol, std::weak_ptr<nstate> st);
-
-  std::set<std::shared_ptr<nstate>> get_transitions(language::character_type symbol);
-
-  std::set<std::shared_ptr<nstate>> get_epsilon_closure();
-
-  std::map<language::character_type, std::set<std::shared_ptr<nstate>>> get_transitions();
-
-  void walk(std::function<void(std::shared_ptr<nstate>)> callback,
-            std::set<std::shared_ptr<nstate>> visited = std::set<std::shared_ptr<nstate>>());
-
-  match execute(std::basic_string_view<language::character_type> str,
-                std::set<std::shared_ptr<nstate>> visited = std::set<std::shared_ptr<nstate>>());
-
- private:
-  std::map<language::character_type, std::set<std::shared_ptr<nstate>>> strong_transitions_;
-  std::map<language::character_type,
-           std::set<std::weak_ptr<nstate>, std::owner_less<std::weak_ptr<nstate>>>>
-      weak_transitions_;
-};
 }  // namespace regex

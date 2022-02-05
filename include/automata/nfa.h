@@ -1,88 +1,95 @@
 #pragma once
 
 #include <memory>
+#include <set>
 #include <stack>
 #include <string_view>
 
-#include "automata/fa.h"
 #include "language/ast.h"
 #include "state/nstate.h"
+#include "automata/dfa.h"
 
 namespace regex {
-class nfa : public fa {
-  std::shared_ptr<nstate> input_;
-  std::shared_ptr<nstate> output_;
+    class nfa {
+        std::set<std::unique_ptr<state::nstate>> states_;
+        state::nstate* input_;
+        state::nstate* output_;
 
-  static const regex::language::character_type epsilon = 0x01;
-
- public:
-  explicit nfa(std::shared_ptr<nstate> input, std::shared_ptr<nstate> output);
-  explicit nfa(const nfa& other) = delete;
-  explicit nfa(nfa&& other) = delete;
-  /*
-   *
-   *
-   *      +---+      c     +---+
-   *      | i |------>-----| o |
-   *      +---+            +---+
-   *
-   *
-   */
-  static std::shared_ptr<nfa> from_character(language::character_type c);
-  /*
-   *
-   *
-   *      +---+      e     +---+
-   *      | i |------>-----| o |
-   *      +---+            +---+
-   *
-   *
-   */
-  static std::shared_ptr<nfa> from_epsilon();
-  /*
-   *                 a
-   *             ---->---
-   *      +---+/          \+---+
-   *      | i |----- b ----| o |
-   *      +---+\          /+---+
-   *             ---->---
-   *                 c
-   */
-  static std::shared_ptr<nfa> from_any();
-  /*
-   *
-   *
-   *      +---+            +---+      e     +---+            +---+
-   *      | i |------>-----|   |------>-----|   |------>-----| o |
-   *      +---+            +---+            +---+            +---+
-   *
-   *
-   */
-  static std::shared_ptr<nfa> from_concatenation(std::shared_ptr<nfa> lhs,
-                                                 std::shared_ptr<nfa> rhs);
-  /*
-   *                   e   +---+            +---+    e
-   *              ----->---|   |------>-----|   |---->----
-   *      +---+ /          +---+            +---+          \ +---+
-   *      | i |                                              | o |
-   *      +---+ \          +---+            +---+          / +---+
-   *              ----->---|   |------>-----|   |---->----
-   *                   e   +---+            +---+    e
-   */
-  static std::shared_ptr<nfa> from_alternation(std::shared_ptr<nfa> lhs, std::shared_ptr<nfa> rhs);
-  /*
-   *                         +----------------<----------------+
-   *                         |                e                |
-   *      +---+      e     +---+            +---+      e     +---+
-   *      | i |------>-----|   |------------|   |------>-----| o |
-   *      +---+            +---+            +---+            +---+
-   *        |                           e                      |
-   *        +--------------------------->----------------------+
-   */
-  static std::shared_ptr<nfa> from_kleene(std::shared_ptr<nfa> expression);
-
-  void walk(std::function<void(std::shared_ptr<nstate>)> callback);
-
-  match execute(std::basic_string_view<language::character_type> target) override;
-};
+    public:
+        explicit nfa(state::nstate* input,
+                     state::nstate* output,
+                     std::set<std::unique_ptr<state::nstate>> states);
+        explicit nfa(const nfa& other) = delete;
+        explicit nfa(nfa&& other) = delete;
+        /*
+         *
+         */
+        bool execute(std::basic_string_view<language::character_type> target);
+        /*
+         *
+         */
+        static std::unique_ptr<dfa> to_dfa(std::unique_ptr<nfa> lhs);
+        /*
+         *
+         *
+         *      +---+      c     +---+
+         *      | i |------>-----| o |
+         *      +---+            +---+
+         *
+         *
+         */
+        static std::unique_ptr<nfa> from_character(language::character_type character);
+        /*
+         *
+         *
+         *      +---+      e     +---+
+         *      | i |------>-----| o |
+         *      +---+            +---+
+         *
+         *
+         */
+        static std::unique_ptr<nfa> from_epsilon();
+        /*
+         *                 a
+         *             ---->---
+         *      +---+/          \+---+
+         *      | i |----- b ----| o |
+         *      +---+\          /+---+
+         *             ---->---
+         *                 c
+         */
+        static std::unique_ptr<nfa> from_any();
+        /*
+         *
+         *
+         *      +---+            +---+      e     +---+            +---+
+         *      | i |------>-----|   |------>-----|   |------>-----| o |
+         *      +---+            +---+            +---+            +---+
+         *
+         *
+         */
+        static std::unique_ptr<nfa> from_concatenation(std::unique_ptr<nfa> lhs,
+                                                       std::unique_ptr<nfa> rhs);
+        /*
+         *                   e   +---+            +---+    e
+         *              ----->---|   |------>-----|   |---->----
+         *      +---+ /          +---+            +---+          \ +---+
+         *      | i |                                              | o |
+         *      +---+ \          +---+            +---+          / +---+
+         *              ----->---|   |------>-----|   |---->----
+         *                   e   +---+            +---+    e
+         */
+        static std::unique_ptr<nfa> from_alternation(std::unique_ptr<nfa> lhs,
+                                                     std::unique_ptr<nfa> rhs);
+        /*
+         *                         +----------------<----------------+
+         *                         |                e                |
+         *      +---+      e     +---+            +---+      e     +---+
+         *      | i |------>-----|   |------------|   |------>-----| o |
+         *      +---+            +---+            +---+            +---+
+         *        |                           e                      |
+         *        +--------------------------->----------------------+
+         */
+        static std::unique_ptr<nfa> from_kleene(std::unique_ptr<nfa> expression);
+    };
 }  // namespace regex

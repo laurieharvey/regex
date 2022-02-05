@@ -11,7 +11,7 @@ TEST( table, update )
 
     std::cout << ntb << std::endl;
 
-    auto dtb = generate_dfa_table( regex::compile_dfa( std::stringstream( "(ab)*" ) ) );
+    auto dtb = generate_dfa_table( regex::compile_dfa( std::stringstream( "e*e" ) ) );
 
     std::cout << dtb << std::endl;
 }

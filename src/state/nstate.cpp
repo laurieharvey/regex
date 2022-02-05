@@ -9,160 +9,70 @@
 
 #include "state/state.h"
 
-namespace regex {
-nstate::nstate(state::context ctx) : state(ctx), strong_transitions_(), weak_transitions_() {}
+namespace regex::state {
 
-void nstate::connect(language::character_type symbol, std::shared_ptr<nstate> st) {
-  strong_transitions_[symbol].insert(st);
-}
+    const nstate::transition_label_type nstate::epsilon = 0x01;
 
-void nstate::connect(language::character_type symbol, std::weak_ptr<nstate> st) {
-  weak_transitions_[symbol].insert(st);
-}
-
-std::set<std::shared_ptr<nstate>> nstate::get_transitions(language::character_type symbol) {
-  std::set<std::shared_ptr<nstate>> result;
-
-  typename std::map<language::character_type, std::set<std::shared_ptr<nstate>>>::const_iterator
-      strong_transitions = strong_transitions_.find(symbol);
-
-  if (strong_transitions != std::cend(strong_transitions_)) {
-    std::copy(strong_transitions->second.cbegin(), strong_transitions->second.cend(),
-              std::inserter(result, result.begin()));
-  }
-
-  typename std::map<language::character_type,
-                    std::set<std::weak_ptr<nstate>, std::owner_less<std::weak_ptr<nstate>>>>::
-      const_iterator weak_transitions = weak_transitions_.find(symbol);
-
-  if (weak_transitions != std::cend(weak_transitions_)) {
-    for (auto& weak_transition : weak_transitions->second) {
-      result.insert(weak_transition.lock());
-    }
-  }
-
-  return result;
-}
-
-std::set<std::shared_ptr<nstate>> nstate::get_epsilon_closure() {
-  std::set<std::shared_ptr<nstate>> result;
-
-  result.insert(std::enable_shared_from_this<nstate>::shared_from_this());
-
-  for (const auto& next : get_transitions(0x01)) {
-    result.merge(next->get_epsilon_closure());
-  }
-
-  return result;
-}
-
-std::map<language::character_type, std::set<std::shared_ptr<nstate>>> nstate::get_transitions() {
-  std::map<language::character_type, std::set<std::shared_ptr<nstate>>> result;
-
-  for (const auto& weak_transition : weak_transitions_) {
-    result.insert({weak_transition.first, get_transitions(weak_transition.first)});
-  }
-
-  for (const auto& strong_transition : strong_transitions_) {
-    if (result.find(strong_transition.first) == std::cend(result)) {
-      result.insert({strong_transition.first, get_transitions(strong_transition.first)});
-    }
-  }
-
-  result[0x01] = get_epsilon_closure();
-
-  return result;
-}
-
-void nstate::walk(std::function<void(std::shared_ptr<nstate>)> callback,
-                  std::set<std::shared_ptr<nstate>> visited) {
-  if (visited.find(shared_from_this()) != std::end(visited)) {
-    return;
-  } else {
-    visited.insert(shared_from_this());
-
-    auto temp = shared_from_this();
-
-    callback(temp);
-
-    for (auto& transitionsForCharacter : strong_transitions_) {
-      for (auto& transition : transitionsForCharacter.second) {
-        transition->walk(callback, visited);
-      }
+    void nstate::connect(nstate* target, transition_label_type transition_label) {
+        transitions_[transition_label].insert(target);
     }
 
-    for (auto& transitionsForCharacter : weak_transitions_) {
-      for (auto& transition : transitionsForCharacter.second) {
-        transition.lock()->walk(callback, visited);
-      }
+    const nstate::transitions_type& nstate::transitions() const { return transitions_; }
+
+    bool execute_internal(
+        const nstate* state,
+        const nstate* finish,
+        std::basic_string_view<nstate::transition_label_type> target,
+        std::vector<std::pair<const nstate*,
+                              std::basic_string_view<nstate::transition_label_type>>>& visited) {
+        if (std::find_if(std::cbegin(visited), std::cend(visited),
+                         [state, target](const auto& visit) {
+                             return (visit.first == state && visit.second == target);
+                         }) != std::cend(visited)) {
+            return false;
+        }
+
+        visited.push_back({state, target});
+
+        if (target.empty()) {
+            if (state == finish) {
+                return true;
+            }
+        }
+
+        const auto next_etransitions = state->transitions().find(nstate::epsilon);
+
+        if (next_etransitions != std::cend(state->transitions())) {
+            for (const auto next : next_etransitions->second) {
+                if (execute_internal(next, finish, target, visited)) {
+                    return true;
+                }
+            }
+        }
+
+        if (!target.empty()) {
+            const auto next_transitions = state->transitions().find(target[0]);
+
+            if (next_transitions != std::cend(state->transitions())) {
+                for (const auto next : next_transitions->second) {
+                    if (execute_internal(next, finish, target.substr(1), visited)) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        visited.pop_back();
+
+        return false;
+    };
+
+    bool execute(const nstate* start,
+                 const nstate* finish,
+                 std::basic_string_view<nstate::transition_label_type> target) {
+        std::vector<std::pair<const nstate*, std::basic_string_view<nstate::transition_label_type>>>
+            visited;
+
+        return execute_internal(start, finish, target, visited);
     }
-  }
-}
-
-match nstate::execute(std::basic_string_view<language::character_type> str,
-                      std::set<std::shared_ptr<nstate>> visited) {
-  if (visited.find(shared_from_this()) != std::end(visited)) {
-    return match::rejected;
-  }
-
-  visited.insert(std::enable_shared_from_this<nstate>::shared_from_this());
-
-  if (str.empty()) {
-    if (get_type() == context::accepting) {
-      return match::accepted;
-    }
-
-    for (const std::shared_ptr<nstate>& next : strong_transitions_[0x01]) {
-      if (next->execute(str, visited) == match::accepted) {
-        return match::accepted;
-      }
-    }
-
-    for (const std::weak_ptr<nstate>& next : weak_transitions_[0x01]) {
-      if (next.lock()->execute(str, visited) == match::accepted) {
-        return match::accepted;
-      }
-    }
-
-    return match::rejected;
-  }
-
-  for (const std::shared_ptr<nstate>& next : strong_transitions_[str[0]]) {
-    if (next->execute(str.substr(1)) == match::accepted) {
-      return match::accepted;
-    }
-  }
-
-  for (const std::weak_ptr<nstate>& next : weak_transitions_[str[0]]) {
-    if (next.lock()->execute(str.substr(1)) == match::accepted) {
-      return match::accepted;
-    }
-  }
-
-  for (const std::shared_ptr<nstate>& next : strong_transitions_[0x02]) {
-    if (next->execute(str.substr(1)) == match::accepted) {
-      return match::accepted;
-    }
-  }
-
-  for (const std::weak_ptr<nstate>& next : weak_transitions_[0x02]) {
-    if (next.lock()->execute(str.substr(1)) == match::accepted) {
-      return match::accepted;
-    }
-  }
-
-  for (const std::shared_ptr<nstate>& next : strong_transitions_[0x01]) {
-    if (next->execute(str, visited) == match::accepted) {
-      return match::accepted;
-    }
-  }
-
-  for (const std::weak_ptr<nstate>& next : weak_transitions_[0x01]) {
-    if (next.lock()->execute(str, visited) == match::accepted) {
-      return match::accepted;
-    }
-  }
-
-  return match::rejected;
-}
-}  // namespace regex
+}  // namespace regex::state

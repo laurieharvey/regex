@@ -7,76 +7,180 @@
 #include "state/state.h"
 
 namespace regex {
-nfa::nfa(std::shared_ptr<nstate> input, std::shared_ptr<nstate> output)
-    : input_(input), output_(output) {}
+    nfa::nfa(state::nstate* input,
+             state::nstate* output,
+             std::set<std::unique_ptr<state::nstate>> states)
+        : states_(std::move(states)), input_(input), output_(output) {}
 
-std::shared_ptr<nfa> nfa::from_character(language::character_type c) {
-  auto input = std::make_shared<nstate>(state::context::rejecting);
-  auto output = std::make_shared<nstate>(state::context::accepting);
+    std::unique_ptr<nfa> nfa::from_character(language::character_type character) {
+        auto input = std::make_unique<state::nstate>();
+        auto output = std::make_unique<state::nstate>();
 
-  input->connect(c, output);
+        input->connect(output.get(), character);
 
-  return std::make_shared<nfa>(input, output);
-}
+        auto i = input.get();
+        auto o = output.get();
 
-std::shared_ptr<nfa> nfa::from_epsilon() {
-  return from_character(epsilon);
-}
+        std::set<std::unique_ptr<state::nstate>> states;
+        states.insert(std::move(input));
+        states.insert(std::move(output));
 
-std::shared_ptr<nfa> nfa::from_any() {
-  auto input = std::make_shared<nstate>(state::context::rejecting);
-  auto output = std::make_shared<nstate>(state::context::accepting);
+        return std::make_unique<nfa>(i, o, std::move(states));
+    }
 
-  for (const auto letter : language::alphabet) {
-    input->connect(letter, output);
-  }
+    std::unique_ptr<nfa> nfa::from_epsilon() { return from_character(state::nstate::epsilon); }
 
-  return std::make_shared<nfa>(input, output);
-}
+    std::unique_ptr<nfa> nfa::from_any() {
+        auto input = std::make_unique<state::nstate>();
+        auto output = std::make_unique<state::nstate>();
 
-std::shared_ptr<nfa> nfa::from_concatenation(std::shared_ptr<nfa> lhs, std::shared_ptr<nfa> rhs) {
-  lhs->output_->connect(epsilon, rhs->input_);
+        for (const auto character : language::alphabet) {
+            input->connect(output.get(), character);
+        }
 
-  lhs->output_->set(state::context::rejecting);
-  rhs->output_->set(state::context::accepting);
+        auto i = input.get();
+        auto o = output.get();
 
-  return std::make_shared<nfa>(lhs->input_, rhs->output_);
-}
+        std::set<std::unique_ptr<state::nstate>> states;
+        states.insert(std::move(input));
+        states.insert(std::move(output));
 
-std::shared_ptr<nfa> nfa::from_alternation(std::shared_ptr<nfa> lhs, std::shared_ptr<nfa> rhs) {
-  std::shared_ptr<nstate> input = std::make_shared<nstate>(state::context::rejecting);
-  std::shared_ptr<nstate> output = std::make_shared<nstate>(state::context::accepting);
+        return std::make_unique<nfa>(i, o, std::move(states));
+    }
 
-  input->connect(epsilon, lhs->input_);
-  input->connect(epsilon, rhs->input_);
+    std::unique_ptr<nfa> nfa::from_concatenation(std::unique_ptr<nfa> lhs,
+                                                 std::unique_ptr<nfa> rhs) {
+        lhs->output_->connect(rhs->input_, state::nstate::epsilon);
+        lhs->output_ = rhs->output_;
+        lhs->states_.merge(std::move(rhs->states_));
 
-  lhs->output_->connect(epsilon, output);
-  lhs->output_->set(state::context::rejecting);
-  rhs->output_->connect(epsilon, output);
-  rhs->output_->set(state::context::rejecting);
+        return lhs;
+    }
 
-  return std::make_shared<nfa>(input, output);
-}
+    std::unique_ptr<nfa> nfa::from_alternation(std::unique_ptr<nfa> lhs, std::unique_ptr<nfa> rhs) {
+        std::unique_ptr<state::nstate> input = std::make_unique<state::nstate>();
+        std::unique_ptr<state::nstate> output = std::make_unique<state::nstate>();
 
-std::shared_ptr<nfa> nfa::from_kleene(std::shared_ptr<nfa> expression) {
-  std::shared_ptr<nstate> input = std::make_shared<nstate>(state::context::rejecting);
-  std::shared_ptr<nstate> output = std::make_shared<nstate>(state::context::accepting);
+        input->connect(lhs->input_, state::nstate::epsilon);
+        input->connect(rhs->input_, state::nstate::epsilon);
+        lhs->output_->connect(output.get(), state::nstate::epsilon);
+        rhs->output_->connect(output.get(), state::nstate::epsilon);
 
-  expression->output_->set(state::context::rejecting);
+        lhs->states_.merge(std::move(rhs->states_));
 
-  input->connect(epsilon, expression->input_);
-  input->connect(epsilon, output);
-  expression->output_->connect(epsilon, output);
-  output->connect(epsilon, std::weak_ptr<nstate>(expression->input_));
+        lhs->input_ = input.get();
+        lhs->output_ = output.get();
 
-  return std::make_shared<nfa>(input, output);
-}
+        lhs->states_.insert(std::move(input));
+        lhs->states_.insert(std::move(output));
 
-void nfa::walk(std::function<void(std::shared_ptr<nstate>)> callback) {
-  input_->walk(callback);
-}
+        return lhs;
+    }
 
-match nfa::execute(std::basic_string_view<language::character_type> target) {
-  return input_->execute(target);
-}
+    std::unique_ptr<nfa> nfa::from_kleene(std::unique_ptr<nfa> expression) {
+        auto input = std::make_unique<state::nstate>();
+        auto output = std::make_unique<state::nstate>();
+
+        input->connect(expression->input_, state::nstate::epsilon);
+        input->connect(output.get(), state::nstate::epsilon);
+        expression->output_->connect(output.get(), state::nstate::epsilon);
+        output->connect(expression->input_, state::nstate::epsilon);
+
+        expression->input_ = input.get();
+        expression->output_ = output.get();
+
+        expression->states_.insert(std::move(input));
+        expression->states_.insert(std::move(output));
+
+        return expression;
+    }
+
+    bool nfa::execute(std::basic_string_view<language::character_type> target) {
+        return regex::state::execute(input_, output_, target);
+    }
+
+    static state::nstate::group_type epsilon_closure(const state::nstate* start) {
+        state::nstate::group_type closure;
+
+        auto fetch = [&closure](const state::nstate* start, auto fetch) {
+            const bool did_not_exist = closure.insert(start).second;
+            if (!did_not_exist) {
+                return;
+            } else {
+                const auto next_epsilons = start->transitions().find(state::nstate::epsilon);
+                if (next_epsilons != std::cend(start->transitions())) {
+                    for (const auto next_epsilon : next_epsilons->second) {
+                        fetch(next_epsilon, fetch);
+                    }
+                }
+            }
+        };
+
+        fetch(start, fetch);
+
+        return closure;
+    }
+
+    static state::dstate* subset_construction(
+        const state::nstate::group_type& start,
+        std::map<state::nstate::group_type, state::dstate*>& epsilon_closures_processing,
+        std::set<std::unique_ptr<state::dstate>>& new_deterministic_states,
+        const state::nstate* non_deterministic_output,
+        std::set<const state::dstate*>& deterministic_outputs) {
+        state::nstate::group_type closure;
+
+        for (const auto st : start) {
+            closure.merge(epsilon_closure(st));
+        }
+
+        const auto existing_closure = epsilon_closures_processing.find(closure);
+
+        if (existing_closure != std::cend(epsilon_closures_processing)) {
+            return existing_closure->second;
+        }
+
+        auto& new_deterministic_state =
+            *new_deterministic_states.insert(std::make_unique<state::dstate>()).first;
+
+        epsilon_closures_processing.insert({closure, new_deterministic_state.get()});
+
+        if (closure.contains(non_deterministic_output)) {
+            deterministic_outputs.insert(new_deterministic_state.get());
+        }
+
+        std::map<language::character_type, state::nstate::group_type> new_transitions;
+
+        for (const auto state : closure) {
+            for (auto next : state->transitions()) {
+                if (next.first != state::nstate::epsilon) {
+                    new_transitions[next.first].merge(next.second);
+                }
+            }
+        }
+
+        for (const auto& next : new_transitions) {
+            new_deterministic_state->connect(
+                subset_construction(next.second, epsilon_closures_processing,
+                                    new_deterministic_states, non_deterministic_output,
+                                    deterministic_outputs),
+                next.first);
+        }
+
+        return new_deterministic_state.get();
+    }
+
+    std::unique_ptr<dfa> nfa::to_dfa(std::unique_ptr<nfa> src) {
+        std::map<state::nstate::group_type, state::dstate*> epsilon_closures_processed;
+        std::set<std::unique_ptr<state::dstate>> new_deterministic_states;
+        std::set<const state::dstate*> deterministic_outputs;
+
+        auto dfa_input =
+            subset_construction(state::nstate::group_type{src->input_}, epsilon_closures_processed,
+                                new_deterministic_states, src->output_, deterministic_outputs);
+
+        auto a = std::make_unique<dfa>(dfa_input, std::move(deterministic_outputs),
+                                       std::move(new_deterministic_states));
+
+        return a;
+    }
 }  // namespace regex
