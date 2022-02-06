@@ -25,12 +25,11 @@ add_library(regex-lib STATIC
 )
 
 add_executable(tests 
-    # test/test_parser.cpp 
-    # test/test_compile.cpp 
+    test/test_parser.cpp 
+    test/test_compile.cpp 
     # test/test_cmdline.cpp 
     test/test_nfa.cpp 
-    test/test_dfa.cpp 
-    # test/test_dstate.cpp 
+    test/test_dfa.cpp
     # test/test_table.cpp 
 )
 

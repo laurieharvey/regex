@@ -8,9 +8,10 @@
 #include "language/ast.h"
 #include "state/nstate.h"
 #include "automata/dfa.h"
+#include "automata/fa.h"
 
 namespace regex {
-    class nfa {
+    class nfa : public fa {
         std::set<std::unique_ptr<state::nstate>> states_;
         state::nstate* input_;
         state::nstate* output_;
@@ -24,7 +25,7 @@ namespace regex {
         /*
          *
          */
-        bool execute(std::basic_string_view<language::character_type> target);
+        bool execute(std::basic_string_view<language::character_type> target) override;
         /*
          *
          */

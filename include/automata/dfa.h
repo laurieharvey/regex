@@ -7,9 +7,10 @@
 
 #include "language/ast.h"
 #include "state/dstate.h"
+#include "automata/fa.h"
 
 namespace regex {
-    class dfa {
+    class dfa : public fa {
         std::set<std::unique_ptr<state::dstate>> states_;
         state::dstate* input_;
         state::dstate::group_type outputs_;
@@ -23,6 +24,6 @@ namespace regex {
         /*
          *
          */
-        bool execute(std::basic_string_view<language::character_type> target);
+        bool execute(std::basic_string_view<language::character_type> target) override;
     };
 }  // namespace regex

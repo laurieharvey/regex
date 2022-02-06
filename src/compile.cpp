@@ -7,26 +7,7 @@
 #include "utilities/compile.h"
 
 namespace regex {
-    // std::unique_ptr<regex::fa> compile(std::unique_ptr<language::token> expression, compile_flag
-    // flag) {
-    //   if (flag == compile_flag::nfa) {
-    //     return compile_nfa(std::move(expression));
-    //   } else {
-    //     return compile_dfa(std::move(expression));
-    //   }
-    // }
-
-    // std::unique_ptr<regex::fa> compile(std::basic_stringstream<language::character_type>
-    // expression,
-    //                                    compile_flag flag) {
-    //   if (flag == compile_flag::nfa) {
-    //     return compile_nfa(std::move(expression));
-    //   } else {
-    //     return compile_dfa(std::move(expression));
-    //   }
-    // }
-
-    std::unique_ptr<nfa> compile_nfa(std::unique_ptr<language::token> expression) {
+    static std::unique_ptr<nfa> compile_nfa(std::unique_ptr<language::token> expression) {
         std::stack<std::unique_ptr<nfa>> result;
 
         auto generator = [&result](const language::token& token) {
@@ -80,17 +61,35 @@ namespace regex {
         return std::move(result.top());
     }
 
-    std::unique_ptr<regex::nfa> compile_nfa(
+    static std::unique_ptr<regex::nfa> compile_nfa(
         std::basic_stringstream<language::character_type> expression) {
         return compile_nfa(regex::language::parse(std::move(expression)));
     }
 
-    std::unique_ptr<regex::dfa> compile_dfa(std::unique_ptr<language::token> expression) {
+    static std::unique_ptr<regex::dfa> compile_dfa(std::unique_ptr<language::token> expression) {
         return nfa::to_dfa(compile_nfa(std::move(expression)));
     }
 
-    std::unique_ptr<regex::dfa> compile_dfa(
+    static std::unique_ptr<regex::dfa> compile_dfa(
         std::basic_stringstream<language::character_type> expression) {
         return compile_dfa(regex::language::parse(std::move(expression)));
+    }
+
+    std::unique_ptr<regex::fa> compile(std::unique_ptr<language::token> expression,
+                                       compile_flag flag) {
+        if (flag == compile_flag::nfa) {
+            return compile_nfa(std::move(expression));
+        } else {
+            return compile_dfa(std::move(expression));
+        }
+    }
+
+    std::unique_ptr<regex::fa> compile(std::basic_stringstream<language::character_type> expression,
+                                       compile_flag flag) {
+        if (flag == compile_flag::nfa) {
+            return compile_nfa(std::move(expression));
+        } else {
+            return compile_dfa(std::move(expression));
+        }
     }
 }  // namespace regex
