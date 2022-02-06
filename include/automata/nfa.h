@@ -20,7 +20,7 @@ namespace regex {
         explicit nfa(state::nstate* input,
                      state::nstate* output,
                      std::set<std::unique_ptr<state::nstate>> states);
-        explicit nfa(const nfa& other) = delete;
+        explicit nfa(const nfa& other);
         explicit nfa(nfa&& other) = delete;
         /*
          *

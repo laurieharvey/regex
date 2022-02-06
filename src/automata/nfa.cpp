@@ -28,6 +28,46 @@ namespace regex {
         return std::make_unique<nfa>(i, o, std::move(states));
     }
 
+    static state::nstate* copy(const state::nstate* src, std::map<const state::nstate*, std::unique_ptr<state::nstate>>& visited)
+    {
+        const auto preexisting = visited.find(src);
+
+        if(preexisting != std::cend(visited))
+        {
+            return preexisting->second.get();
+        }
+        else
+        {
+            auto new_state = visited.insert({src, std::make_unique<state::nstate>()}).first->second.get();
+
+            for(const auto& label_to_states : src->transitions())
+            {
+                for(const auto& st: label_to_states.second)
+                {
+                    new_state->connect(copy(st, visited), label_to_states.first);
+                }
+            }
+
+            return new_state;
+        }
+    }
+
+     nfa::nfa(const nfa& other)
+     {
+        std::map<const state::nstate*, std::unique_ptr<state::nstate>> visited;
+
+        const auto new_input = copy(other.input_, visited);
+        const auto new_output = visited.find(other.output_)->second.get();
+
+        std::set<std::unique_ptr<state::nstate>> new_states;
+
+        std::transform(std::begin(visited), std::end(visited), std::inserter(new_states), [](auto& st){
+            return std::move(st);
+        });
+
+        std::inserter()
+     }
+
     std::unique_ptr<nfa> nfa::from_epsilon() { return from_character(state::nstate::epsilon); }
 
     std::unique_ptr<nfa> nfa::from_any() {
