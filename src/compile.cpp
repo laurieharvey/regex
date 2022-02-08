@@ -47,7 +47,7 @@ namespace regex {
                 case language::type::one_or_more:
                     lhs = std::move(result.top());
                     result.pop();
-                    rhs = std::move(lhs);  // fix
+                    rhs = std::make_unique<regex::nfa>( *lhs );
                     result.push(
                         nfa::from_concatenation(std::move(lhs), nfa::from_kleene(std::move(rhs))));
                     break;

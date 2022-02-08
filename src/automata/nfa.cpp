@@ -56,16 +56,12 @@ namespace regex {
      {
         std::map<const state::nstate*, std::unique_ptr<state::nstate>> visited;
 
-        const auto new_input = copy(other.input_, visited);
-        const auto new_output = visited.find(other.output_)->second.get();
+        input_ = copy(other.input_, visited);
+        output_ = visited.find(other.output_)->second.get();
 
-        std::set<std::unique_ptr<state::nstate>> new_states;
-
-        std::transform(std::begin(visited), std::end(visited), std::inserter(new_states), [](auto& st){
-            return std::move(st);
+        std::transform(std::begin(visited), std::end(visited), std::inserter(states_, std::end(states_)), [](auto& st){
+            return std::move(st.second);
         });
-
-        std::inserter()
      }
 
     std::unique_ptr<nfa> nfa::from_epsilon() { return from_character(state::nstate::epsilon); }

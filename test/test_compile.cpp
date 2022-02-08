@@ -32,21 +32,21 @@ TEST(compile_nfa, kleene) {
     EXPECT_TRUE(regex::compile(std::stringstream("a*"), regex::compile_flag::nfa)->execute("aa"));
 }
 
-// TEST(compile_nfa, one_or_more) {
-//     EXPECT_FALSE(regex::compile(std::stringstream("a+"), regex::compile_flag::nfa)->execute(""));
-//     EXPECT_TRUE(regex::compile(std::stringstream("a+"), regex::compile_flag::nfa)->execute("a"));
-//     EXPECT_FALSE(regex::compile(std::stringstream("a+"), regex::compile_flag::nfa)->execute("b"));
-//     EXPECT_TRUE(regex::compile(std::stringstream("a+"), regex::compile_flag::nfa)->execute("aa"));
-// }
+TEST(compile_nfa, one_or_more) {
+    EXPECT_FALSE(regex::compile(std::stringstream("a+"), regex::compile_flag::nfa)->execute(""));
+    EXPECT_TRUE(regex::compile(std::stringstream("a+"), regex::compile_flag::nfa)->execute("a"));
+    EXPECT_FALSE(regex::compile(std::stringstream("a+"), regex::compile_flag::nfa)->execute("b"));
+    EXPECT_TRUE(regex::compile(std::stringstream("a+"), regex::compile_flag::nfa)->execute("aa"));
+}
 
-// TEST(compile_nfa, complex) {
-//     EXPECT_TRUE(regex::compile(std::stringstream("a?.*(c*|d+)b*e"), regex::compile_flag::nfa)
-//                     ->execute("afffbbe"));
-//     EXPECT_TRUE(regex::compile(std::stringstream("a?.*(c*|d+)b*e"), regex::compile_flag::nfa)
-//                     ->execute("adbbe"));
-//     EXPECT_FALSE(regex::compile(std::stringstream("a?.*(c+|d+)b*e"), regex::compile_flag::nfa)
-//                      ->execute("afffbbe"));
-// }
+TEST(compile_nfa, complex) {
+    EXPECT_TRUE(regex::compile(std::stringstream("a?.*(c*|d+)b*e"), regex::compile_flag::nfa)
+                    ->execute("afffbbe"));
+    EXPECT_TRUE(regex::compile(std::stringstream("a?.*(c*|d+)b*e"), regex::compile_flag::nfa)
+                    ->execute("adbbe"));
+    EXPECT_FALSE(regex::compile(std::stringstream("a?.*(c+|d+)b*e"), regex::compile_flag::nfa)
+                     ->execute("afffbbe"));
+}
 
 TEST(compile_dfa, character) {
     EXPECT_TRUE(regex::compile(std::stringstream("a"), regex::compile_flag::dfa)->execute("a"));
@@ -77,18 +77,18 @@ TEST(compile_dfa, kleene) {
     EXPECT_TRUE(regex::compile(std::stringstream("a*"), regex::compile_flag::dfa)->execute("aa"));
 }
 
-// TEST(compile_dfa, one_or_more) {
-//     EXPECT_FALSE(regex::compile(std::stringstream("a+"), regex::compile_flag::dfa)->execute(""));
-//     EXPECT_TRUE(regex::compile(std::stringstream("a+"), regex::compile_flag::dfa)->execute("a"));
-//     EXPECT_FALSE(regex::compile(std::stringstream("a+"), regex::compile_flag::dfa)->execute("b"));
-//     EXPECT_TRUE(regex::compile(std::stringstream("a+"), regex::compile_flag::dfa)->execute("aa"));
-// }
+TEST(compile_dfa, one_or_more) {
+    EXPECT_FALSE(regex::compile(std::stringstream("a+"), regex::compile_flag::dfa)->execute(""));
+    EXPECT_TRUE(regex::compile(std::stringstream("a+"), regex::compile_flag::dfa)->execute("a"));
+    EXPECT_FALSE(regex::compile(std::stringstream("a+"), regex::compile_flag::dfa)->execute("b"));
+    EXPECT_TRUE(regex::compile(std::stringstream("a+"), regex::compile_flag::dfa)->execute("aa"));
+}
 
-// TEST(compile_dfa, complex) {
-//     EXPECT_TRUE(
-//         regex::compile(std::stringstream("e*e"), regex::compile_flag::dfa)->execute("eeee"));
-//     EXPECT_TRUE(regex::compile(std::stringstream("a?.*(c*|d+)b*e"), regex::compile_flag::dfa)
-//                     ->execute("adbbe"));
-//     EXPECT_FALSE(regex::compile(std::stringstream("a?.*(c+|d+)b*e"), regex::compile_flag::dfa)
-//                      ->execute("afffbbe"));
-// }
+TEST(compile_dfa, complex) {
+    EXPECT_TRUE(
+        regex::compile(std::stringstream("e*e"), regex::compile_flag::dfa)->execute("eeee"));
+    EXPECT_TRUE(regex::compile(std::stringstream("a?.*(c*|d+)b*e"), regex::compile_flag::dfa)
+                    ->execute("adbbe"));
+    EXPECT_FALSE(regex::compile(std::stringstream("a?.*(c+|d+)b*e"), regex::compile_flag::dfa)
+                     ->execute("afffbbe"));
+}
