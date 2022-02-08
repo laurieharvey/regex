@@ -33,6 +33,9 @@ add_executable(tests
     # test/test_table.cpp 
 )
 
+target_include_directories(tests PRIVATE /usr/local/include)
+target_link_directories(tests PRIVATE /usr/local/lib)
+
 target_link_libraries(tests PRIVATE regex-lib)
 target_link_libraries(tests PRIVATE gtest)
 target_link_libraries(tests PRIVATE gtest_main)

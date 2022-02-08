@@ -5,31 +5,31 @@
 #include <stack>
 #include <string_view>
 
-#include "language/ast.h"
-#include "state/nstate.h"
 #include "automata/dfa.h"
 #include "automata/fa.h"
+#include "language/ast.h"
+#include "state/nstate.h"
 
-namespace regex {
-    class nfa : public fa {
+namespace regex
+{
+    class nfa : public fa
+    {
         std::set<std::unique_ptr<state::nstate>> states_;
-        state::nstate* input_;
-        state::nstate* output_;
+        state::nstate *input_;
+        state::nstate *output_;
 
-    public:
-        explicit nfa(state::nstate* input,
-                     state::nstate* output,
-                     std::set<std::unique_ptr<state::nstate>> states);
-        explicit nfa(const nfa& other);
-        explicit nfa(nfa&& other) = delete;
+      public:
+        explicit nfa( state::nstate *input, state::nstate *output, std::set<std::unique_ptr<state::nstate>> states );
+        explicit nfa( const nfa &other );
+        explicit nfa( nfa &&other ) = delete;
         /*
          *
          */
-        bool execute(std::basic_string_view<language::character_type> target) override;
+        bool execute( std::basic_string_view<language::character_type> target ) override;
         /*
          *
          */
-        static std::unique_ptr<dfa> to_dfa(std::unique_ptr<nfa> lhs);
+        static std::unique_ptr<dfa> to_dfa( std::unique_ptr<nfa> lhs );
         /*
          *
          *
@@ -39,7 +39,7 @@ namespace regex {
          *
          *
          */
-        static std::unique_ptr<nfa> from_character(language::character_type character);
+        static std::unique_ptr<nfa> from_character( language::character_type character );
         /*
          *
          *
@@ -69,8 +69,7 @@ namespace regex {
          *
          *
          */
-        static std::unique_ptr<nfa> from_concatenation(std::unique_ptr<nfa> lhs,
-                                                       std::unique_ptr<nfa> rhs);
+        static std::unique_ptr<nfa> from_concatenation( std::unique_ptr<nfa> lhs, std::unique_ptr<nfa> rhs );
         /*
          *                   e   +---+            +---+    e
          *              ----->---|   |------>-----|   |---->----
@@ -80,8 +79,7 @@ namespace regex {
          *              ----->---|   |------>-----|   |---->----
          *                   e   +---+            +---+    e
          */
-        static std::unique_ptr<nfa> from_alternation(std::unique_ptr<nfa> lhs,
-                                                     std::unique_ptr<nfa> rhs);
+        static std::unique_ptr<nfa> from_alternation( std::unique_ptr<nfa> lhs, std::unique_ptr<nfa> rhs );
         /*
          *                         +----------------<----------------+
          *                         |                e                |
@@ -91,6 +89,6 @@ namespace regex {
          *        |                           e                      |
          *        +--------------------------->----------------------+
          */
-        static std::unique_ptr<nfa> from_kleene(std::unique_ptr<nfa> expression);
+        static std::unique_ptr<nfa> from_kleene( std::unique_ptr<nfa> expression );
     };
-}  // namespace regex
+} // namespace regex

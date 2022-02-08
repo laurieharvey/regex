@@ -7,35 +7,36 @@
 #include <string_view>
 #include <vector>
 
-namespace regex::state {
+namespace regex::state
+{
 
-    class dstate {
-    public:
+    class dstate
+    {
+      public:
         using transition_label_type = char;
-        using group_type = std::set<const dstate*>;
-        using transitions_type = std::map<transition_label_type, dstate*>;
+        using group_type = std::set<const dstate *>;
+        using transitions_type = std::map<transition_label_type, dstate *>;
 
         explicit dstate() = default;
-        explicit dstate(const dstate&) = delete;
-        explicit dstate(dstate&&) = delete;
+        explicit dstate( const dstate & ) = delete;
+        explicit dstate( dstate && ) = delete;
         /*
          * Connect this to target via transition_label
          */
-        void connect(dstate* target, transition_label_type transition_label);
+        void connect( dstate *target, transition_label_type transition_label );
         /*
          * Get the next nstate transitions
          */
-        const transitions_type& transitions() const;
+        const transitions_type &transitions() const;
 
-    private:
+      private:
         transitions_type transitions_;
     };
 
     /*
      * Execute target string, returning on a match or false otherwise
      */
-    bool execute(const dstate* input,
-                 const dstate::group_type& ouputs,
-                 std::basic_string_view<dstate::transition_label_type> target);
+    bool execute( const dstate *input, const dstate::group_type &ouputs,
+                  std::basic_string_view<dstate::transition_label_type> target );
 
-}  // namespace regex
+} // namespace regex::state
