@@ -17,8 +17,8 @@ namespace regex
 
             switch ( token.get_type() )
             {
-            case language::type::character:
-                result.push( nfa::from_character( token.get_token() ) );
+            case language::type::literal:
+                result.push( nfa::from_character( token.get_character() ) );
                 break;
             case language::type::any:
                 result.push( nfa::from_any() );

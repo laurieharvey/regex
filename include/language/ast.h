@@ -14,14 +14,14 @@ namespace regex
     {
         enum class type
         {
-            character,
+            literal,
+            any,
             parenthesis,
             kleene,
             zero_or_one,
             one_or_more,
             alternation,
-            concatenation,
-            any
+            concatenation
         };
 
         class token
@@ -29,29 +29,53 @@ namespace regex
           public:
             using ostream = std::basic_ostream<character_type, std::char_traits<character_type>>;
 
-            virtual void print( ostream &os ) const = 0;
+            virtual void to_string( ostream &os ) const = 0;
 
             virtual void walk( std::function<void( const token & )> callback ) const = 0;
 
-            virtual character_type get_token() const = 0;
+            virtual character_type get_character() const = 0;
 
             virtual type get_type() const = 0;
 
-            virtual ~token();
+            virtual ~token() = default;
         };
 
-        class character : public token
+        class literal : public token
         {
             character_type value_;
 
           public:
-            explicit character( character_type value );
+            /*
+             *  Literal {'a','b'...'z'}
+             */
+            explicit literal( character_type value );
+            explicit literal( const literal & ) = delete;
+            explicit literal( literal && ) = delete;
 
-            void print( typename token::ostream &os ) const override;
+            void to_string( typename token::ostream &os ) const override;
 
             void walk( std::function<void( const token & )> callback ) const override;
 
-            character_type get_token() const override;
+            character_type get_character() const override;
+
+            type get_type() const override;
+        };
+
+        class any : public token
+        {
+          public:
+            /*
+             * Any '.'
+             */
+            explicit any();
+            explicit any( const any & ) = delete;
+            explicit any( any && ) = delete;
+
+            void to_string( typename token::ostream &os ) const override;
+
+            void walk( std::function<void( const token & )> callback ) const override;
+
+            character_type get_character() const override;
 
             type get_type() const override;
         };
@@ -61,13 +85,19 @@ namespace regex
             std::unique_ptr<token> lhs_;
 
           public:
+            /*
+             * Parenthesis '()'
+             * (expression)
+             */
             explicit parenthesis( std::unique_ptr<token> lhs );
+            explicit parenthesis( const parenthesis & ) = delete;
+            explicit parenthesis( parenthesis && ) = delete;
 
-            void print( typename token::ostream &os ) const override;
+            void to_string( typename token::ostream &os ) const override;
 
             void walk( std::function<void( const token & )> callback ) const override;
 
-            character_type get_token() const override;
+            character_type get_character() const override;
 
             type get_type() const override;
         };
@@ -77,13 +107,19 @@ namespace regex
             std::unique_ptr<token> lhs_;
 
           public:
+            /*
+             * Kleene '*'
+             * (expression)*
+             */
             explicit kleene( std::unique_ptr<token> lhs );
+            explicit kleene( const kleene & ) = delete;
+            explicit kleene( kleene && ) = delete;
 
-            void print( typename token::ostream &os ) const override;
+            void to_string( typename token::ostream &os ) const override;
 
             void walk( std::function<void( const token & )> callback ) const override;
 
-            character_type get_token() const override;
+            character_type get_character() const override;
 
             type get_type() const override;
         };
@@ -93,13 +129,19 @@ namespace regex
             std::unique_ptr<token> lhs_;
 
           public:
+            /*
+             * Zero or one '?'
+             * (expression)?
+             */
             explicit zero_or_one( std::unique_ptr<token> lhs );
+            explicit zero_or_one( const zero_or_one & ) = delete;
+            explicit zero_or_one( zero_or_one && ) = delete;
 
-            void print( typename token::ostream &os ) const override;
+            void to_string( typename token::ostream &os ) const override;
 
             void walk( std::function<void( const token & )> callback ) const override;
 
-            character_type get_token() const override;
+            character_type get_character() const override;
 
             type get_type() const override;
         };
@@ -109,13 +151,19 @@ namespace regex
             std::unique_ptr<token> exp_;
 
           public:
+            /*
+             * One or more '+'
+             * (expression)+
+             */
             explicit one_or_more( std::unique_ptr<token> exp );
+            explicit one_or_more( const one_or_more & ) = delete;
+            explicit one_or_more( one_or_more && ) = delete;
 
-            void print( typename token::ostream &os ) const override;
+            void to_string( typename token::ostream &os ) const override;
 
             void walk( std::function<void( const token & )> callback ) const override;
 
-            character_type get_token() const override;
+            character_type get_character() const override;
 
             type get_type() const override;
         };
@@ -125,13 +173,19 @@ namespace regex
             std::unique_ptr<token> lhs_, rhs_;
 
           public:
+            /*
+             * Alternation '|'
+             * (expression 1)|(expression 2)
+             */
             explicit alternation( std::unique_ptr<token> lhs, std::unique_ptr<token> rhs );
+            explicit alternation( const alternation & ) = delete;
+            explicit alternation( alternation && ) = delete;
 
-            void print( typename token::ostream &os ) const override;
+            void to_string( typename token::ostream & os ) const override;
 
             void walk( std::function<void( const token & )> callback ) const override;
 
-            character_type get_token() const override;
+            character_type get_character() const override;
 
             type get_type() const override;
         };
@@ -141,27 +195,19 @@ namespace regex
             std::unique_ptr<token> lhs_, rhs_;
 
           public:
+            /*
+             * Concatenation '•'
+             * (expression 1)•(expression 2)
+             */
             explicit concatenation( std::unique_ptr<token> lhs, std::unique_ptr<token> rhs );
+            explicit concatenation( const concatenation & ) = delete;
+            explicit concatenation( concatenation && ) = delete;
 
-            void print( typename token::ostream &os ) const override;
-
-            void walk( std::function<void( const token & )> callback ) const override;
-
-            character_type get_token() const override;
-
-            type get_type() const override;
-        };
-
-        class any : public token
-        {
-          public:
-            explicit any();
-
-            void print( typename token::ostream &os ) const override;
+            void to_string( typename token::ostream &os ) const override;
 
             void walk( std::function<void( const token & )> callback ) const override;
 
-            character_type get_token() const override;
+            character_type get_character() const override;
 
             type get_type() const override;
         };

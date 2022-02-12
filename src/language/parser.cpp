@@ -201,7 +201,7 @@ namespace regex
                     }
                     else
                     {
-                        output.push( std::make_unique<language::character>( token ) );
+                        output.push( std::make_unique<language::literal>( token ) );
                     }
                 }
             }

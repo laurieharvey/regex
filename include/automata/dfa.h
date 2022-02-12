@@ -23,7 +23,7 @@ namespace regex
         explicit dfa( const dfa &other ) = delete;
         explicit dfa( dfa &&other ) = delete;
         /*
-         *
+         * Run target against the automata
          */
         bool execute( std::basic_string_view<language::character_type> target ) override;
     };
