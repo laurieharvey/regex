@@ -85,11 +85,11 @@ TEST( parse, complex )
 
 TEST( parse, invalid )
 {
-    EXPECT_THROW( regex::language::parse( std::stringstream( "" ) ),   regex::language::exception );
-    EXPECT_THROW( regex::language::parse( std::stringstream( "?" ) ),  regex::language::exception );
-    EXPECT_THROW( regex::language::parse( std::stringstream( "|" ) ),  regex::language::exception );
-    EXPECT_THROW( regex::language::parse( std::stringstream( "|b" ) ), regex::language::exception );
-    EXPECT_THROW( regex::language::parse( std::stringstream( "a|" ) ), regex::language::exception );
-    EXPECT_THROW( regex::language::parse( std::stringstream( "*" ) ),  regex::language::exception );
-    EXPECT_THROW( regex::language::parse( std::stringstream( "+" ) ),  regex::language::exception );
+    EXPECT_THROW( regex::language::parse( std::stringstream( "" ) ),   regex::language::ill_formed );
+    EXPECT_THROW( regex::language::parse( std::stringstream( "?" ) ),  regex::language::ill_formed );
+    EXPECT_THROW( regex::language::parse( std::stringstream( "|" ) ),  regex::language::ill_formed );
+    EXPECT_THROW( regex::language::parse( std::stringstream( "|b" ) ), regex::language::ill_formed );
+    EXPECT_THROW( regex::language::parse( std::stringstream( "a|" ) ), regex::language::ill_formed );
+    EXPECT_THROW( regex::language::parse( std::stringstream( "*" ) ),  regex::language::ill_formed );
+    EXPECT_THROW( regex::language::parse( std::stringstream( "+" ) ),  regex::language::ill_formed );
 }

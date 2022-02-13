@@ -48,6 +48,10 @@ namespace regex
             }
         }
 
+        ill_formed::ill_formed( const std::string &message ) : std::runtime_error( message )
+        {
+        }
+
         constexpr static bool is_character( language::character_type token )
         {
             return !is_operator( token ) && token != 0;
@@ -72,8 +76,7 @@ namespace regex
             return output;
         }
 
-        std::unique_ptr<language::token> parse(
-            std::basic_istream<language::character_type, std::char_traits<language::character_type>> &&expression )
+        std::unique_ptr<language::token> parse( istream &&expression )
         {
             auto explicit_pattern = make_explicit( std::move( expression ) );
 
@@ -81,10 +84,10 @@ namespace regex
             std::stack<std::unique_ptr<language::token>> output;
             std::stack<language::character_type> ops;
 
-            auto check_args = [&output]( short args_needed ) {
+            auto check_args = [&output]( unsigned short args_needed ) {
                 if ( output.size() < args_needed )
                 {
-                    throw exception();
+                    throw ill_formed( "" );
                 }
             };
 
@@ -261,7 +264,7 @@ namespace regex
 
             if ( output.size() == 0 )
             {
-                throw exception();
+                throw ill_formed( "" );
             }
 
             return std::move( output.top() );

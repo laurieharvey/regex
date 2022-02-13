@@ -1,9 +1,11 @@
 #pragma once
 
 #include <array>
+#include <exception>
 #include <istream>
 #include <memory>
 #include <ostream>
+#include <string>
 
 #include "language/ast.h"
 
@@ -11,14 +13,18 @@ namespace regex
 {
     namespace language
     {
-        class exception
+        class ill_formed : std::runtime_error
         {
+          public:
+            explicit ill_formed( const std::string & );
+            explicit ill_formed( const ill_formed & ) = delete;
+            explicit ill_formed( ill_formed && ) = delete;
         };
+
+        using istream = std::basic_istream<language::character_type, std::char_traits<language::character_type>>;
         /*
-         *	Parse an explicit regex expression using the shunting yard algorithm to produce the AST
-         *	https://en.wikipedia.org/wiki/Shunting-yard_algorithm
+         *	Create the regex AST from its string representation
          */
-        std::unique_ptr<regex::language::token> parse(
-            std::basic_istream<language::character_type, std::char_traits<language::character_type>> &&expression );
+        std::unique_ptr<regex::language::token> parse( istream &&expression );
     } // namespace language
 } // namespace regex
