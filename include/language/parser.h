@@ -16,6 +16,9 @@ namespace regex
         class ill_formed : std::runtime_error
         {
           public:
+            /*
+             * Thrown if the expression is ill formed
+             */
             explicit ill_formed( const std::string & );
             explicit ill_formed( const ill_formed & ) = delete;
             explicit ill_formed( ill_formed && ) = delete;
