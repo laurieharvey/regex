@@ -17,7 +17,7 @@ add_library(regex-lib STATIC
     src/state/dstate.cpp 
     src/automata/nfa.cpp 
     src/automata/dfa.cpp 
-    src/compile.cpp 
+    src/utilities/compile.cpp 
     # src/table.cpp 
     # src/utilities.cpp 
     src/language/alphabet.cpp 
