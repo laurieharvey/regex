@@ -9,7 +9,6 @@
 
 namespace regex::state
 {
-
     class dstate
     {
       public:
@@ -32,11 +31,9 @@ namespace regex::state
       private:
         transitions_type transitions_;
     };
-
     /*
      * Execute target string, returning on a match or false otherwise
      */
     bool execute( const dstate *input, const dstate::group_type &ouputs,
                   std::basic_string_view<dstate::transition_label_type> target );
-
 } // namespace regex::state
