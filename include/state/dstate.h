@@ -7,12 +7,14 @@
 #include <string_view>
 #include <vector>
 
+#include "language/alphabet.h"
+
 namespace regex::state
 {
     class dstate
     {
       public:
-        using transition_label_type = char;
+        using transition_label_type = language::character_type;
         using group_type = std::set<const dstate *>;
         using transitions_type = std::map<transition_label_type, dstate *>;
 
