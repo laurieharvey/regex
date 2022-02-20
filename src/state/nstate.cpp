@@ -7,8 +7,6 @@
 #include <string_view>
 #include <vector>
 
-#include "state/state.h"
-
 namespace regex::state
 {
 
