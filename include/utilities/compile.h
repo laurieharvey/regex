@@ -15,7 +15,6 @@ namespace regex
         nfa,
         dfa
     };
-
     /*
      * Compile the regular expression to its finite automaton
      */
