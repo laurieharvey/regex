@@ -1,5 +1,5 @@
 #pragma once
-
+#include <string_view>
 #include "regex/language/ast.h"
 
 namespace regex
