@@ -1,8 +1,7 @@
 #include <gtest/gtest.h>
-
 #include <array>
 
-#include "cmdline.h"
+#include "regex/utilities/cmdline.h"
 
 TEST( cmdline, good )
 {

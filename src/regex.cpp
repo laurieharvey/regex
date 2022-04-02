@@ -2,10 +2,10 @@
 #include <iostream>
 #include <sstream>
 
-#include "automata/nfa.h"
-#include "cmdline.h"
-#include "language/parser.h"
-#include "utilities/compile.h"
+#include "regex/automata/nfa.h"
+#include "regex/utilities/cmdline.h"
+#include "regex/language/parser.h"
+#include "regex/utilities/compile.h"
 
 int main( int argc, const char **argv )
 {

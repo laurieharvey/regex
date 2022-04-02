@@ -5,10 +5,10 @@
 #include <stack>
 #include <string_view>
 
-#include "automata/dfa.h"
-#include "automata/fa.h"
-#include "language/ast.h"
-#include "state/nstate.h"
+#include "regex/automata/dfa.h"
+#include "regex/automata/fa.h"
+#include "regex/language/ast.h"
+#include "regex/state/nstate.h"
 
 namespace regex
 {

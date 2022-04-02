@@ -1,8 +1,8 @@
-#include "automata/nfa.h"
-#include "language/ast.h"
-
 #include <memory>
 #include <string_view>
+
+#include "regex/automata/nfa.h"
+#include "regex/language/ast.h"
 
 namespace regex
 {

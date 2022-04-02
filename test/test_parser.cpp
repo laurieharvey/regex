@@ -1,7 +1,7 @@
 #include <sstream>
 #include <gtest/gtest.h>
 
-#include "language/parser.h"
+#include "regex/language/parser.h"
 
 TEST( parse, character )
 {

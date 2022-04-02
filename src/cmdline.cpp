@@ -1,6 +1,7 @@
-#include "cmdline.h"
 #include <filesystem>
 #include <sstream>
+
+#include "regex/utilities/cmdline.h"
 
 namespace regex
 {

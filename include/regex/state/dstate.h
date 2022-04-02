@@ -7,7 +7,7 @@
 #include <string_view>
 #include <vector>
 
-#include "language/alphabet.h"
+#include "regex/language/alphabet.h"
 
 namespace regex::state
 {

@@ -5,8 +5,6 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_FLAGS_DEBUG_INIT "-Wall")
 
-include_directories(include)
-
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin")
 
 add_library(regex-lib STATIC 
@@ -21,6 +19,8 @@ add_library(regex-lib STATIC
     src/cmdline.cpp
 )
 
+target_include_directories(regex-lib PRIVATE include)
+
 add_executable(tests
     test/test_parser.cpp
     test/test_compile.cpp 
@@ -29,6 +29,8 @@ add_executable(tests
     test/test_dfa.cpp
 )
 
+target_include_directories(tests PRIVATE include)
+
 target_link_libraries(tests PRIVATE regex-lib)
 target_link_libraries(tests PRIVATE gtest)
 target_link_libraries(tests PRIVATE gtest_main)
@@ -36,6 +38,10 @@ target_link_libraries(tests PRIVATE pthread)
 
 add_executable(regex src/regex.cpp)
 
+target_include_directories(regex PRIVATE include)
+
 target_link_libraries(regex PRIVATE regex-lib)
 
-#install(TARGETS regex-lib tests regex)
+install(DIRECTORY include/regex DESTINATION include)
+install(TARGETS regex-lib)
+install(TARGETS regex)

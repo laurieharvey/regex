@@ -5,9 +5,9 @@
 #include <stack>
 #include <string_view>
 
-#include "automata/fa.h"
-#include "language/ast.h"
-#include "state/dstate.h"
+#include "regex/automata/fa.h"
+#include "regex/language/ast.h"
+#include "regex/state/dstate.h"
 
 namespace regex
 {

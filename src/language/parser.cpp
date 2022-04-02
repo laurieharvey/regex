@@ -1,7 +1,7 @@
-#include "language/parser.h"
-
 #include <sstream>
 #include <stack>
+
+#include "regex/language/parser.h"
 
 namespace regex
 {

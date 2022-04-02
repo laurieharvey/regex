@@ -7,7 +7,7 @@
 #include <ostream>
 #include <string>
 
-#include "language/ast.h"
+#include "regex/language/ast.h"
 
 namespace regex
 {

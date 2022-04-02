@@ -3,8 +3,8 @@
 #include <memory>
 #include <queue>
 
-#include "automata/dfa.h"
-#include "state/dstate.h"
+#include "regex/automata/dfa.h"
+#include "regex/state/dstate.h"
 
 namespace regex
 {

@@ -1,6 +1,6 @@
-#include "language/alphabet.h"
-
 #include <algorithm>
+
+#include "regex/language/alphabet.h"
 
 namespace regex
 {

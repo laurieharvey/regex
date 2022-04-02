@@ -3,10 +3,10 @@
 #include <memory>
 #include <sstream>
 
-#include "automata/dfa.h"
-#include "automata/nfa.h"
-#include "language/alphabet.h"
-#include "language/ast.h"
+#include "regex/automata/dfa.h"
+#include "regex/automata/nfa.h"
+#include "regex/language/alphabet.h"
+#include "regex/language/ast.h"
 
 namespace regex
 {

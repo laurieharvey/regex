@@ -1,10 +1,10 @@
 #include <sstream>
 
-#include "automata/dfa.h"
-#include "automata/nfa.h"
-#include "language/ast.h"
-#include "language/parser.h"
-#include "utilities/compile.h"
+#include "regex/automata/dfa.h"
+#include "regex/automata/nfa.h"
+#include "regex/language/ast.h"
+#include "regex/language/parser.h"
+#include "regex/utilities/compile.h"
 
 namespace regex
 {

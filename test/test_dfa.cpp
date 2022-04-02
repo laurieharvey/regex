@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 
-#include "automata/dfa.h"
-#include "automata/nfa.h"
+#include "regex/automata/dfa.h"
+#include "regex/automata/nfa.h"
 
 TEST(dfa, character) {
     EXPECT_TRUE(regex::nfa::to_dfa(regex::nfa::from_character('a'))->execute("a"));

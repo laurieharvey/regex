@@ -6,7 +6,7 @@
 #include <ostream>
 #include <vector>
 
-#include "alphabet.h"
+#include "regex/language/alphabet.h"
 
 namespace regex
 {
