@@ -16,17 +16,7 @@ namespace regex
             for ( auto i = std::numeric_limits<character_type>::min(); i < std::numeric_limits<character_type>::max();
                   ++i )
             {
-                if ( std::find( std::cbegin( operators ), std::cend( operators ), i ) == std::cend( operators ) )
-                {
-                    alphabet[index++] = i;
-                }
-            }
-
-            if ( std::find( std::cbegin( operators ), std::cend( operators ),
-                            std::numeric_limits<character_type>::max() ) == std::cend( operators ) )
-            {
-                alphabet[index] = std::numeric_limits<character_type>::max();
-                ++index;
+                alphabet[index++] = i;
             }
 
             return alphabet;

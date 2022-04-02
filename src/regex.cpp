@@ -1,10 +1,11 @@
+#include <fstream>
 #include <functional>
 #include <iostream>
 #include <sstream>
 
 #include "regex/automata/nfa.h"
-#include "regex/utilities/cmdline.h"
 #include "regex/language/parser.h"
+#include "regex/utilities/cmdline.h"
 #include "regex/utilities/compile.h"
 
 int main( int argc, const char **argv )
@@ -34,13 +35,15 @@ int main( int argc, const char **argv )
 
     std::shared_ptr<regex::fa> automata = regex::compile( std::move( pattern ), flag );
 
-    if ( automata->execute( target ) )
+    std::ifstream file( target, std::ios_base::in );
+    std::string line;
+
+    while( std::getline( file, line ) )
     {
-        std::cout << "Match" << std::endl;
-    }
-    else
-    {
-        std::cout << "No match" << std::endl;
+        if( automata->execute( line ) )
+        {
+            std::cout << line << std::endl;
+        }
     }
 
     return 0;
