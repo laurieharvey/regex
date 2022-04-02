@@ -1,5 +1,12 @@
 # Regular Expression 
 
+## Building and installing
+```bash
+$ git clone https://github.com/shug4070/regex.git
+$ cd regex
+$ cmake -S . -B build
+$ cmake --build build --target install -- -j16
+```
 ## Using the library
 
 ```cpp
