@@ -5,7 +5,6 @@
 #include "automata/nfa.h"
 #include "cmdline.h"
 #include "language/parser.h"
-#include "state/state.h"
 #include "utilities/compile.h"
 
 int main( int argc, const char **argv )
@@ -35,7 +34,7 @@ int main( int argc, const char **argv )
 
     std::shared_ptr<regex::fa> automata = regex::compile( std::move( pattern ), flag );
 
-    if ( automata->execute( target ) == regex::match::accepted )
+    if ( automata->execute( target ) )
     {
         std::cout << "Match" << std::endl;
     }

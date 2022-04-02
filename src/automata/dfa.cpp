@@ -19,5 +19,4 @@ namespace regex
     {
         return regex::state::execute( input_, outputs_, target );
     }
-
 } // namespace regex
