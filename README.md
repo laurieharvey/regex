@@ -9,8 +9,8 @@
 
 int main()
 {
-    std::unique_ptr<regex::fa> automata =
-        regex::compile( std::stringstream( "a?.*(c*|d+)b*e" ), regex::compile_flag::dfa );
+    std::unique_ptr<regex::fa> automata = regex::compile( std::stringstream( "a?.*(c*|d+)b*e" ), 
+                                                          regex::compile_flag::dfa );
 
     automata->execute( "adbbe" ); // true
     automata->execute( "adbba" ); // false
