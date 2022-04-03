@@ -29,13 +29,8 @@ int main()
 ## Using the binary
 
 ```cpp
-$ git clone https://github.com/shug4070/regex.git
-$ cd regex
-#include <regex/utilities/compile.h>
-    std::unique_ptr<regex::fa> automata = regex::compile( std::stringstream( "a?.*(c*|d+)b*e" ),
-                                                          regex::compile_flag::dfa );
-$ regex -t dfa  '.*regex.*' README.md
-#include <regex/utilities/compile.h>
-    std::unique_ptr<regex::fa> automata = regex::compile( std::stringstream( "a?.*(c*|d+)b*e" ),
-                                                          regex::compile_flag::dfa );                                                         
+$ regex -t dfa  '.*include.*' README.md
+#include <memory>
+#include <sstream>
+#include <regex/utilities/compile.h>                                                       
 ```
