@@ -27,9 +27,9 @@ namespace regex
          */
         bool execute( std::basic_string_view<language::character_type> target ) override;
         /*
-         *
+         * Construct the deterministic version from the non-deterministic version
          */
-        static std::unique_ptr<dfa> to_dfa( std::unique_ptr<nfa> lhs );
+        static std::unique_ptr<dfa> to_dfa( std::unique_ptr<nfa> src );
         /*
          *
          *
