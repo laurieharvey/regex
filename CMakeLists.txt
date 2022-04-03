@@ -29,6 +29,9 @@ add_executable(tests
     test/test_dfa.cpp
 )
 
+target_compile_options(tests PRIVATE -fsanitize=address)
+target_link_options(tests PRIVATE -fsanitize=address)
+
 target_include_directories(tests PRIVATE include)
 
 target_link_libraries(tests PRIVATE regex-lib)
