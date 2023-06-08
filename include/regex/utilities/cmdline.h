@@ -4,6 +4,7 @@
 #include <exception>
 #include <initializer_list>
 #include <map>
+#include <filesystem>
 #include <ostream>
 #include <string>
 #include <utility>
@@ -66,7 +67,8 @@ namespace regex::cmd
         };
 
       private:
-        std::string name_, error_, description_;
+        std::filesystem::path name_;
+        std::string error_, description_;
         std::map<std::string, std::any> args_;
         std::vector<std::tuple<std::string, type, std::string>> positionals_;
         std::map<std::string, std::tuple<std::string, type, std::string, std::vector<std::any>>> optionals_;

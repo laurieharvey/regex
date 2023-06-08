@@ -7,27 +7,32 @@ set(CMAKE_CXX_FLAGS_DEBUG_INIT "-Wall")
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin")
 
-add_library(regex-lib STATIC 
-    src/language/ast.cpp 
-    src/language/parser.cpp
-    src/state/nstate.cpp 
-    src/state/dstate.cpp 
-    src/automata/nfa.cpp 
-    src/automata/dfa.cpp 
-    src/utilities/compile.cpp
-    src/language/alphabet.cpp
-    src/cmdline.cpp
-)
+include(FetchContent)
+FetchContent_Declare(googletest GIT_REPOSITORY https://github.com/google/googletest.git GIT_TAG release-1.12.1)
+FetchContent_Populate(googletest)
+add_subdirectory(${googletest_SOURCE_DIR} ${googletest_BUILD_DIR})
+
+add_library(regex-lib STATIC
+        src/language/ast.cpp
+        src/language/parser.cpp
+        src/state/nstate.cpp
+        src/state/dstate.cpp
+        src/automata/nfa.cpp
+        src/automata/dfa.cpp
+        src/utilities/compile.cpp
+        src/language/alphabet.cpp
+        src/cmdline.cpp
+        )
 
 target_include_directories(regex-lib PRIVATE include)
 
 add_executable(tests
-    test/test_parser.cpp
-    test/test_compile.cpp 
-    test/test_cmdline.cpp 
-    test/test_nfa.cpp 
-    test/test_dfa.cpp
-)
+        test/test_parser.cpp
+        test/test_compile.cpp
+        test/test_cmdline.cpp
+        test/test_nfa.cpp
+        test/test_dfa.cpp
+        )
 
 target_compile_options(tests PRIVATE -fsanitize=address)
 target_link_options(tests PRIVATE -fsanitize=address)
@@ -39,7 +44,7 @@ target_link_libraries(tests PRIVATE gtest)
 target_link_libraries(tests PRIVATE gtest_main)
 target_link_libraries(tests PRIVATE pthread)
 
-add_executable(regex src/regex.cpp)
+add_executable(regex src/regex.cpp include/regex/graph/graph.h)
 
 target_include_directories(regex PRIVATE include)
 

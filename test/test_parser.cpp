@@ -1,5 +1,5 @@
 #include <sstream>
-#include <gtest/gtest.h>
+#include "gtest/gtest.h"
 
 #include "regex/language/parser.h"
 
