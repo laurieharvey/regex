@@ -34,7 +34,7 @@ namespace regex::state
             return false;
         }
 
-        visited.push_back( { state, target } );
+        visited.emplace_back( state, target );
 
         if ( target.empty() )
         {

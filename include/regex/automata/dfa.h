@@ -18,7 +18,7 @@ namespace regex
         state::dstate::group_type outputs_;
 
       public:
-        explicit dfa( state::dstate *input, const state::dstate::group_type &outputs,
+        explicit dfa( state::dstate *input, state::dstate::group_type outputs,
                       std::set<std::unique_ptr<state::dstate>> states );
         explicit dfa( const dfa &other ) = delete;
         explicit dfa( dfa &&other ) = delete;
