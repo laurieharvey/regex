@@ -2,9 +2,9 @@
 
 #include <any>
 #include <exception>
+#include <filesystem>
 #include <initializer_list>
 #include <map>
-#include <filesystem>
 #include <ostream>
 #include <string>
 #include <utility>
@@ -28,23 +28,17 @@ namespace regex::cmd
 
         friend std::ostream &operator<<( std::ostream &os, const cmdline & );
 
-        enum class type
-        {
-            boolean,
-            integral,
-            floating,
-            string
-        };
+        enum class type { boolean, integral, floating, string };
         /*
          *  Add positional argument
          *  e.g. add_positional( "filename", type::string );
          */
-        void add_positional( const std::string &var, const type, const std::string &description = std::string() );
+        void add_positional( const std::string &var, type, const std::string &description = std::string() );
         /*
          *  Add optional argument
          *  e.g. add_optional( "-f", "filename", type::integral );
          */
-        void add_optional( const std::string &arg, const std::string &var, const type, const std::any &def,
+        void add_optional( const std::string &arg, const std::string &var, type, const std::any &def,
                            const std::string &description = std::string(),
                            const std::vector<std::any> &options = std::vector<std::any>() );
         /*
@@ -61,9 +55,15 @@ namespace regex::cmd
          *  Fetch argument assigned to var
          *
          */
-        template <typename T> T get_argument( const std::string &var )
+        template <typename T>
+        T get_argument( const std::string &var )
         {
             return std::any_cast<T>( args_.find( var )->second );
+        };
+
+        bool get_flag( const std::string &flag )
+        {
+            return args_.contains( flag );
         };
 
       private:

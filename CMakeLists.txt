@@ -1,55 +1,18 @@
 cmake_minimum_required(VERSION 3.0.0)
-project(regex VERSION 0.1.0)
+project(regex VERSION 1.0.0)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_FLAGS_DEBUG_INIT "-Wall")
 
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin")
+option(BUILD_TESTS "Build regex tests" ON)
+option(BUILD_SHARED_LIBS "Building shared libraries" OFF)
 
-include(FetchContent)
-FetchContent_Declare(googletest GIT_REPOSITORY https://github.com/google/googletest.git GIT_TAG release-1.12.1)
-FetchContent_Populate(googletest)
-add_subdirectory(${googletest_SOURCE_DIR} ${googletest_BUILD_DIR})
+configure_file(include/regex.h.in regex.h)
 
-add_library(regex-lib STATIC
-        src/language/ast.cpp
-        src/language/parser.cpp
-        src/state/nstate.cpp
-        src/state/dstate.cpp
-        src/automata/nfa.cpp
-        src/automata/dfa.cpp
-        src/utilities/compile.cpp
-        src/language/alphabet.cpp
-        src/cmdline.cpp
-        )
+add_subdirectory(include)
+add_subdirectory(src)
 
-target_include_directories(regex-lib PRIVATE include)
-
-add_executable(tests
-        test/test_parser.cpp
-        test/test_compile.cpp
-        test/test_cmdline.cpp
-        test/test_nfa.cpp
-        test/test_dfa.cpp
-        )
-
-target_compile_options(tests PRIVATE -fsanitize=address)
-target_link_options(tests PRIVATE -fsanitize=address)
-
-target_include_directories(tests PRIVATE include)
-
-target_link_libraries(tests PRIVATE regex-lib)
-target_link_libraries(tests PRIVATE gtest)
-target_link_libraries(tests PRIVATE gtest_main)
-target_link_libraries(tests PRIVATE pthread)
-
-add_executable(regex src/regex.cpp include/regex/graph/graph.h)
-
-target_include_directories(regex PRIVATE include)
-
-target_link_libraries(regex PRIVATE regex-lib)
-
-install(DIRECTORY include/regex DESTINATION include)
-install(TARGETS regex-lib)
-install(TARGETS regex)
+if(BUILD_TESTS)
+    add_subdirectory(test)
+endif ()

@@ -1,0 +1,7 @@
+#ifndef REGEX_REGEX_H_IN
+#define REGEX_REGEX_H_IN
+
+#define REGEX_VERSION_MAJOR @regex_VERSION_MAJOR@
+#define REGEX_VERSION_MINOR @regex_VERSION_MINOR@
+
+#endif

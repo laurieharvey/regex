@@ -31,12 +31,12 @@ namespace regex
         {
         }
 
-        void cmdline::add_positional( const std::string &var, const type t, const std::string &description )
+        void cmdline::add_positional( const std::string &var, type t, const std::string &description )
         {
             positionals_.push_back( std::make_tuple( var, t, description ) );
         }
 
-        void cmdline::add_optional( const std::string &arg, const std::string &var, const type t, const std::any &def,
+        void cmdline::add_optional( const std::string &arg, const std::string &var, type t, const std::any &def,
                                     const std::string &description, const std::vector<std::any> &options )
         {
             args_[var] = def;
