@@ -14,5 +14,7 @@ add_subdirectory(include)
 add_subdirectory(src)
 
 if(BUILD_TESTS)
+    add_subdirectory(googletest)
+    add_subdirectory(benchmark)
     add_subdirectory(test)
 endif ()

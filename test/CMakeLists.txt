@@ -1,4 +1,4 @@
-add_executable(tests
+add_executable(test-regex
         test_parser.cpp
         test_compile.cpp
         test_cmdline.cpp
@@ -6,12 +6,13 @@ add_executable(tests
         test_dfa.cpp
         )
 
-target_compile_options(tests PRIVATE -fsanitize=address)
-target_link_options(tests PRIVATE -fsanitize=address)
+if (UNIX)
+    target_compile_options(test-regex PRIVATE -fsanitize=address)
+    target_link_options(test-regex PRIVATE -fsanitize=address)
+endif (UNIX)
 
-target_include_directories(tests PRIVATE include)
+target_include_directories(test-regex PRIVATE include)
 
-target_link_libraries(tests PRIVATE regex-lib)
-target_link_libraries(tests PRIVATE gtest)
-target_link_libraries(tests PRIVATE gtest_main)
-target_link_libraries(tests PRIVATE pthread)
+target_link_libraries(test-regex PRIVATE regex-lib)
+target_link_libraries(test-regex PRIVATE GTest::gtest)
+target_link_libraries(test-regex PRIVATE GTest::gtest_main)
