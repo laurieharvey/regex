@@ -8,98 +8,100 @@
 
 namespace regex
 {
-    static std::unique_ptr<nfa> compile_nfa( std::unique_ptr<language::token> expression )
+    template <typename Allocator> static std::unique_ptr<nfa> compile_nfa( const language::ast<Allocator> &a )
     {
         std::stack<std::unique_ptr<nfa>> result;
 
-        auto generator = [&result]( const language::token &token ) {
+        auto generator = [&result]( language::character_type character ) {
             std::unique_ptr<regex::nfa> lhs, rhs;
 
-            switch ( token.get_type() )
+            switch( character )
             {
-            case language::type::literal:
-                result.push( nfa::from_character( token.get_character() ) );
-                break;
-            case language::type::any:
+            case '.':
                 result.push( nfa::from_any() );
                 break;
-            case language::type::alternation:
+            case '|':
                 rhs = std::move( result.top() );
                 result.pop();
                 lhs = std::move( result.top() );
                 result.pop();
                 result.push( nfa::from_alternation( std::move( lhs ), std::move( rhs ) ) );
                 break;
-            case language::type::concatenation:
+            case '-':
                 rhs = std::move( result.top() );
                 result.pop();
                 lhs = std::move( result.top() );
                 result.pop();
                 result.push( nfa::from_concatenation( std::move( lhs ), std::move( rhs ) ) );
                 break;
-            case language::type::kleene:
+            case '*':
                 lhs = std::move( result.top() );
                 result.pop();
                 result.push( nfa::from_kleene( std::move( lhs ) ) );
                 break;
-            case language::type::zero_or_one:
+            case '?':
                 lhs = std::move( result.top() );
                 result.pop();
                 result.push( nfa::from_alternation( nfa::from_epsilon(), std::move( lhs ) ) );
                 break;
-            case language::type::one_or_more:
+            case '+':
                 lhs = std::move( result.top() );
                 result.pop();
                 rhs = std::make_unique<regex::nfa>( *lhs );
                 result.push( nfa::from_concatenation( std::move( lhs ), nfa::from_kleene( std::move( rhs ) ) ) );
                 break;
-            case language::type::parenthesis:
+            case '(':
+            case ')':
+                break;
+            default:
+                result.push( nfa::from_character( character ) );
                 break;
             }
         };
 
-        expression->walk( generator );
+        a.walk( generator );
 
         return std::move( result.top() );
     }
 
-    static std::unique_ptr<regex::nfa> compile_nfa( std::basic_stringstream<language::character_type> expression )
+    static std::unique_ptr<regex::nfa> compile_nfa( std::basic_string_view<language::character_type> expression )
     {
-        return compile_nfa( regex::language::parse( std::move( expression ) ) );
+        return compile_nfa( language::ast( expression ) );
     }
 
-    static std::unique_ptr<regex::dfa> compile_dfa( std::unique_ptr<language::token> expression )
+    template <typename Allocator>
+    static std::unique_ptr<regex::dfa> compile_dfa( const language::ast<Allocator> &a )
     {
-        return nfa::to_dfa( compile_nfa( std::move( expression ) ) );
+        return nfa::to_dfa( compile_nfa( std::move( a ) ) );
     }
 
-    static std::unique_ptr<regex::dfa> compile_dfa( std::basic_stringstream<language::character_type> expression )
+    static std::unique_ptr<regex::dfa> compile_dfa( std::basic_string_view<language::character_type> expression )
     {
-        return compile_dfa( regex::language::parse( std::move( expression ) ) );
+        return compile_dfa( language::ast( expression ) );
     }
 
-    std::unique_ptr<regex::fa> compile( std::unique_ptr<language::token> expression, compile_flag flag )
+    template <typename Allocator>
+    std::unique_ptr<regex::fa> compile( const language::ast<Allocator> &a, compile_flag flag )
     {
-        if ( flag == compile_flag::nfa )
+        if( flag == compile_flag::nfa )
         {
-            return compile_nfa( std::move( expression ) );
+            return compile_nfa( std::move( a ) );
         }
         else
         {
-            return compile_dfa( std::move( expression ) );
+            return compile_dfa( std::move( a ) );
         }
     }
 
-    std::unique_ptr<regex::fa> compile( std::basic_stringstream<language::character_type> expression,
-                                        compile_flag flag )
+    std::unique_ptr<regex::fa> compile( std::basic_string_view<language::character_type> expression, compile_flag flag )
     {
-        if ( flag == compile_flag::nfa )
+        if( flag == compile_flag::nfa )
         {
-            return compile_nfa( std::move( expression ) );
+            return compile_nfa( expression );
         }
         else
         {
-            return compile_dfa( std::move( expression ) );
+            return compile_dfa( expression );
         }
     }
 } // namespace regex

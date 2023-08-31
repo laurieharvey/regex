@@ -22,5 +22,5 @@ namespace regex
     /*
      * Compile the regular expression to its finite automaton
      */
-    std::unique_ptr<fa> compile( std::basic_stringstream<language::character_type> expression, compile_flag flag );
+    std::unique_ptr<regex::fa> compile( std::basic_string_view<language::character_type> expression, compile_flag flag );
 } // namespace regex

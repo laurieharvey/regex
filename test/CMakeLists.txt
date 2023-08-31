@@ -16,3 +16,10 @@ target_include_directories(test-regex PRIVATE include)
 target_link_libraries(test-regex PRIVATE regex-lib)
 target_link_libraries(test-regex PRIVATE GTest::gtest)
 target_link_libraries(test-regex PRIVATE GTest::gtest_main)
+
+add_executable(benchmark-regex
+        bm_dfa.cpp)
+
+target_link_libraries(benchmark-regex PRIVATE regex-lib)
+target_link_libraries(benchmark-regex PRIVATE benchmark::benchmark)
+target_link_libraries(benchmark-regex PRIVATE benchmark::benchmark_main)

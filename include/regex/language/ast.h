@@ -1,277 +1,264 @@
 #pragma once
 
+#include <exception>
 #include <functional>
 #include <limits>
 #include <memory>
 #include <ostream>
+#include <stack>
 #include <vector>
 
 #include "regex/language/alphabet.h"
+#include "regex/language/parser.h"
 
-namespace regex
+namespace regex::language
 {
-    namespace language
+    enum class type
     {
-        enum class type { literal, any, parenthesis, kleene, zero_or_one, one_or_more, alternation, concatenation };
+        literal,
+        any,
+        parenthesis,
+        kleene,
+        zero_or_one,
+        one_or_more,
+        alternation,
+        concatenation
+    };
 
-        class token
+    struct token
+    {
+        character_type character;
+        token *_lhs;
+        token *_rhs;
+    };
+
+    extern const std::array<short, 128> precedence;
+
+    template <typename Allocator = std::allocator<token>> class ast : public Allocator
+    {
+        token *_root = nullptr;
+
+      public:
+        ast() = default;
+
+        explicit ast( std::basic_string_view<character_type> expression );
+
+        void erase( token *node )
         {
-          public:
-            using ostream = std::basic_ostream<character_type, std::char_traits<character_type>>;
-            /*
-             * Output this token and its arguments to the output stream
-             */
-            virtual void to_string( ostream &os ) const = 0;
-            /*
-             * Depth-first traversal of the AST
-             */
-            virtual void walk( std::function<void( const token & )> callback ) const = 0;
-            /*
-             * Get the character representation of this token
-             */
-            virtual character_type get_character() const = 0;
-            /*
-             * Get the type of this token
-             */
-            virtual type get_type() const = 0;
-
-            virtual ~token() = default;
+            while( node )
+            {
+                if( node->_rhs )
+                    erase( node->_rhs );
+                token *tmp = node->_lhs;
+                node->~token();
+                std::allocator_traits<Allocator>::deallocate( *this, node, 1 );
+                node = tmp;
+            }
         };
 
-        class literal : public token
+        ~ast()
         {
-            character_type value_;
+            erase( _root );
+        }
 
-          public:
-            /*
-             *  Literal {'a','b'...'z'}
-             */
-            explicit literal( character_type value );
-            explicit literal( const literal & ) = delete;
-            explicit literal( literal && ) = delete;
-            /*
-             * Output this token and its arguments to the output stream
-             */
-            void to_string( typename token::ostream &os ) const override;
-            /*
-             * Depth-first traversal of the AST
-             */
-            void walk( std::function<void( const token & )> callback ) const override;
-            /*
-             * Get the character representation of this token
-             */
-            character_type get_character() const override;
-            /*
-             * Get the type of this token
-             */
-            type get_type() const override;
+        template <typename F> void walk( F callback ) const;
+    };
+
+    template <typename Allocator> ast<Allocator>::ast( std::basic_string_view<character_type> expression ) : Allocator()
+    {
+        std::stack<token *> output;
+        std::stack<character_type> ops;
+        ast<Allocator> tree;
+        std::basic_string<character_type> explicit_expression = make_explicit( expression );
+
+        auto check_args = [&output]( unsigned short args_needed ) {
+            if( output.size() < args_needed )
+                throw std::runtime_error( "Expected " + std::to_string( args_needed ) + " arguments but only have " +
+                                          std::to_string( output.size() ) );
         };
 
-        class any : public token
+        token *op, *lhs, *rhs;
+
+        for( character_type character : explicit_expression )
         {
-          public:
-            /*
-             * Any '.'
-             */
-            explicit any();
-            explicit any( const any & ) = delete;
-            explicit any( any && ) = delete;
-            /*
-             * Output this token and its arguments to the output stream
-             */
-            void to_string( typename token::ostream &os ) const override;
-            /*
-             * Depth-first traversal of the AST
-             */
-            void walk( std::function<void( const token & )> callback ) const override;
-            /*
-             * Get the character representation of this token
-             */
-            character_type get_character() const override;
-            /*
-             * Get the type of this token
-             */
-            type get_type() const override;
+            if( character == '*' || character == '?' || character == '|' || character == '-' || character == '+' )
+            {
+                while( !ops.empty() && ops.top() != '(' && precedence[character] < precedence[ops.top()] )
+                {
+                    switch( ops.top() )
+                    {
+                    case '*':
+                    case '?':
+                    case '+':
+                        check_args( 1 );
+                        lhs = output.top();
+                        output.pop();
+                        op = tree.allocate( 1 );
+                        new( op ) token( ops.top(), lhs, nullptr );
+                        output.push( op );
+                        break;
+                    case '-':
+                    case '|':
+                        check_args( 2 );
+                        rhs = output.top();
+                        output.pop();
+                        lhs = output.top();
+                        output.pop();
+                        op = tree.allocate( 1 );
+                        new( op ) token( ops.top(), lhs, rhs );
+                        break;
+                    }
+                    ops.pop();
+                }
+                ops.push( character );
+            }
+            else if( character == '(' )
+            {
+                ops.push( character );
+            }
+            else if( character == ')' )
+            {
+                while( ops.top() != '(' )
+                {
+                    switch( ops.top() )
+                    {
+                    case '*':
+                    case '?':
+                    case '+':
+                        check_args( 1 );
+                        lhs = output.top();
+                        output.pop();
+                        op = tree.allocate( 1 );
+                        new( op ) token( ops.top(), lhs, nullptr );
+                        output.push( op );
+                        break;
+                    case '-':
+                    case '|':
+                        check_args( 2 );
+                        rhs = output.top();
+                        output.pop();
+                        lhs = output.top();
+                        output.pop();
+                        op = tree.allocate( 1 );
+                        new( op ) token( ops.top(), lhs, rhs );
+                        output.push( op );
+                        break;
+                    }
+                    ops.pop();
+                }
+                lhs = output.top();
+                output.pop();
+                op = tree.allocate( 1 );
+                new( op ) token( character, lhs, nullptr );
+                output.push( op );
+                ops.pop();
+            }
+            else
+            {
+                lhs = tree.allocate( 1 );
+                new( lhs ) token( character, nullptr, nullptr );
+                output.push( lhs );
+            }
+        }
+        while( !ops.empty() )
+        {
+            switch( ops.top() )
+            {
+            case '*':
+            case '?':
+            case '+':
+                check_args( 1 );
+                lhs = output.top();
+                output.pop();
+                op = tree.allocate( 1 );
+                new( op ) token( ops.top(), lhs, nullptr );
+                output.push( op );
+                break;
+            case '-':
+            case '|':
+                check_args( 2 );
+                rhs = output.top();
+                output.pop();
+                lhs = output.top();
+                output.pop();
+                op = tree.allocate( 1 );
+                new( op ) token( ops.top(), lhs, rhs );
+                output.push( op );
+                break;
+            case ')':
+            case '(':
+                check_args( 1 );
+                lhs = output.top();
+                output.pop();
+                op = tree.allocate( 1 );
+                new( op ) token( ops.top(), lhs, nullptr );
+                output.push( op );
+                break;
+            }
+            ops.pop();
+        }
+
+        if( output.size() != 1 )
+            throw std::runtime_error( std::to_string( output.size() - 1 ) + " unmatched arguments remaining" );
+
+        _root = output.top();
+    }
+
+    template <typename F> void walk( token *t, F callback )
+    {
+        if( t->_lhs )
+            walk( t->_lhs, callback );
+
+        if( t->_rhs )
+            walk( t->_rhs, callback );
+
+        callback( t->character );
+    }
+
+    template <typename Allocator> template <typename T> void ast<Allocator>::walk( T callback ) const
+    {
+        if( _root )
+            ::regex::language::walk<T>( _root, callback );
+    }
+
+    template <typename Allocator> std::string to_string( ast<Allocator> a )
+    {
+        std::stack<std::string> args;
+        std::string arg1, arg2;
+
+        auto cbk = [&]( character_type character ) {
+            switch( character )
+            {
+            case '*':
+            case '?':
+            case '+':
+                args.top() = args.top() + character;
+                break;
+            case '-':
+                arg2 = args.top();
+                args.pop();
+                arg1 = args.top();
+                args.pop();
+                args.push( arg1 + arg2 );
+                break;
+            case '|':
+                arg2 = args.top();
+                args.pop();
+                arg1 = args.top();
+                args.pop();
+                args.push( arg1 + character + arg2 );
+                break;
+            case ')':
+            case '(':
+                args.top() = '(' + args.top() + ')';
+                break;
+            default:
+                args.emplace( 1, character );
+            }
         };
 
-        class parenthesis : public token
-        {
-            std::unique_ptr<token> lhs_;
+        a.walk( cbk );
 
-          public:
-            /*
-             * Parenthesis '()'
-             * (expression)
-             */
-            explicit parenthesis( std::unique_ptr<token> lhs );
-            explicit parenthesis( const parenthesis & ) = delete;
-            explicit parenthesis( parenthesis && ) = delete;
-            /*
-             * Output this token and its arguments to the output stream
-             */
-            void to_string( typename token::ostream &os ) const override;
-            /*
-             * Depth-first traversal of the AST
-             */
-            void walk( std::function<void( const token & )> callback ) const override;
-            /*
-             * Get the character representation of this token
-             */
-            character_type get_character() const override;
-            /*
-             * Get the type of this token
-             */
-            type get_type() const override;
-        };
-
-        class kleene : public token
-        {
-            std::unique_ptr<token> lhs_;
-
-          public:
-            /*
-             * Kleene '*'
-             * (expression)*
-             */
-            explicit kleene( std::unique_ptr<token> lhs );
-            explicit kleene( const kleene & ) = delete;
-            explicit kleene( kleene && ) = delete;
-            /*
-             * Output this token and its arguments to the output stream
-             */
-            void to_string( typename token::ostream &os ) const override;
-            /*
-             * Depth-first traversal of the AST
-             */
-            void walk( std::function<void( const token & )> callback ) const override;
-            /*
-             * Get the character representation of this token
-             */
-            character_type get_character() const override;
-            /*
-             * Get the type of this token
-             */
-            type get_type() const override;
-        };
-
-        class zero_or_one : public token
-        {
-            std::unique_ptr<token> lhs_;
-
-          public:
-            /*
-             * Zero or one '?'
-             * (expression)?
-             */
-            explicit zero_or_one( std::unique_ptr<token> lhs );
-            explicit zero_or_one( const zero_or_one & ) = delete;
-            explicit zero_or_one( zero_or_one && ) = delete;
-            /*
-             * Output this token and its arguments to the output stream
-             */
-            void to_string( typename token::ostream &os ) const override;
-            /*
-             * Depth-first traversal of the AST
-             */
-            void walk( std::function<void( const token & )> callback ) const override;
-            /*
-             * Get the character representation of this token
-             */
-            character_type get_character() const override;
-            /*
-             * Get the type of this token
-             */
-            type get_type() const override;
-        };
-
-        class one_or_more : public token
-        {
-            std::unique_ptr<token> exp_;
-
-          public:
-            /*
-             * One or more '+'
-             * (expression)+
-             */
-            explicit one_or_more( std::unique_ptr<token> exp );
-            explicit one_or_more( const one_or_more & ) = delete;
-            explicit one_or_more( one_or_more && ) = delete;
-            /*
-             * Output this token and its arguments to the output stream
-             */
-            void to_string( typename token::ostream &os ) const override;
-            /*
-             * Depth-first traversal of the AST
-             */
-            void walk( std::function<void( const token & )> callback ) const override;
-            /*
-             * Get the character representation of this token
-             */
-            character_type get_character() const override;
-            /*
-             * Get the type of this token
-             */
-            type get_type() const override;
-        };
-
-        class alternation : public token
-        {
-            std::unique_ptr<token> lhs_, rhs_;
-
-          public:
-            /*
-             * Alternation '|'
-             * (expression 1)|(expression 2)
-             */
-            explicit alternation( std::unique_ptr<token> lhs, std::unique_ptr<token> rhs );
-            explicit alternation( const alternation & ) = delete;
-            explicit alternation( alternation && ) = delete;
-            /*
-             * Output this token and its arguments to the output stream
-             */
-            void to_string( typename token::ostream &os ) const override;
-            /*
-             * Depth-first traversal of the AST
-             */
-            void walk( std::function<void( const token & )> callback ) const override;
-            /*
-             * Get the character representation of this token
-             */
-            character_type get_character() const override;
-            /*
-             * Get the type of this token
-             */
-            type get_type() const override;
-        };
-
-        class concatenation : public token
-        {
-            std::unique_ptr<token> lhs_, rhs_;
-
-          public:
-            /*
-             * Concatenation '•'
-             * (expression 1)•(expression 2)
-             */
-            explicit concatenation( std::unique_ptr<token> lhs, std::unique_ptr<token> rhs );
-            explicit concatenation( const concatenation & ) = delete;
-            explicit concatenation( concatenation && ) = delete;
-            /*
-             * Output this token and its arguments to the output stream
-             */
-            void to_string( typename token::ostream &os ) const override;
-            /*
-             * Depth-first traversal of the AST
-             */
-            void walk( std::function<void( const token & )> callback ) const override;
-            /*
-             * Get the character representation of this token
-             */
-            character_type get_character() const override;
-            /*
-             * Get the type of this token
-             */
-            type get_type() const override;
-        };
-    } // namespace language
-} // namespace regex
+        return args.top();
+    }
+} // namespace regex::language

@@ -1,4 +1,4 @@
-#include <gtest/gtest.h>
+#include "gtest/gtest.h"
 
 #include "regex/automata/dfa.h"
 #include "regex/automata/nfa.h"

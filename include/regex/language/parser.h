@@ -7,27 +7,18 @@
 #include <ostream>
 #include <string>
 
-#include "regex/language/ast.h"
+#include "regex/language/alphabet.h"
 
-namespace regex
+namespace regex::language
 {
-    namespace language
-    {
-        class ill_formed : std::runtime_error
-        {
-          public:
-            /*
-             * Thrown if the expression is ill formed
-             */
-            explicit ill_formed( const std::string & );
-            explicit ill_formed( const ill_formed & ) = delete;
-            explicit ill_formed( ill_formed && ) = delete;
-        };
+    extern const std::array<short, 128> precedence;
 
-        using istream = std::basic_istream<language::character_type, std::char_traits<language::character_type>>;
-        /*
-         *	Create the regex AST from its string representation
-         */
-        std::unique_ptr<regex::language::token> parse( istream &&expression );
-    } // namespace language
-} // namespace regex
+    constexpr bool is_operator( language::character_type token );
+
+    constexpr bool is_unary_operator( language::character_type token );
+
+    using istream = std::basic_istream<language::character_type, std::char_traits<language::character_type>>;
+
+    std::basic_string<character_type> make_explicit( std::basic_string_view<character_type> expression );
+
+} // namespace regex::language

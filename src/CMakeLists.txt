@@ -1,5 +1,4 @@
 add_library(regex-lib
-        language/ast.cpp
         language/parser.cpp
         state/nstate.cpp
         state/dstate.cpp

@@ -1,95 +1,79 @@
-#include <sstream>
 #include <gtest/gtest.h>
+#include <sstream>
 
-#include "regex/language/parser.h"
+#include "regex/language/ast.h"
 
 TEST( parse, character )
 {
     std::string input( "a" );
-    std::stringstream output;
-    
-    regex::language::parse( std::stringstream( input ) )->to_string( output );
+    std::string output = regex::language::to_string( regex::language::ast( input ) );
 
-    EXPECT_EQ( output.str( ), input );
+    EXPECT_EQ( output, input );
 }
 
 TEST( parse, any )
 {
     std::string input( "." );
-    std::stringstream output;
+    std::string output = regex::language::to_string( regex::language::ast( input ) );
 
-    regex::language::parse( std::stringstream( input ) )->to_string( output );
-
-    EXPECT_EQ( output.str( ), input );
+    EXPECT_EQ( output, input );
 }
 
 TEST( parse, alternation )
 {
     std::string input( "a|b" );
-    std::stringstream output;
+    std::string output = regex::language::to_string( regex::language::ast( input ) );
 
-    regex::language::parse( std::stringstream( input ) )->to_string( output );
-
-    EXPECT_EQ( output.str( ), input );
+    EXPECT_EQ( output, input );
 }
 
 TEST( parse, question )
 {
     std::string input( "a?" );
-    std::stringstream output;
+    std::string output = regex::language::to_string( regex::language::ast( input ) );
 
-    regex::language::parse( std::stringstream( input ) )->to_string( output );
-
-    EXPECT_EQ( output.str( ), input );
+    EXPECT_EQ( output, input );
 }
 
 TEST( parse, kleene )
 {
     std::string input( "a*" );
-    std::stringstream output;
+    std::string output = regex::language::to_string( regex::language::ast( input ) );
 
-    regex::language::parse( std::stringstream( input ) )->to_string( output );
-
-    EXPECT_EQ( output.str( ), input );
+    EXPECT_EQ( output, input );
 }
 
 TEST( parse, one_or_more )
 {
     std::string input( "a+" );
-    std::stringstream output;
+    std::string output = regex::language::to_string( regex::language::ast( input ) );
 
-    regex::language::parse( std::stringstream( input ) )->to_string( output );
-
-    EXPECT_EQ( output.str( ), input );
+    EXPECT_EQ( output, input );
 }
 
 TEST( parse, parenthesis )
 {
     std::string input( "(c)" );
-    std::stringstream output;
+    std::string output = regex::language::to_string( regex::language::ast( input ) );
 
-    regex::language::parse( std::stringstream( input ) )->to_string( output );
-
-    EXPECT_EQ( output.str( ), input );
+    EXPECT_EQ( output, input );
 }
 
 TEST( parse, complex )
 {
     std::string input( "a?.(c*|d+)b*e" );
-    std::stringstream output;
+    std::string output = regex::language::to_string( regex::language::ast( input ) );
 
-    regex::language::parse( std::stringstream( input ) )->to_string( output );
-
-    EXPECT_EQ( output.str( ), input );
+    EXPECT_EQ( output, input );
 }
 
 TEST( parse, invalid )
 {
-    EXPECT_THROW( regex::language::parse( std::stringstream( "" ) ),   regex::language::ill_formed );
-    EXPECT_THROW( regex::language::parse( std::stringstream( "?" ) ),  regex::language::ill_formed );
-    EXPECT_THROW( regex::language::parse( std::stringstream( "|" ) ),  regex::language::ill_formed );
-    EXPECT_THROW( regex::language::parse( std::stringstream( "|b" ) ), regex::language::ill_formed );
-    EXPECT_THROW( regex::language::parse( std::stringstream( "a|" ) ), regex::language::ill_formed );
-    EXPECT_THROW( regex::language::parse( std::stringstream( "*" ) ),  regex::language::ill_formed );
-    EXPECT_THROW( regex::language::parse( std::stringstream( "+" ) ),  regex::language::ill_formed );
+    EXPECT_THROW( regex::language::ast( "" ),   std::runtime_error );
+    EXPECT_THROW( regex::language::ast( "?" ),  std::runtime_error );
+    EXPECT_THROW( regex::language::ast( "|" ),  std::runtime_error );
+    EXPECT_THROW( regex::language::ast( "|b" ), std::runtime_error );
+    EXPECT_THROW( regex::language::ast( "a|" ), std::runtime_error );
+    EXPECT_THROW( regex::language::ast( "*" ),  std::runtime_error );
+    EXPECT_THROW( regex::language::ast( "+" ),  std::runtime_error );
 }
