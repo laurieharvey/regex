@@ -36,7 +36,7 @@ int main( int argc, const char **argv )
         return 0;
     }
 
-    std::stringstream pattern( args.get_argument<std::string>( "expression" ) );
+    std::string pattern( args.get_argument<std::string>( "expression" ) );
     std::string target( args.get_argument<std::string>( "target" ) );
     regex::compile_flag flag =
         args.get_argument<std::string>( "type" ) == "nfa" ? regex::compile_flag::nfa : regex::compile_flag::dfa;

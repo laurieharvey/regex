@@ -13,26 +13,12 @@
 
 namespace regex::language
 {
-    enum class type
-    {
-        literal,
-        any,
-        parenthesis,
-        kleene,
-        zero_or_one,
-        one_or_more,
-        alternation,
-        concatenation
-    };
-
     struct token
     {
         character_type character;
         token *_lhs;
         token *_rhs;
     };
-
-    extern const std::array<short, 128> precedence;
 
     template <typename Allocator = std::allocator<token>> class ast : public Allocator
     {
@@ -42,6 +28,10 @@ namespace regex::language
         ast() = default;
 
         explicit ast( std::basic_string_view<character_type> expression );
+        ast( ast &&rhs )  noexcept : _root( rhs._root )
+        {
+            rhs._root = nullptr;
+        }
 
         void erase( token *node )
         {
