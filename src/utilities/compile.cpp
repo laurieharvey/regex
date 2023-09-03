@@ -59,7 +59,7 @@ namespace regex
             }
         };
 
-        a.walk( generator );
+        a.postfix( generator );
 
         return std::move( result.top() );
     }

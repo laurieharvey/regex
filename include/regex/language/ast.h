@@ -10,6 +10,7 @@
 
 #include "regex/language/alphabet.h"
 #include "regex/language/parser.h"
+#include "regex/memory/pool_allocator.h"
 
 namespace regex::language
 {
@@ -20,46 +21,89 @@ namespace regex::language
         token *_rhs;
     };
 
-    template <typename Allocator = std::allocator<token>> class ast : public Allocator
+    template <typename Allocator = std::allocator<token>>
+    class ast : public Allocator
     {
-        token *_root = nullptr;
-
       public:
-        ast() = default;
-
-        explicit ast( std::basic_string_view<character_type> expression );
-        ast( ast &&rhs )  noexcept : _root( rhs._root )
+        /**
+         * Construct ast from an expression
+         * @param expression
+         */
+        ast( std::basic_string_view<character_type> expression )
+            : Allocator()
+            , _root( _parse( expression ) )
+        {
+        }
+        /**
+         * Construct ast from an expression using specified allocator
+         * @param expression
+         * @param allocator
+         */
+        ast( std::basic_string_view<character_type> expression, Allocator &&allocator )
+            : Allocator( std::move( allocator ) )
+            , _root( _parse( expression ) )
+        {
+        }
+        /**
+         * Move construct from another ast. Leaves other ast empty.
+         * @param rhs
+         */
+        ast( ast &&rhs ) noexcept
+            : _root( rhs._root )
         {
             rhs._root = nullptr;
         }
+        /**
+         * Destroy ast.
+         */
+        ~ast()
+        {
+            _erase( _root );
+        }
+        /**
+         * Iterate the ast in postfix order
+         * @tparam F
+         * @param callback function of signature void(character_type)
+         */
+        template <typename F>
+        void postfix( F callback ) const;
 
-        void erase( token *node )
+      private:
+        token *_root = nullptr;
+        token *_parse( std::basic_string_view<character_type> expression );
+        void _erase( token *node )
         {
             while( node )
             {
                 if( node->_rhs )
-                    erase( node->_rhs );
+                    _erase( node->_rhs );
                 token *tmp = node->_lhs;
                 node->~token();
                 std::allocator_traits<Allocator>::deallocate( *this, node, 1 );
                 node = tmp;
             }
         };
-
-        ~ast()
-        {
-            erase( _root );
-        }
-
-        template <typename F> void walk( F callback ) const;
     };
 
-    template <typename Allocator> ast<Allocator>::ast( std::basic_string_view<character_type> expression ) : Allocator()
+    template <typename Allocator = std::allocator<token>>
+    inline ast<Allocator> parse( std::basic_string_view<character_type> expression )
+    {
+        return regex::language::ast<Allocator>( make_explicit( expression ) );
+    }
+
+    template <>
+    inline ast<pool_allocator<token>> parse<pool_allocator<token>>( std::basic_string_view<character_type> expression )
+    {
+        std::string explicit_expression = make_explicit( expression );
+        pool_allocator<token> allocator( explicit_expression.size() );
+        return { explicit_expression, std::move( allocator ) };
+    }
+
+    template <typename Allocator>
+    token *ast<Allocator>::_parse( std::basic_string_view<character_type> expression )
     {
         std::stack<token *> output;
         std::stack<character_type> ops;
-        ast<Allocator> tree;
-        std::basic_string<character_type> explicit_expression = make_explicit( expression );
 
         auto check_args = [&output]( unsigned short args_needed ) {
             if( output.size() < args_needed )
@@ -69,7 +113,7 @@ namespace regex::language
 
         token *op, *lhs, *rhs;
 
-        for( character_type character : explicit_expression )
+        for( character_type character : expression )
         {
             if( character == '*' || character == '?' || character == '|' || character == '-' || character == '+' )
             {
@@ -83,7 +127,7 @@ namespace regex::language
                         check_args( 1 );
                         lhs = output.top();
                         output.pop();
-                        op = tree.allocate( 1 );
+                        op = this->allocate( 1 );
                         new( op ) token( ops.top(), lhs, nullptr );
                         output.push( op );
                         break;
@@ -94,7 +138,7 @@ namespace regex::language
                         output.pop();
                         lhs = output.top();
                         output.pop();
-                        op = tree.allocate( 1 );
+                        op = this->allocate( 1 );
                         new( op ) token( ops.top(), lhs, rhs );
                         break;
                     }
@@ -118,7 +162,7 @@ namespace regex::language
                         check_args( 1 );
                         lhs = output.top();
                         output.pop();
-                        op = tree.allocate( 1 );
+                        op = this->allocate( 1 );
                         new( op ) token( ops.top(), lhs, nullptr );
                         output.push( op );
                         break;
@@ -129,7 +173,7 @@ namespace regex::language
                         output.pop();
                         lhs = output.top();
                         output.pop();
-                        op = tree.allocate( 1 );
+                        op = this->allocate( 1 );
                         new( op ) token( ops.top(), lhs, rhs );
                         output.push( op );
                         break;
@@ -138,14 +182,14 @@ namespace regex::language
                 }
                 lhs = output.top();
                 output.pop();
-                op = tree.allocate( 1 );
+                op = this->allocate( 1 );
                 new( op ) token( character, lhs, nullptr );
                 output.push( op );
                 ops.pop();
             }
             else
             {
-                lhs = tree.allocate( 1 );
+                lhs = this->allocate( 1 );
                 new( lhs ) token( character, nullptr, nullptr );
                 output.push( lhs );
             }
@@ -160,7 +204,7 @@ namespace regex::language
                 check_args( 1 );
                 lhs = output.top();
                 output.pop();
-                op = tree.allocate( 1 );
+                op = this->allocate( 1 );
                 new( op ) token( ops.top(), lhs, nullptr );
                 output.push( op );
                 break;
@@ -171,7 +215,7 @@ namespace regex::language
                 output.pop();
                 lhs = output.top();
                 output.pop();
-                op = tree.allocate( 1 );
+                op = this->allocate( 1 );
                 new( op ) token( ops.top(), lhs, rhs );
                 output.push( op );
                 break;
@@ -180,7 +224,7 @@ namespace regex::language
                 check_args( 1 );
                 lhs = output.top();
                 output.pop();
-                op = tree.allocate( 1 );
+                op = this->allocate( 1 );
                 new( op ) token( ops.top(), lhs, nullptr );
                 output.push( op );
                 break;
@@ -191,27 +235,31 @@ namespace regex::language
         if( output.size() != 1 )
             throw std::runtime_error( std::to_string( output.size() - 1 ) + " unmatched arguments remaining" );
 
-        _root = output.top();
+        return output.top();
     }
 
-    template <typename F> void walk( token *t, F callback )
+    template <typename F>
+    void postfix( token *t, F callback )
     {
         if( t->_lhs )
-            walk( t->_lhs, callback );
+            postfix( t->_lhs, callback );
 
         if( t->_rhs )
-            walk( t->_rhs, callback );
+            postfix( t->_rhs, callback );
 
         callback( t->character );
     }
 
-    template <typename Allocator> template <typename T> void ast<Allocator>::walk( T callback ) const
+    template <typename Allocator>
+    template <typename T>
+    void ast<Allocator>::postfix( T callback ) const
     {
         if( _root )
-            ::regex::language::walk<T>( _root, callback );
+            ::regex::language::postfix<T>( _root, callback );
     }
 
-    template <typename Allocator> std::string to_string( ast<Allocator> a )
+    template <typename Allocator>
+    std::string to_string( ast<Allocator> a )
     {
         std::stack<std::string> args;
         std::string arg1, arg2;
@@ -247,7 +295,7 @@ namespace regex::language
             }
         };
 
-        a.walk( cbk );
+        a.postfix( cbk );
 
         return args.top();
     }
