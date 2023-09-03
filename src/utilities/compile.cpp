@@ -66,7 +66,7 @@ namespace regex
 
     static std::unique_ptr<regex::nfa> compile_nfa( std::basic_string_view<language::character_type> expression )
     {
-        return compile_nfa( language::ast( expression ) );
+        return compile_nfa( language::parse<pool_allocator<language::token>>( expression ) );
     }
 
     template <typename Allocator>
@@ -77,7 +77,7 @@ namespace regex
 
     static std::unique_ptr<regex::dfa> compile_dfa( std::basic_string_view<language::character_type> expression )
     {
-        return compile_dfa( language::ast( expression ) );
+        return compile_dfa( language::parse<pool_allocator<language::token>>( expression ) );
     }
 
     template <typename Allocator>

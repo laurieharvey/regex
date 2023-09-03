@@ -11,6 +11,7 @@ static void benchmark_ast( benchmark::State &state )
     {
         // only code in here is benchmarked
         benchmark::DoNotOptimize( regex::language::parse<std::allocator<regex::language::token>>( input ) );
+        benchmark::ClobberMemory();
     }
 
     // loop exits when noise is sufficiently low
@@ -24,6 +25,7 @@ static void benchmark_ast_block_allocator( benchmark::State &state )
     {
         // only code in here is benchmarked
         benchmark::DoNotOptimize( regex::language::parse<pool_allocator<regex::language::token>>( input ) );
+        benchmark::ClobberMemory();
     }
 
     // loop exits when noise is sufficiently low
