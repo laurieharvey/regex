@@ -29,7 +29,7 @@ namespace regex
         /*
          * Construct the deterministic version from the non-deterministic version
          */
-        static std::unique_ptr<dfa> to_dfa( std::unique_ptr<nfa> src );
+        std::unique_ptr<dfa> to_dfa( );
         /*
          *
          *

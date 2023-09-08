@@ -224,14 +224,14 @@ namespace regex
         return new_deterministic_state.get();
     }
 
-    std::unique_ptr<dfa> nfa::to_dfa( std::unique_ptr<nfa> src )
+    std::unique_ptr<dfa> nfa::to_dfa(  )
     {
         std::map<state::nstate::group_type, state::dstate *> epsilon_closures_processed;
         std::set<std::unique_ptr<state::dstate>> new_deterministic_states;
         std::set<const state::dstate *> deterministic_outputs;
 
-        auto dfa_input = subset_construction( state::nstate::group_type{ src->input_ }, epsilon_closures_processed,
-                                              new_deterministic_states, src->output_, deterministic_outputs );
+        auto dfa_input = subset_construction( state::nstate::group_type{ input_ }, epsilon_closures_processed,
+                                              new_deterministic_states, output_, deterministic_outputs );
 
         auto a = std::make_unique<dfa>( dfa_input, std::move( deterministic_outputs ),
                                         std::move( new_deterministic_states ) );
